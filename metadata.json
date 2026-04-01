@@ -1,0 +1,8 @@
+{
+  "name": "AgriTech Pro v 0.0.1",
+  "description": "A comprehensive agricultural management platform featuring AI-powered crop diagnosis, real-time sensor integration, and a verified marketplace.",
+  "requestFramePermissions": [
+    "camera",
+    "geolocation"
+  ]
+}
