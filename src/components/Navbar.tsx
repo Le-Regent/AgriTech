@@ -2,12 +2,12 @@ import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
-import { MARKETPLACE_NAV } from '../constants';
-import ResponsiveImage from './ResponsiveImage';
-import { useTheme } from '../context/ThemeContext';
-import { useCart } from '../context/CartContext';
-import { useOffline } from '../context/OfflineContext';
-import { useUser } from '../context/UserContext';
+import { MARKETPLACE_NAV } from '@/constants';
+import ResponsiveImage from '@/components/ResponsiveImage';
+import { useTheme } from '@/context/ThemeContext';
+import { useCart } from '@/context/CartContext';
+import { useOffline } from '@/context/OfflineContext';
+import { useUser } from '@/context/UserContext';
 
 interface NavbarProps {
   onMenuClick?: () => void;

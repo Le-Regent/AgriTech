@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
-import { useOffline } from '../context/OfflineContext';
-import { useCart } from '../context/CartContext';
+import { useOffline } from '@/context/OfflineContext';
+import { useCart } from '@/context/CartContext';
 
 export default function SyncManager() {
   const { isOnline, syncQueue, clearSyncQueue } = useOffline();

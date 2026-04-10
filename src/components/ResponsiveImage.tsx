@@ -20,6 +20,7 @@ export default function ResponsiveImage({
   baseHeight,
   ...props 
 }: ResponsiveImageProps) {
+  if (!src) return null;
   
   return (
     <div className={`relative overflow-hidden ${className}`}>

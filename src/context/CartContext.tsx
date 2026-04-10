@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { useOffline } from './OfflineContext';
+import React, { createContext, useContext, useState, ReactNode, useEffect, useMemo, useCallback } from 'react';
+import { useOffline } from '@/context/OfflineContext';
+import { useUser } from '@/context/UserContext';
 
 interface CartItem {
   id: string;
@@ -22,20 +23,35 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const { isOnline, addToSyncQueue } = useOffline();
+  const { user } = useUser();
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
 
+  // Load cart when user changes
   useEffect(() => {
-    const saved = localStorage.getItem('agritech_cart');
+    const cartKey = user ? `agritech_cart_${user.id}` : 'agritech_cart_guest';
+    const saved = localStorage.getItem(cartKey);
     if (saved) {
-      setCart(JSON.parse(saved));
+      try {
+        setCart(JSON.parse(saved));
+      } catch (e) {
+        console.error('Failed to parse cart from localStorage:', e);
+        setCart([]);
+      }
+    } else {
+      setCart([]);
     }
-  }, []);
+    setIsLoaded(true);
+  }, [user]);
 
+  // Save cart when it changes
   useEffect(() => {
-    localStorage.setItem('agritech_cart', JSON.stringify(cart));
-  }, [cart]);
+    if (!isLoaded) return;
+    const cartKey = user ? `agritech_cart_${user.id}` : 'agritech_cart_guest';
+    localStorage.setItem(cartKey, JSON.stringify(cart));
+  }, [cart, user, isLoaded]);
 
-  const addToCart = (product: any, quantity: number) => {
+  const addToCart = useCallback((product: any, quantity: number) => {
     setCart(prev => {
       const existing = prev.find(item => item.id === product.id);
       let newCart;
@@ -59,26 +75,35 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
       return newCart;
     });
-  };
+  }, [isOnline, addToSyncQueue]);
 
-  const updateQuantity = (id: string, quantity: number) => {
+  const removeFromCart = useCallback((id: string) => {
+    setCart(prev => prev.filter(item => item.id !== id));
+  }, []);
+
+  const updateQuantity = useCallback((id: string, quantity: number) => {
     if (quantity <= 0) {
       removeFromCart(id);
       return;
     }
     setCart(prev => prev.map(item => item.id === id ? { ...item, quantity } : item));
-  };
+  }, [removeFromCart]);
 
-  const removeFromCart = (id: string) => {
-    setCart(prev => prev.filter(item => item.id !== id));
-  };
+  const clearCart = useCallback(() => setCart([]), []);
 
-  const clearCart = () => setCart([]);
+  const totalItems = useMemo(() => cart.reduce((sum, item) => sum + item.quantity, 0), [cart]);
 
-  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const value = useMemo(() => ({
+    cart,
+    addToCart,
+    removeFromCart,
+    clearCart,
+    totalItems,
+    updateQuantity
+  }), [cart, addToCart, removeFromCart, clearCart, totalItems, updateQuantity]);
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, removeFromCart, clearCart, totalItems, updateQuantity }}>
+    <CartContext.Provider value={value}>
       {children}
     </CartContext.Provider>
   );

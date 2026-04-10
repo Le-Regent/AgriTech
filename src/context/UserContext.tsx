@@ -1,7 +1,7 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { User } from '../types';
-import { supabase } from '../lib/supabase';
-import { supabaseService } from '../services/supabaseService';
+import React, { createContext, useContext, useState, ReactNode, useEffect, useMemo, useCallback } from 'react';
+import { User } from '@/types';
+import { supabase } from '@/lib/supabase';
+import { profileService } from '@/services/profileService';
 import { toast } from 'sonner';
 
 interface UserContextType {
@@ -60,7 +60,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
       // 2. Fetch full profile in background
       try {
-        const profile = await supabaseService.getProfile(sessionUser.id);
+        const profile = await profileService.getProfile(sessionUser.id);
         setUser(profile);
       } catch (error: any) {
         if (error.code === 'PGRST116') { // Not found
@@ -109,7 +109,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = useCallback(async (email: string, password: string) => {
     setLoading(true);
     try {
       const { error } = await supabase.auth.signInWithPassword({
@@ -123,9 +123,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const signUp = async (email: string, password: string, fullName: string, role: 'farmer' | 'buyer') => {
+  const signUp = useCallback(async (email: string, password: string, fullName: string, role: 'farmer' | 'buyer') => {
     setLoading(true);
     try {
       const { data, error } = await supabase.auth.signUp({
@@ -147,9 +147,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const resendConfirmation = async (email: string) => {
+  const resendConfirmation = useCallback(async (email: string) => {
     setLoading(true);
     try {
       const { error } = await supabase.auth.resend({
@@ -163,9 +163,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     setLoading(true);
     try {
       // Clear user state immediately for better UX
@@ -179,13 +179,13 @@ export function UserProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const updateProfile = async (updates: Partial<User>) => {
+  const updateProfile = useCallback(async (updates: Partial<User>) => {
     if (!user) return { error: 'Not authenticated' };
     setLoading(true);
     try {
-      await supabaseService.updateProfile(user.id, updates);
+      await profileService.updateProfile(user.id, updates);
       setUser(prev => prev ? { ...prev, ...updates } : null);
       return { error: null };
     } catch (error: any) {
@@ -194,9 +194,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
-  const resetPassword = async (email: string) => {
+  const resetPassword = useCallback(async (email: string) => {
     setLoading(true);
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -209,10 +209,22 @@ export function UserProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  const value = useMemo(() => ({
+    user,
+    login,
+    signUp,
+    resendConfirmation,
+    logout,
+    resetPassword,
+    updateProfile,
+    isAuthReady,
+    loading
+  }), [user, login, signUp, resendConfirmation, logout, resetPassword, updateProfile, isAuthReady, loading]);
 
   return (
-    <UserContext.Provider value={{ user, login, signUp, resendConfirmation, logout, resetPassword, updateProfile, isAuthReady, loading }}>
+    <UserContext.Provider value={value}>
       {children}
     </UserContext.Provider>
   );

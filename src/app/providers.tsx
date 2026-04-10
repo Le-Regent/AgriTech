@@ -1,9 +1,9 @@
 'use client';
 
-import React from 'react';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { UserProvider } from '@/context/UserContext';
 import { OfflineProvider } from '@/context/OfflineContext';
+import { NotificationProvider } from '@/context/NotificationContext';
 import { CartProvider } from '@/context/CartContext';
 import SyncManager from '@/components/SyncManager';
 
@@ -12,10 +12,12 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <ThemeProvider>
       <UserProvider>
         <OfflineProvider>
-          <CartProvider>
-            <SyncManager />
-            {children}
-          </CartProvider>
+          <NotificationProvider>
+            <CartProvider>
+              <SyncManager />
+              {children}
+            </CartProvider>
+          </NotificationProvider>
         </OfflineProvider>
       </UserProvider>
     </ThemeProvider>

@@ -6,26 +6,36 @@ import { Navbar } from '@/components/Navbar';
 import { BottomNav } from '@/components/BottomNav';
 import { OnboardingTour } from '@/components/OnboardingTour';
 import { motion, AnimatePresence } from 'motion/react';
+import { usePathname } from 'next/navigation';
+import { useUser } from '@/context/UserContext';
 
-interface LayoutProps {
+interface ClientLayoutProps {
   children: ReactNode;
-  showSidebar?: boolean;
-  showNavbar?: boolean;
-  showBottomNav?: boolean;
 }
 
-export default function Layout({ children, showSidebar = true, showNavbar = true, showBottomNav = true }: LayoutProps) {
+export default function ClientLayout({ children }: ClientLayoutProps) {
+  const { user, isAuthReady } = useUser();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
+
+  // Define routes where we don't want to show the layout (e.g., welcome, login)
+  const noLayoutRoutes = ['/welcome', '/login'];
+  const isNoLayoutRoute = noLayoutRoutes.includes(pathname);
+  
+  // Also hide layout if not logged in on the root route (which will show LandingPage)
+  const showLayout = !isNoLayoutRoute && (user !== null || pathname !== '/');
+
+  if (!showLayout || !isAuthReady) {
+    return <>{children}</>;
+  }
 
   return (
     <div className="flex min-h-screen bg-background-light dark:bg-background-dark transition-colors duration-300">
       <OnboardingTour />
       {/* Desktop Sidebar */}
-      {showSidebar && (
-        <div className="hidden lg:block">
-          <Sidebar />
-        </div>
-      )}
+      <div className="hidden lg:block">
+        <Sidebar />
+      </div>
 
       {/* Mobile Sidebar Overlay */}
       <AnimatePresence>
@@ -52,17 +62,11 @@ export default function Layout({ children, showSidebar = true, showNavbar = true
       </AnimatePresence>
 
       <div className="flex-1 flex flex-col min-w-0">
-        {showNavbar && <Navbar onMenuClick={() => setIsMobileMenuOpen(true)} />}
-        <main className={`flex-1 p-4 sm:p-6 lg:p-8 ${showBottomNav ? 'pb-24 lg:pb-8' : ''}`}>
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-          >
-            {children}
-          </motion.div>
+        <Navbar onMenuClick={() => setIsMobileMenuOpen(true)} />
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 pb-24 lg:pb-8">
+          {children}
         </main>
-        {showBottomNav && <BottomNav />}
+        <BottomNav />
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 
 export interface Notification {
@@ -22,23 +22,29 @@ const NotificationContext = createContext<NotificationContextType | undefined>(u
 export function NotificationProvider({ children }: { children: ReactNode }) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
-  const addNotification = (n: Omit<Notification, 'id' | 'timestamp' | 'isRead'>) => {
+  const addNotification = useCallback((n: Omit<Notification, 'id' | 'timestamp' | 'isRead'>) => {
+    const id = Math.random().toString(36).substring(7);
     const newNotification: Notification = {
       ...n,
-      id: Math.random().toString(36).substring(7),
+      id,
       timestamp: new Date().toISOString(),
       isRead: false,
     };
     setNotifications(prev => [newNotification, ...prev]);
-  };
 
-  const markAsRead = (id: string) => {
+    // Auto-dismiss after 5 minutes (300000ms)
+    setTimeout(() => {
+      setNotifications(prev => prev.filter(notification => notification.id !== id));
+    }, 300000);
+  }, []);
+
+  const markAsRead = useCallback((id: string) => {
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
-  };
+  }, []);
 
-  const clearAll = () => {
+  const clearAll = useCallback(() => {
     setNotifications([]);
-  };
+  }, []);
 
   // Simulate real-time price trend notifications
   useEffect(() => {
@@ -48,18 +54,24 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       { title: 'Weather Warning', message: 'Heavy rain expected tomorrow. Protect your harvest.', type: 'warning' as const },
     ];
 
+    // Initial notification after 30 minutes
     const interval = setInterval(() => {
-      if (Math.random() > 0.7) {
-        const trend = trends[Math.floor(Math.random() * trends.length)];
-        addNotification(trend);
-      }
-    }, 30000); // Every 30 seconds check for a random notification
+      const trend = trends[Math.floor(Math.random() * trends.length)];
+      addNotification(trend);
+    }, 1800000); // Every 30 minutes
 
     return () => clearInterval(interval);
-  }, []);
+  }, [addNotification]);
+
+  const value = useMemo(() => ({
+    notifications,
+    addNotification,
+    markAsRead,
+    clearAll
+  }), [notifications, addNotification, markAsRead, clearAll]);
 
   return (
-    <NotificationContext.Provider value={{ notifications, addNotification, markAsRead, clearAll }}>
+    <NotificationContext.Provider value={value}>
       {children}
       <div className="fixed bottom-6 right-6 z-[100] flex flex-col gap-4 pointer-events-none max-w-sm w-full">
         <AnimatePresence>

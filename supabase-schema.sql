@@ -170,6 +170,17 @@ CREATE POLICY "Admins can manage all orders" ON orders FOR ALL USING (
   EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true)
 );
 
+-- Order Items: Buyers can manage items for their own orders.
+CREATE POLICY "Buyers can view their own order items" ON order_items FOR SELECT USING (
+  EXISTS (SELECT 1 FROM orders WHERE orders.id = order_items.order_id AND orders.buyer_id = auth.uid())
+);
+CREATE POLICY "Buyers can insert their own order items" ON order_items FOR INSERT WITH CHECK (
+  EXISTS (SELECT 1 FROM orders WHERE orders.id = order_items.order_id AND orders.buyer_id = auth.uid())
+);
+CREATE POLICY "Admins can manage all order items" ON order_items FOR ALL USING (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true)
+);
+
 -- Sensor Data: Only the owner can see their sensor data. Admins can manage all.
 CREATE POLICY "Farmers can manage their own sensor data" ON sensor_data FOR ALL USING (auth.uid() = farmer_id);
 CREATE POLICY "Admins can manage all sensor data" ON sensor_data FOR ALL USING (
@@ -187,6 +198,9 @@ CREATE POLICY "Users can update their own reviews" ON product_reviews FOR UPDATE
 
 -- Payments: Only the buyer (via order) or admin can see payments.
 CREATE POLICY "Users can view their own payments" ON payments FOR SELECT USING (
+  EXISTS (SELECT 1 FROM orders WHERE orders.id = payments.order_id AND orders.buyer_id = auth.uid())
+);
+CREATE POLICY "Users can create their own payments" ON payments FOR INSERT WITH CHECK (
   EXISTS (SELECT 1 FROM orders WHERE orders.id = payments.order_id AND orders.buyer_id = auth.uid())
 );
 CREATE POLICY "Admins can manage all payments" ON payments FOR ALL USING (

@@ -2,8 +2,8 @@ import React, { useState, useRef } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'motion/react';
 import { GoogleGenAI } from "@google/genai";
-import { Product } from '../types';
-import { supabaseService } from '../services/supabaseService';
+import { Product } from '@/types';
+import { supabaseService } from '@/services/supabaseService';
 import { toast } from 'sonner';
 
 interface ProductModalProps {

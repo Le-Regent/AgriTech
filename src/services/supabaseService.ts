@@ -1,5 +1,5 @@
-import { supabase } from '../lib/supabase';
-import { User, Product, CropDiagnosis, Order, OrderItem, ProductReview, Message, Payment, SensorData } from '../types';
+import { supabase } from '@/lib/supabase';
+import { User, Product, CropDiagnosis, Order, OrderItem, ProductReview, Message, Payment, SensorData } from '@/types';
 
 export const supabaseService = {
   // Profiles
@@ -106,20 +106,30 @@ export const supabaseService = {
 
   // Orders
   async createOrder(order: Partial<Order>, items: Partial<OrderItem>[]) {
+    console.log('Creating order with data:', order);
     const { data: orderData, error: orderError } = await supabase
       .from('orders')
       .insert([order])
       .select()
       .single();
     
-    if (orderError) throw orderError;
+    if (orderError) {
+      console.error('Order creation error:', orderError);
+      throw orderError;
+    }
+
+    console.log('Order created successfully:', orderData);
 
     const itemsWithOrderId = items.map(item => ({ ...item, order_id: orderData.id }));
+    console.log('Inserting order items:', itemsWithOrderId);
     const { error: itemsError } = await supabase
       .from('order_items')
       .insert(itemsWithOrderId);
     
-    if (itemsError) throw itemsError;
+    if (itemsError) {
+      console.error('Order items insertion error:', itemsError);
+      throw itemsError;
+    }
     return orderData;
   },
 

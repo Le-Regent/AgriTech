@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { SIDEBAR_NAV, MARKETPLACE_NAV } from '../constants';
-import { useUser } from '../context/UserContext';
+import { SIDEBAR_NAV, MARKETPLACE_NAV } from '@/constants';
+import { useUser } from '@/context/UserContext';
 
 interface SidebarProps {
   onMobileClose?: () => void;
