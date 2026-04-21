@@ -689,11 +689,22 @@ function DashboardContent() {
 
           <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-all">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg sm:text-xl font-bold dark:text-white">Past Crop Diagnoses</h3>
-              <Link href="/diagnosis" className="text-primary text-xs font-bold hover:underline">New Scan</Link>
+              <div className="flex items-center gap-2">
+                <h3 className="text-lg sm:text-xl font-bold dark:text-white">Past Crop Diagnoses</h3>
+                <span className="bg-primary/10 text-primary text-[10px] font-black px-2 py-0.5 rounded-md">
+                  {diagnoses.length} 
+                </span>
+              </div>
+              <div className="flex gap-4">
+                <Link href="/history?tab=diagnoses" className="text-slate-400 hover:text-primary text-xs font-black uppercase tracking-widest transition-colors flex items-center gap-1">
+                  View All
+                  <span className="material-symbols-outlined text-xs">arrow_forward</span>
+                </Link>
+                <Link href="/diagnosis" className="text-primary text-xs font-black uppercase tracking-widest border-b-2 border-primary/20 hover:border-primary transition-all">New Scan</Link>
+              </div>
             </div>
             <div className="space-y-4">
-              {diagnoses.length > 0 ? diagnoses.slice(0, 5).map((diagnosis) => (
+              {diagnoses.length > 0 ? diagnoses.slice(0, 3).map((diagnosis) => (
                 <div key={diagnosis.id} className="flex items-center gap-4 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
                   <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0">
                     <ResponsiveImage 
@@ -740,12 +751,20 @@ function DashboardContent() {
 
           <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-all">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg sm:text-xl font-bold dark:text-white">My Inventory</h3>
-              <Link href="/marketplace" className="text-primary text-xs font-bold hover:underline">Manage All</Link>
+              <div className="flex items-center gap-2">
+                <h3 className="text-lg sm:text-xl font-bold dark:text-white">My Inventory</h3>
+                <span className="bg-green-100 text-green-700 text-[10px] font-black px-2 py-0.5 rounded-md">
+                  {myProducts.length} 
+                </span>
+              </div>
+              <Link href="/listings" className="text-slate-400 hover:text-primary text-xs font-black uppercase tracking-widest transition-colors flex items-center gap-1">
+                Manage All
+                <span className="material-symbols-outlined text-xs">arrow_forward</span>
+              </Link>
             </div>
             <div className="space-y-4">
               {myProducts.length > 0 ? (
-                myProducts.slice(0, 5).map((product) => (
+                myProducts.slice(0, 3).map((product) => (
                   <div key={product.id} className="flex items-center gap-4 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
                     <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0">
                       <ResponsiveImage 
