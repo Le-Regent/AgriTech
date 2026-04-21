@@ -52,7 +52,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
               initial={{ x: -280 }}
               animate={{ x: 0 }}
               exit={{ x: -280 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              transition={{ type: 'spring' as const, damping: 25, stiffness: 200 }}
               className="fixed inset-y-0 left-0 w-[280px] bg-white dark:bg-background-dark z-50 lg:hidden shadow-2xl"
             >
               <Sidebar onMobileClose={() => setIsMobileMenuOpen(false)} />

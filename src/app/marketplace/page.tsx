@@ -3,6 +3,7 @@
 import React, { useState, useEffect, Suspense, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { motion, AnimatePresence } from 'motion/react';
 import { useSearchParams } from 'next/navigation';
 import { Joyride, Step, STATUS } from 'react-joyride';
 import { GoogleGenAI } from "@google/genai";
@@ -273,8 +274,36 @@ function MarketplaceContent() {
     }
   };
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.05
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: {
+        type: 'spring' as const,
+        damping: 25,
+        stiffness: 100
+      }
+    }
+  };
+
   return (
-    <div className="space-y-8">
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="space-y-8"
+    >
       <Joyride
         {...({
           steps: tourSteps,
@@ -291,7 +320,7 @@ function MarketplaceContent() {
           }
         } as any)}
       />
-      <div id="marketplace-header" className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <motion.div variants={itemVariants} id="marketplace-header" className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl sm:text-3xl font-black tracking-tight dark:text-white">Marketplace Explorer</h2>
           <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400">Discover verified produce directly from global farms.</p>
@@ -371,10 +400,15 @@ function MarketplaceContent() {
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {showFilters && (
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm grid grid-cols-1 md:grid-cols-3 gap-8 transition-all">
+        <motion.div 
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          exit={{ opacity: 0, height: 0 }}
+          className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm grid grid-cols-1 md:grid-cols-3 gap-8 transition-all overflow-hidden"
+        >
           <div className="space-y-4">
             <button 
               onClick={() => toggleFilterCollapse('origin')}
@@ -441,11 +475,11 @@ function MarketplaceContent() {
               </div>
             )}
           </div>
-        </div>
+        </motion.div>
       )}
 
       {recentlyViewed.length > 0 && (
-        <div className="space-y-4">
+        <motion.div variants={itemVariants} className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Recently Viewed</h3>
             <button 
@@ -479,10 +513,10 @@ function MarketplaceContent() {
               </Link>
             ))}
           </div>
-        </div>
+        </motion.div>
       )}
 
-      <div id="marketplace-category-tabs" className="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
+      <motion.div variants={itemVariants} id="marketplace-category-tabs" className="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
         {['All Produce', 'Foodstuff', 'Grains & Beans', 'Spices & Pepper', 'Oils', 'Vegetables', 'Fruits', 'Meat & Eggs'].map((cat) => (
           <button
             key={cat}
@@ -494,78 +528,81 @@ function MarketplaceContent() {
             {cat}
           </button>
         ))}
-      </div>
+      </motion.div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+      <motion.div variants={containerVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
         {loading ? (
           Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 h-[400px] animate-pulse" />
+            <motion.div key={i} variants={itemVariants} className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 h-[400px] animate-pulse" />
           ))
         ) : sortedProducts.length > 0 ? (
           sortedProducts.map((product, index) => (
-            <Link
+            <motion.div 
               key={product.id}
-              href={`/marketplace/${product.id}`}
+              variants={itemVariants}
+              whileHover={{ y: -5 }}
               className={index === 0 ? 'product-card-first' : ''}
             >
-              <ProductCard product={product}>
-                <div className="absolute top-4 right-4 flex gap-2">
-                  <button 
-                    onClick={(e) => toggleProductSelection(e, product.id)}
-                    className={`w-10 h-10 backdrop-blur rounded-xl shadow-lg flex items-center justify-center transition-all ${index === 0 ? 'compare-btn-first' : ''} ${selectedProducts.includes(product.id) ? 'bg-indigo-600 text-white' : 'bg-white/90 dark:bg-slate-900/90 text-slate-400 hover:text-indigo-600'}`}
-                    title="Select for comparison"
-                  >
-                    <span className="material-symbols-outlined">{selectedProducts.includes(product.id) ? 'check_circle' : 'add_circle'}</span>
-                  </button>
-                  
-                  {(!product.image_url || product.image_url.includes('picsum.photos')) && (
+              <Link href={`/marketplace/${product.id}`}>
+                <ProductCard product={product}>
+                  <div className="absolute top-4 right-4 flex gap-2">
                     <button 
-                      onClick={(e) => generateAIImage(e, product.id, product.name)}
-                      disabled={generatingId === product.id}
-                      className={`h-10 px-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur rounded-xl shadow-lg flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed ${index === 0 ? 'ai-image-btn-first' : ''}`}
-                      title="Generate AI Image"
+                      onClick={(e) => toggleProductSelection(e, product.id)}
+                      className={`w-10 h-10 backdrop-blur rounded-xl shadow-lg flex items-center justify-center transition-all ${index === 0 ? 'compare-btn-first' : ''} ${selectedProducts.includes(product.id) ? 'bg-indigo-600 text-white' : 'bg-white/90 dark:bg-slate-900/90 text-slate-400 hover:text-indigo-600'}`}
+                      title="Select for comparison"
                     >
-                      {generatingId === product.id ? (
-                        <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                      ) : (
-                        <div className="flex items-center gap-2">
-                          <span className="material-symbols-outlined text-[18px]">auto_awesome</span>
-                          <span className="text-[10px] font-black uppercase tracking-widest">AI Image</span>
-                        </div>
-                      )}
+                      <span className="material-symbols-outlined">{selectedProducts.includes(product.id) ? 'check_circle' : 'add_circle'}</span>
                     </button>
-                  )}
-                </div>
-                <div className="absolute inset-x-4 bottom-4 translate-y-12 group-hover:translate-y-0 transition-transform duration-300">
-                  <button 
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      addToCart(product, 1);
-                      toast.success(`${product.name} added to cart`, {
-                        action: {
-                          label: 'View Cart',
-                          onClick: () => window.location.href = '/cart'
-                        }
-                      });
-                    }}
-                    className="w-full bg-primary text-white py-3 rounded-xl font-black text-xs shadow-xl shadow-primary/20 flex items-center justify-center gap-2 hover:scale-105 active:scale-95 transition-all"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">shopping_cart</span>
-                    ADD TO CART
-                  </button>
-                </div>
-              </ProductCard>
-            </Link>
+                    
+                    {(!product.image_url || product.image_url.includes('picsum.photos')) && (
+                      <button 
+                        onClick={(e) => generateAIImage(e, product.id, product.name)}
+                        disabled={generatingId === product.id}
+                        className={`h-10 px-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur rounded-xl shadow-lg flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed ${index === 0 ? 'ai-image-btn-first' : ''}`}
+                        title="Generate AI Image"
+                      >
+                        {generatingId === product.id ? (
+                          <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <span className="material-symbols-outlined text-[18px]">auto_awesome</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest">AI Image</span>
+                          </div>
+                        )}
+                      </button>
+                    )}
+                  </div>
+                  <div className="absolute inset-x-4 bottom-4 translate-y-12 group-hover:translate-y-0 transition-transform duration-300">
+                    <button 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        addToCart(product, 1);
+                        toast.success(`${product.name} added to cart`, {
+                          action: {
+                            label: 'View Cart',
+                            onClick: () => window.location.href = '/cart'
+                          }
+                        });
+                      }}
+                      className="w-full bg-primary text-white py-3 rounded-xl font-black text-xs shadow-xl shadow-primary/20 flex items-center justify-center gap-2 hover:scale-105 active:scale-95 transition-all"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">shopping_cart</span>
+                      ADD TO CART
+                    </button>
+                  </div>
+                </ProductCard>
+              </Link>
+            </motion.div>
           ))
         ) : (
-          <div className="col-span-full text-center py-20">
+          <motion.div variants={itemVariants} className="col-span-full text-center py-20">
             <span className="material-symbols-outlined text-6xl text-slate-200 dark:text-slate-700 mb-4">search_off</span>
             <p className="text-slate-500 dark:text-slate-400 font-bold">No products found matching your filters.</p>
-          </div>
+          </motion.div>
         )}
-      </div>
-
+      </motion.div>
+      
       {showComparison && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-8 bg-slate-900/60 backdrop-blur-sm">
           <div className="bg-white dark:bg-slate-900 w-full max-w-6xl max-h-[90vh] rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col border border-slate-100 dark:border-slate-800">
@@ -628,7 +665,7 @@ function MarketplaceContent() {
               <button 
                 onClick={() => setSelectedProducts([])}
                 className="px-6 py-3 rounded-2xl text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
-              >
+                >
                 Clear Selection
               </button>
               <button 
@@ -650,7 +687,7 @@ function MarketplaceContent() {
           farmerId={user.id}
         />
       )}
-    </div>
+    </motion.div>
   );
 }
 

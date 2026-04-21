@@ -8,6 +8,7 @@ import { useUser } from '@/context/UserContext';
 import ResponsiveImage from '@/components/ui/ResponsiveImage';
 import { supabaseService } from '@/services/supabaseService';
 import { motion, AnimatePresence } from 'motion/react';
+import { toast } from 'sonner';
 import { 
   AreaChart, 
   Area, 
@@ -32,58 +33,93 @@ export default function HistoryContent() {
   const [diagnoses, setDiagnoses] = useState<any[]>([]);
   const [sensorHistory, setSensorHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
     const fetchHistory = async () => {
       if (!user) return;
-      setLoading(true);
+      
+      // Load from cache first for zero-latency UI
+      const [
+        cachedDiagnoses,
+        cachedSensor,
+        cachedHistory
+      ] = await Promise.all([
+        getFromCache(`diagnoses_${user.id}`),
+        getFromCache(`sensor_data_${user.id}`),
+        getFromCache(`history_combined_${user.id}`)
+      ]);
+
+      if (cachedDiagnoses) setDiagnoses(cachedDiagnoses);
+      if (cachedSensor) setSensorHistory(cachedSensor);
+      if (cachedHistory) {
+        setHistory(cachedHistory);
+        setLoading(false);
+      } else {
+        setLoading(true);
+      }
+
       try {
-        if (isFarmer) {
-          const [diagData, salesData, purchaseData, sensorData] = await Promise.all([
-            supabaseService.getDiagnoses(user.id).catch(() => []),
-            supabaseService.getOrders(user.id, 'farmer').catch(() => []),
-            supabaseService.getOrders(user.id, 'buyer').catch(() => []),
-            supabaseService.getSensorData(user.id).catch(() => [])
-          ]);
-          
-          setDiagnoses(diagData || []);
-          setSensorHistory(sensorData || []);
-          
-          // Combine sales and purchases for farmers
-          const mappedSales = (salesData || []).map((order: any) => ({
-            id: order.id,
-            date: new Date(order.created_at).toLocaleDateString(),
-            type: 'Sale',
-            crop: order.order_items?.[0]?.products?.name + (order.order_items?.length > 1 ? ` + ${order.order_items.length - 1} more` : '') || 'Produce',
-            amount: order.total_amount,
-            status: order.status.charAt(0).toUpperCase() + order.status.slice(1),
-            buyer: order.profiles?.full_name || 'Anonymous Buyer'
-          }));
+        if (isOnline) {
+          if (isFarmer) {
+            const [diagData, salesData, purchaseData, sensorData] = await Promise.all([
+              supabaseService.getDiagnoses(user.id).catch(() => []),
+              supabaseService.getOrders(user.id, 'farmer').catch(() => []),
+              supabaseService.getOrders(user.id, 'buyer').catch(() => []),
+              supabaseService.getSensorData(user.id).catch(() => [])
+            ]);
+            
+            const freshDiagnoses = diagData || [];
+            const freshSensor = sensorData || [];
+            
+            setDiagnoses(freshDiagnoses);
+            setSensorHistory(freshSensor);
+            saveToCache(`diagnoses_${user.id}`, freshDiagnoses);
+            saveToCache(`sensor_data_${user.id}`, freshSensor);
+            
+            // Combine sales and purchases for farmers
+            const mappedSales = (salesData || []).map((order: any) => ({
+              id: order.id,
+              date: new Date(order.created_at).toLocaleDateString(),
+              type: 'Sale',
+              crop: order.order_items?.[0]?.products?.name + (order.order_items?.length > 1 ? ` + ${order.order_items.length - 1} more` : '') || 'Produce',
+              amount: order.total_amount,
+              status: order.status.charAt(0).toUpperCase() + order.status.slice(1),
+              originalStatus: order.status,
+              buyer: order.profiles?.full_name || 'Anonymous Buyer'
+            }));
 
-          const mappedPurchases = (purchaseData || []).map((order: any) => ({
-            id: order.id,
-            date: new Date(order.created_at).toLocaleDateString(),
-            type: 'Purchase',
-            crop: order.order_items?.[0]?.products?.name + (order.order_items?.length > 1 ? ` + ${order.order_items.length - 1} more` : '') || 'Market Buy',
-            amount: order.total_amount,
-            status: order.status.charAt(0).toUpperCase() + order.status.slice(1),
-            seller: order.order_items?.[0]?.products?.profiles?.full_name || 'Vendor'
-          }));
+            const mappedPurchases = (purchaseData || []).map((order: any) => ({
+              id: order.id,
+              date: new Date(order.created_at).toLocaleDateString(),
+              type: 'Purchase',
+              crop: order.order_items?.[0]?.products?.name + (order.order_items?.length > 1 ? ` + ${order.order_items.length - 1} more` : '') || 'Market Buy',
+              amount: order.total_amount,
+              status: order.status.charAt(0).toUpperCase() + order.status.slice(1),
+              originalStatus: order.status,
+              seller: order.order_items?.[0]?.products?.profiles?.full_name || 'Vendor'
+            }));
 
-          setHistory([...mappedSales, ...mappedPurchases].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
-        } else {
-          const purchaseData = await supabaseService.getOrders(user.id, 'buyer');
-          const mappedPurchases = (purchaseData || []).map((order: any) => ({
-            id: order.id,
-            date: new Date(order.created_at).toLocaleDateString(),
-            type: 'Purchase',
-            crop: order.order_items?.[0]?.products?.name || 'Produce',
-            amount: order.total_amount,
-            status: order.status.charAt(0).toUpperCase() + order.status.slice(1)
-          }));
-          setHistory(mappedPurchases);
+            const combinedHistory = [...mappedSales, ...mappedPurchases].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+            setHistory(combinedHistory);
+            saveToCache(`history_combined_${user.id}`, combinedHistory);
+          } else {
+            const purchaseData = await supabaseService.getOrders(user.id, 'buyer');
+            const mappedPurchases = (purchaseData || []).map((order: any) => ({
+              id: order.id,
+              date: new Date(order.created_at).toLocaleDateString(),
+              type: 'Purchase',
+              crop: order.order_items?.[0]?.products?.name || 'Produce',
+              amount: order.total_amount,
+              status: order.status.charAt(0).toUpperCase() + order.status.slice(1),
+              originalStatus: order.status
+            }));
+            const freshHistory = mappedPurchases;
+            setHistory(freshHistory);
+            saveToCache(`history_combined_${user.id}`, freshHistory);
+          }
         }
       } catch (error) {
         console.error('Error fetching history:', error);
@@ -93,7 +129,38 @@ export default function HistoryContent() {
     };
 
     fetchHistory();
-  }, [user, isFarmer]);
+  }, [user, isFarmer, isOnline, saveToCache, getFromCache]);
+
+  const updateOrderStatus = async (orderId: string, newStatus: string) => {
+    if (!isOnline) {
+      toast.error('You need an internet connection to update order status.');
+      return;
+    }
+
+    setIsUpdatingStatus(orderId);
+    try {
+      await supabaseService.updateOrderStatus(orderId, newStatus as any);
+      setHistory(prev => prev.map(item => 
+        item.id === orderId 
+          ? { ...item, status: newStatus.charAt(0).toUpperCase() + newStatus.slice(1), originalStatus: newStatus } 
+          : item
+      ));
+      toast.success(`Order marked as ${newStatus}`);
+      // Refresh cache
+      if (user) {
+        const updatedHistory = history.map(item => 
+          item.id === orderId 
+            ? { ...item, status: newStatus.charAt(0).toUpperCase() + newStatus.slice(1), originalStatus: newStatus } 
+            : item
+        );
+        saveToCache(`history_combined_${user.id}`, updatedHistory);
+      }
+    } catch (err) {
+      toast.error('Failed to update status. Please try again.');
+    } finally {
+      setIsUpdatingStatus(null);
+    }
+  };
 
   const downloadReport = (diagnosis: any) => {
     const reportContent = `
@@ -229,43 +296,77 @@ export default function HistoryContent() {
                       <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Item</th>
                       <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Amount</th>
                       <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Status</th>
+                      <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Action</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
-                    {history.map((item) => (
-                      <tr key={item.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
-                        <td className="px-8 py-5 text-sm text-slate-500 dark:text-slate-400 font-medium">
-                          {item.date}
-                        </td>
-                        <td className="px-8 py-5">
-                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                            item.type === 'Sale' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
-                          }`}>
-                            {item.type}
-                          </span>
-                        </td>
-                        <td className="px-8 py-5">
-                          <div className="flex flex-col">
-                            <span className="text-sm font-bold text-slate-900 dark:text-white">{item.crop || item.item}</span>
-                            {item.type === 'Sale' && item.buyer && (
-                              <span className="text-[10px] text-slate-400 font-black uppercase">To: {item.buyer}</span>
+                    {loading && history.length === 0 ? (
+                      [...Array(5)].map((_, i) => (
+                        <tr key={i} className="animate-pulse">
+                          <td className="px-8 py-5"><div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-24"></div></td>
+                          <td className="px-8 py-5"><div className="h-6 bg-slate-100 dark:bg-slate-800 rounded-full w-16"></div></td>
+                          <td className="px-8 py-5">
+                            <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-32 mb-1"></div>
+                            <div className="h-3 bg-slate-100 dark:bg-slate-800 rounded w-20"></div>
+                          </td>
+                          <td className="px-8 py-5"><div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-20 ml-auto"></div></td>
+                          <td className="px-8 py-5"><div className="h-6 bg-slate-100 dark:bg-slate-800 rounded-full w-20 mx-auto"></div></td>
+                          <td className="px-8 py-5"><div className="h-8 bg-slate-100 dark:bg-slate-800 rounded-xl w-24 ml-auto"></div></td>
+                        </tr>
+                      ))
+                    ) : (
+                      history.map((item) => (
+                        <tr key={item.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
+                          <td className="px-8 py-5 text-sm text-slate-500 dark:text-slate-400 font-medium">
+                            {item.date}
+                          </td>
+                          <td className="px-8 py-5">
+                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
+                              item.type === 'Sale' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
+                            }`}>
+                              {item.type}
+                            </span>
+                          </td>
+                          <td className="px-8 py-5">
+                            <div className="flex flex-col">
+                              <span className="text-sm font-bold text-slate-900 dark:text-white">{item.crop || item.item}</span>
+                              {item.type === 'Sale' && item.buyer && (
+                                <span className="text-[10px] text-slate-400 font-black uppercase">To: {item.buyer}</span>
+                              )}
+                              {item.type === 'Purchase' && item.seller && (
+                                <span className="text-[10px] text-slate-400 font-black uppercase">From: {item.seller}</span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-8 py-5 text-sm text-slate-900 dark:text-white text-right font-black">{item.amount.toLocaleString()} CFA</td>
+                          <td className="px-8 py-5 text-center">
+                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
+                              item.status === 'Delivered' || item.status === 'Completed' ? 'bg-green-50 text-green-600' : 
+                              item.status === 'Pending' ? 'bg-amber-50 text-amber-600' : 'bg-blue-50 text-blue-600'
+                            }`}>
+                              {item.status}
+                            </span>
+                          </td>
+                          <td className="px-8 py-5 text-right">
+                            {isFarmer && item.type === 'Sale' && item.originalStatus !== 'delivered' && item.originalStatus !== 'completed' ? (
+                              <button
+                                onClick={() => updateOrderStatus(item.id, 'delivered')}
+                                disabled={isUpdatingStatus === item.id || !isOnline}
+                                className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                                  isUpdatingStatus === item.id || !isOnline
+                                    ? 'bg-slate-100 text-slate-400'
+                                    : 'bg-primary text-white hover:shadow-lg hover:shadow-primary/20 cursor-pointer'
+                                }`}
+                              >
+                                {isUpdatingStatus === item.id ? 'Updating...' : 'Mark Delivered'}
+                              </button>
+                            ) : (
+                              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Complete</span>
                             )}
-                            {item.type === 'Purchase' && item.seller && (
-                              <span className="text-[10px] text-slate-400 font-black uppercase">From: {item.seller}</span>
-                            )}
-                          </div>
-                        </td>
-                        <td className="px-8 py-5 text-sm text-slate-900 dark:text-white text-right font-black">{item.amount.toLocaleString()} CFA</td>
-                        <td className="px-8 py-5 text-center">
-                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                            item.status === 'Delivered' ? 'bg-green-50 text-green-600' : 
-                            item.status === 'Pending' ? 'bg-amber-50 text-amber-600' : 'bg-blue-50 text-blue-600'
-                          }`}>
-                            {item.status}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>

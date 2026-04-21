@@ -52,6 +52,29 @@ function DashboardContent() {
   const isFarmer = user?.role === 'farmer';
   const hasLoadedFromCache = useRef(false);
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: {
+        type: 'spring' as const,
+        damping: 25,
+        stiffness: 100
+      }
+    }
+  };
+
   // Load from cache immediately on mount or user change
   useEffect(() => {
     async function loadCache() {
@@ -270,8 +293,13 @@ function DashboardContent() {
 
   if (!isFarmer) {
     return (
-      <div className="space-y-8 pb-12">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="space-y-8 pb-12"
+      >
+        <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h2 className="text-2xl sm:text-4xl font-black tracking-tight dark:text-white">Marketplace Overview</h2>
             <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400">Fresh produce from Cameroon&apos;s finest farms, delivered to you.</p>
@@ -288,9 +316,9 @@ function DashboardContent() {
           </div>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <motion.div variants={containerVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {stats.map((stat, i) => (
-            <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
+            <motion.div key={i} variants={itemVariants}
               className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all group">
               <div className={`w-12 h-12 ${stat.bg} ${stat.color} rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
                 <span className="material-symbols-outlined fill-1 text-2xl">{stat.icon}</span>
@@ -299,7 +327,7 @@ function DashboardContent() {
               <p className="text-2xl font-black dark:text-white">{stat.value}</p>
             </motion.div>
           ))}
-        </div>
+        </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
@@ -419,7 +447,7 @@ function DashboardContent() {
             </section>
           </div>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
@@ -451,8 +479,13 @@ function DashboardContent() {
   }
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="space-y-8"
+    >
+      <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl sm:text-3xl font-black tracking-tight dark:text-white">Farm Overview</h2>
           <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400">Welcome back, {user?.full_name}. Here&apos;s what&apos;s happening today.</p>
@@ -496,9 +529,9 @@ function DashboardContent() {
             New Diagnosis
           </Link>
         </div>
-      </div>
+      </motion.div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+      <motion.div variants={containerVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {[
           { label: 'Soil Moisture', value: '42%', icon: 'water_drop', color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-500/10' },
           { 
@@ -527,7 +560,7 @@ function DashboardContent() {
             bg: 'bg-amber-50 dark:bg-amber-500/10' 
           },
         ].map((stat, i) => (
-          <div key={i} className="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-all relative overflow-hidden">
+          <motion.div key={i} variants={itemVariants} className="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-all relative overflow-hidden">
             {stat.label === 'Crop Health' && (
               <div className={`absolute top-0 right-0 w-16 h-16 -mr-8 -mt-8 rounded-full opacity-20 blur-2xl ${
                 stat.healthStatus === 'healthy' ? 'bg-green-500' : 
@@ -579,12 +612,12 @@ function DashboardContent() {
                 </div>
               )}
             </div>
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
-        <div className="lg:col-span-2 space-y-6 sm:space-y-8">
+      <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+        <motion.div variants={itemVariants} className="lg:col-span-2 space-y-6 sm:space-y-8">
           <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-all">
             <div className="flex items-center justify-between mb-6 sm:mb-8">
               <h3 className="text-lg sm:text-xl font-bold dark:text-white">Field Status Map</h3>
@@ -842,9 +875,9 @@ function DashboardContent() {
               ))}
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="space-y-6 sm:space-y-8">
+        <motion.div variants={itemVariants} className="space-y-6 sm:space-y-8">
           <div className="bg-background-dark text-white p-6 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] shadow-xl relative overflow-hidden">
             <div className="absolute -right-10 -top-10 w-40 h-40 bg-primary/20 rounded-full blur-3xl"></div>
             <h3 className="text-lg sm:text-xl font-bold mb-6 relative z-10">Weather Forecast</h3>
@@ -953,9 +986,9 @@ function DashboardContent() {
               )}
             </div>
           </div>
-        </div>
-      </div>
-    </div>
+        </motion.div>
+      </motion.div>
+    </motion.div>
   );
 }
 
@@ -978,11 +1011,29 @@ export default function DashboardPage() {
     );
   }
 
-  if (!user) {
-    return <LandingPage />;
-  }
-
   return (
-    <DashboardContent />
+    <AnimatePresence mode="wait">
+      {!user ? (
+        <motion.div 
+          key="landing" 
+          initial={{ opacity: 0 }} 
+          animate={{ opacity: 1 }} 
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          <LandingPage />
+        </motion.div>
+      ) : (
+        <motion.div 
+          key="dashboard"
+          initial={{ opacity: 0 }} 
+          animate={{ opacity: 1 }} 
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          <DashboardContent />
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
