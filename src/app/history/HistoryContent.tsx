@@ -72,7 +72,13 @@ export default function HistoryContent() {
             ]);
             
             const freshDiagnoses = diagData || [];
-            const freshSensor = sensorData || [];
+            const freshSensor = (sensorData || []).map((log: any) => ({
+              ...log,
+              soil_moisture: log.soil_moisture || 0,
+              temperature: log.temperature || 0,
+              humidity: log.humidity || 0,
+              field_sector: log.field_sector || 'Main'
+            }));
             
             setDiagnoses(freshDiagnoses);
             setSensorHistory(freshSensor);
@@ -80,42 +86,66 @@ export default function HistoryContent() {
             saveToCache(`sensor_data_${user.id}`, freshSensor);
             
             // Combine sales and purchases for farmers
-            const mappedSales = (salesData || []).map((order: any) => ({
-              id: order.id,
-              date: new Date(order.created_at).toLocaleDateString(),
-              type: 'Sale',
-              crop: order.order_items?.[0]?.products?.name + (order.order_items?.length > 1 ? ` + ${order.order_items.length - 1} more` : '') || 'Produce',
-              amount: order.total_amount,
-              status: order.status.charAt(0).toUpperCase() + order.status.slice(1),
-              originalStatus: order.status,
-              buyer: order.profiles?.full_name || 'Anonymous Buyer'
-            }));
+            const mappedSales = (salesData || []).map((order: any) => {
+              const productName = order.order_items?.[0]?.products?.name;
+              const extraCount = (order.order_items?.length || 0) - 1;
+              const cropLabel = productName 
+                ? (extraCount > 0 ? `${productName} + ${extraCount} more` : productName)
+                : 'Produce';
 
-            const mappedPurchases = (purchaseData || []).map((order: any) => ({
-              id: order.id,
-              date: new Date(order.created_at).toLocaleDateString(),
-              type: 'Purchase',
-              crop: order.order_items?.[0]?.products?.name + (order.order_items?.length > 1 ? ` + ${order.order_items.length - 1} more` : '') || 'Market Buy',
-              amount: order.total_amount,
-              status: order.status.charAt(0).toUpperCase() + order.status.slice(1),
-              originalStatus: order.status,
-              seller: order.order_items?.[0]?.products?.profiles?.full_name || 'Vendor'
-            }));
+              return {
+                id: order.id,
+                date: order.created_at ? new Date(order.created_at).toLocaleDateString() : 'N/A',
+                type: 'Sale',
+                crop: cropLabel,
+                amount: order.total_amount || 0,
+                status: order.status ? (order.status.charAt(0).toUpperCase() + order.status.slice(1)) : 'Pending',
+                originalStatus: order.status || 'pending',
+                buyer: order.profiles?.full_name || 'Anonymous Buyer'
+              };
+            });
 
-            const combinedHistory = [...mappedSales, ...mappedPurchases].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+            const mappedPurchases = (purchaseData || []).map((order: any) => {
+              const productName = order.order_items?.[0]?.products?.name;
+              const extraCount = (order.order_items?.length || 0) - 1;
+              const cropLabel = productName 
+                ? (extraCount > 0 ? `${productName} + ${extraCount} more` : productName)
+                : 'Market Buy';
+
+              return {
+                id: order.id,
+                date: order.created_at ? new Date(order.created_at).toLocaleDateString() : 'N/A',
+                type: 'Purchase',
+                crop: cropLabel,
+                amount: order.total_amount || 0,
+                status: order.status ? (order.status.charAt(0).toUpperCase() + order.status.slice(1)) : 'Pending',
+                originalStatus: order.status || 'pending',
+                seller: order.order_items?.[0]?.products?.profiles?.full_name || 'Vendor'
+              };
+            });
+
+            const combinedHistory = [...mappedSales, ...mappedPurchases].sort((a,b) => {
+              const timeA = (salesData.find((s: any) => s.id === a.id) || purchaseData.find((p: any) => p.id === a.id))?.created_at;
+              const timeB = (salesData.find((s: any) => s.id === b.id) || purchaseData.find((p: any) => p.id === b.id))?.created_at;
+              return new Date(timeB || 0).getTime() - new Date(timeA || 0).getTime();
+            });
             setHistory(combinedHistory);
             saveToCache(`history_combined_${user.id}`, combinedHistory);
           } else {
             const purchaseData = await supabaseService.getOrders(user.id, 'buyer');
             const mappedPurchases = (purchaseData || []).map((order: any) => ({
               id: order.id,
-              date: new Date(order.created_at).toLocaleDateString(),
+              date: order.created_at ? new Date(order.created_at).toLocaleDateString() : 'N/A',
               type: 'Purchase',
               crop: order.order_items?.[0]?.products?.name || 'Produce',
-              amount: order.total_amount,
-              status: order.status.charAt(0).toUpperCase() + order.status.slice(1),
-              originalStatus: order.status
-            }));
+              amount: order.total_amount || 0,
+              status: order.status ? (order.status.charAt(0).toUpperCase() + order.status.slice(1)) : 'Pending',
+              originalStatus: order.status || 'pending'
+            })).sort((a: any, b: any) => {
+              const timeA = purchaseData.find((p: any) => p.id === a.id)?.created_at;
+              const timeB = purchaseData.find((p: any) => p.id === b.id)?.created_at;
+              return new Date(timeB || 0).getTime() - new Date(timeA || 0).getTime();
+            });
             const freshHistory = mappedPurchases;
             setHistory(freshHistory);
             saveToCache(`history_combined_${user.id}`, freshHistory);
@@ -249,9 +279,13 @@ export default function HistoryContent() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-colors">
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total {isFarmer ? 'Revenue' : 'Spent'}</p>
-                <p className="text-4xl font-black text-slate-900 dark:text-white mt-3">
-                  {history.reduce((acc, curr) => acc + (curr.type === 'Sale' || !isFarmer ? curr.amount : 0), 0).toLocaleString()} CFA
-                </p>
+                {loading && history.length === 0 ? (
+                  <div className="h-10 w-32 bg-slate-100 dark:bg-slate-800 rounded-lg mt-3 animate-pulse"></div>
+                ) : (
+                  <p className="text-4xl font-black text-slate-900 dark:text-white mt-3">
+                    {(history.reduce((acc, curr) => acc + (curr.type === 'Sale' || !isFarmer ? curr.amount : 0), 0) || 0).toLocaleString()} CFA
+                  </p>
+                )}
                 <div className="mt-4 flex items-center text-xs text-green-600 font-black">
                   <span className="material-symbols-outlined text-sm mr-1">trending_up</span>
                   <span>+12.5% from last month</span>
@@ -260,7 +294,11 @@ export default function HistoryContent() {
 
               <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-colors">
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Transactions</p>
-                <p className="text-4xl font-black text-slate-900 dark:text-white mt-3">{history.length}</p>
+                {loading && history.length === 0 ? (
+                  <div className="h-10 w-16 bg-slate-100 dark:bg-slate-800 rounded-lg mt-3 animate-pulse"></div>
+                ) : (
+                  <p className="text-4xl font-black text-slate-900 dark:text-white mt-3">{history.length}</p>
+                )}
                 <div className="mt-4 flex items-center text-xs text-blue-600 font-black">
                   <span className="material-symbols-outlined text-sm mr-1">check_circle</span>
                   <span>All systems operational</span>
@@ -269,7 +307,11 @@ export default function HistoryContent() {
 
               <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-colors">
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pending Actions</p>
-                <p className="text-4xl font-black text-slate-900 dark:text-white mt-3">0</p>
+                {loading && history.length === 0 ? (
+                  <div className="h-10 w-12 bg-slate-100 dark:bg-slate-800 rounded-lg mt-3 animate-pulse"></div>
+                ) : (
+                  <p className="text-4xl font-black text-slate-900 dark:text-white mt-3">0</p>
+                )}
                 <div className="mt-4 flex items-center text-xs text-slate-400 font-black">
                   <span className="material-symbols-outlined text-sm mr-1">info</span>
                   <span>No pending approvals</span>
@@ -380,7 +422,24 @@ export default function HistoryContent() {
             exit={{ opacity: 0, y: -10 }}
             className="space-y-6"
           >
-            {diagnoses.length > 0 ? (
+            {loading && diagnoses.length === 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 animate-pulse">
+                    <div className="flex justify-between items-start mb-6">
+                      <div className="w-14 h-14 bg-slate-100 dark:bg-slate-800 rounded-2xl"></div>
+                      <div className="h-6 w-24 bg-slate-100 dark:bg-slate-800 rounded-full"></div>
+                    </div>
+                    <div className="h-6 w-3/4 bg-slate-100 dark:bg-slate-800 rounded mb-2"></div>
+                    <div className="h-4 w-full bg-slate-100 dark:bg-slate-800 rounded mb-6"></div>
+                    <div className="pt-6 border-t border-slate-50 dark:border-slate-800 flex justify-between">
+                      <div className="h-4 w-20 bg-slate-100 dark:bg-slate-800 rounded"></div>
+                      <div className="h-4 w-16 bg-slate-100 dark:bg-slate-800 rounded"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : diagnoses.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {diagnoses.map((diag) => (
                   <div key={diag.id} className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl hover:shadow-primary/5 transition-all group">
@@ -432,7 +491,7 @@ export default function HistoryContent() {
             className="space-y-8"
           >
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-              <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm">
+              <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm relative">
                 <div className="flex items-center justify-between mb-8">
                   <div>
                     <h3 className="text-xl font-black text-slate-900 dark:text-white">Soil Moisture Trend</h3>
@@ -442,42 +501,46 @@ export default function HistoryContent() {
                     <span className="material-symbols-outlined">water_drop</span>
                   </div>
                 </div>
-                <div className="h-[300px] w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={[...sensorHistory].reverse()}>
-                      <defs>
-                        <linearGradient id="colorMoisture" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                          <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                      <XAxis 
-                        dataKey="recorded_at" 
-                        tickFormatter={(str) => new Date(str).toLocaleDateString([], { month: 'short', day: 'numeric' })}
-                        fontSize={10}
-                        fontWeight={900}
-                        axisLine={false}
-                        tickLine={false}
-                        dy={10}
-                      />
-                      <YAxis fontSize={10} fontWeight={900} axisLine={false} tickLine={false} />
-                      <Tooltip />
-                      <Area 
-                        type="monotone" 
-                        dataKey="soil_moisture" 
-                        stroke="#3b82f6" 
-                        strokeWidth={3}
-                        fillOpacity={1} 
-                        fill="url(#colorMoisture)" 
-                        name="Moisture %"
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </div>
+                {loading && sensorHistory.length === 0 ? (
+                  <div className="h-[300px] w-full bg-slate-50 dark:bg-slate-800/50 rounded-2xl animate-pulse"></div>
+                ) : (
+                  <div className="h-[300px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={[...sensorHistory].reverse()}>
+                        <defs>
+                          <linearGradient id="colorMoisture" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
+                            <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                        <XAxis 
+                          dataKey="recorded_at" 
+                          tickFormatter={(str) => new Date(str).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                          fontSize={10}
+                          fontWeight={900}
+                          axisLine={false}
+                          tickLine={false}
+                          dy={10}
+                        />
+                        <YAxis fontSize={10} fontWeight={900} axisLine={false} tickLine={false} />
+                        <Tooltip />
+                        <Area 
+                          type="monotone" 
+                          dataKey="soil_moisture" 
+                          stroke="#3b82f6" 
+                          strokeWidth={3}
+                          fillOpacity={1} 
+                          fill="url(#colorMoisture)" 
+                          name="Moisture %"
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
               </div>
 
-              <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm">
+              <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm relative">
                 <div className="flex items-center justify-between mb-8">
                   <div>
                     <h3 className="text-xl font-black text-slate-900 dark:text-white">Temperature vs Humidity</h3>
@@ -487,40 +550,44 @@ export default function HistoryContent() {
                     <span className="material-symbols-outlined">thermostat</span>
                   </div>
                 </div>
-                <div className="h-[300px] w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={[...sensorHistory].reverse()}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                      <XAxis 
-                        dataKey="recorded_at" 
-                        tickFormatter={(str) => new Date(str).toLocaleDateString([], { month: 'short', day: 'numeric' })}
-                        fontSize={10}
-                        fontWeight={900}
-                        axisLine={false}
-                        tickLine={false}
-                        dy={10}
-                      />
-                      <YAxis fontSize={10} fontWeight={900} axisLine={false} tickLine={false} />
-                      <Tooltip />
-                      <Line 
-                        type="monotone" 
-                        dataKey="temperature" 
-                        stroke="#f59e0b" 
-                        strokeWidth={3} 
-                        dot={false}
-                        name="Temp °C"
-                      />
-                      <Line 
-                        type="monotone" 
-                        dataKey="humidity" 
-                        stroke="#10b981" 
-                        strokeWidth={3} 
-                        dot={false}
-                        name="Humidity %"
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
+                {loading && sensorHistory.length === 0 ? (
+                  <div className="h-[300px] w-full bg-slate-50 dark:bg-slate-800/50 rounded-2xl animate-pulse"></div>
+                ) : (
+                  <div className="h-[300px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={[...sensorHistory].reverse()}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                        <XAxis 
+                          dataKey="recorded_at" 
+                          tickFormatter={(str) => new Date(str).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                          fontSize={10}
+                          fontWeight={900}
+                          axisLine={false}
+                          tickLine={false}
+                          dy={10}
+                        />
+                        <YAxis fontSize={10} fontWeight={900} axisLine={false} tickLine={false} />
+                        <Tooltip />
+                        <Line 
+                          type="monotone" 
+                          dataKey="temperature" 
+                          stroke="#f59e0b" 
+                          strokeWidth={3} 
+                          dot={false}
+                          name="Temp °C"
+                        />
+                        <Line 
+                          type="monotone" 
+                          dataKey="humidity" 
+                          stroke="#10b981" 
+                          strokeWidth={3} 
+                          dot={false}
+                          name="Humidity %"
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -528,7 +595,7 @@ export default function HistoryContent() {
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-widest">Raw Sensor Logs</h3>
                 <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-xl text-[10px] font-black text-slate-400">
-                  Last {sensorHistory.length} readings
+                  {loading && sensorHistory.length === 0 ? 'Updating records...' : `Last ${sensorHistory.length} readings`}
                 </span>
               </div>
               <div className="overflow-x-auto">
@@ -543,15 +610,27 @@ export default function HistoryContent() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
-                    {sensorHistory.map((log) => (
-                      <tr key={log.id} className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                        <td className="py-4">{new Date(log.recorded_at).toLocaleTimeString()}</td>
-                        <td className="py-4 uppercase font-black text-xs text-slate-900 dark:text-white">{log.field_sector || 'Main'}</td>
-                        <td className="py-4">{log.soil_moisture}%</td>
-                        <td className="py-4">{log.temperature}°C</td>
-                        <td className="py-4">{log.humidity}%</td>
-                      </tr>
-                    ))}
+                    {loading && sensorHistory.length === 0 ? (
+                      [...Array(5)].map((_, i) => (
+                        <tr key={i} className="animate-pulse">
+                          <td className="py-4"><div className="h-4 w-16 bg-slate-100 dark:bg-slate-800 rounded"></div></td>
+                          <td className="py-4"><div className="h-4 w-12 bg-slate-100 dark:bg-slate-800 rounded"></div></td>
+                          <td className="py-4"><div className="h-4 w-10 bg-slate-100 dark:bg-slate-800 rounded"></div></td>
+                          <td className="py-4"><div className="h-4 w-10 bg-slate-100 dark:bg-slate-800 rounded"></div></td>
+                          <td className="py-4"><div className="h-4 w-10 bg-slate-100 dark:bg-slate-800 rounded"></div></td>
+                        </tr>
+                      ))
+                    ) : (
+                      sensorHistory.map((log) => (
+                        <tr key={log.id} className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                          <td className="py-4">{new Date(log.recorded_at).toLocaleTimeString() || 'N/A'}</td>
+                          <td className="py-4 uppercase font-black text-xs text-slate-900 dark:text-white">{log.field_sector || 'Main'}</td>
+                          <td className="py-4">{log.soil_moisture || 0}%</td>
+                          <td className="py-4">{log.temperature || 0}°C</td>
+                          <td className="py-4">{log.humidity || 0}%</td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>
