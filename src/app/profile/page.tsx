@@ -19,6 +19,7 @@ function ProfileContent() {
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     full_name: '',
@@ -132,6 +133,31 @@ function ProfileContent() {
     }
   };
 
+  const handleRefresh = async () => {
+    if (!user) return;
+    setIsRefreshing(true);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 800));
+      const profile = await profileService.getProfile(user.id);
+      if (profile) {
+        toast.success('Successfully synced with server');
+        setFormData({
+          full_name: profile.full_name || '',
+          location_name: profile.location_name || '',
+          avatar_url: profile.avatar_url || '',
+          phone_number: profile.phone_number || '',
+          bio: profile.bio || '',
+          farm_name: profile.farm_name || '',
+          website: profile.website || ''
+        });
+      }
+    } catch (error) {
+      toast.error('Failed to sync. Check your connection.');
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   const stats = isFarmer ? [
     { label: 'Diagnoses', value: '124' },
     { label: 'Sales', value: '$12.4k' }
@@ -205,6 +231,14 @@ function ProfileContent() {
               Edit Profile
             </button>
           )}
+          <button 
+            onClick={handleRefresh}
+            disabled={isRefreshing || isEditing}
+            title="Force sync data from database"
+            className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-primary transition-all disabled:opacity-50"
+          >
+            <span className={`material-symbols-outlined ${isRefreshing ? 'animate-spin' : ''}`}>sync</span>
+          </button>
         </div>
       </div>
 

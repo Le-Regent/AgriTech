@@ -161,12 +161,21 @@ ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies
 
+-- Helper function to check if a user is an admin without recursion
+CREATE OR REPLACE FUNCTION public.check_is_admin()
+RETURNS BOOLEAN AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM public.profiles
+    WHERE id = auth.uid() AND is_admin = true
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
 -- Profiles: Users can only update their own profile. Admins can manage all.
 CREATE POLICY "Anyone can view profiles" ON profiles FOR SELECT USING (auth.uid() IS NOT NULL);
 CREATE POLICY "Users can update their own profile" ON profiles FOR UPDATE USING (auth.uid() = id);
-CREATE POLICY "Admins can manage all profiles" ON profiles FOR ALL USING (
-  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true)
-);
+CREATE POLICY "Admins can manage all profiles" ON profiles FOR ALL USING (check_is_admin());
 
 -- Products: Anyone can read, only farmer can insert/update their own. Admins can manage all.
 CREATE POLICY "Anyone can view products" ON products FOR SELECT USING (true);
