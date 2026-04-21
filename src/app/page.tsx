@@ -13,10 +13,20 @@ import { supabaseService } from '@/services/supabaseService';
 import { CropDiagnosis, Product, Order } from '@/types';
 import { downloadDiagnosisReport } from '@/lib/diagnosisUtils';
 import { formatDistanceToNow } from 'date-fns';
-import { 
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
-  AreaChart, Area, BarChart, Bar 
-} from 'recharts';
+import dynamic from 'next/dynamic';
+
+const LineChart = dynamic(() => import('recharts').then(mod => mod.LineChart), { ssr: false });
+const Line = dynamic(() => import('recharts').then(mod => mod.Line), { ssr: false });
+const XAxis = dynamic(() => import('recharts').then(mod => mod.XAxis), { ssr: false });
+const YAxis = dynamic(() => import('recharts').then(mod => mod.YAxis), { ssr: false });
+const CartesianGrid = dynamic(() => import('recharts').then(mod => mod.CartesianGrid), { ssr: false });
+const Tooltip = dynamic(() => import('recharts').then(mod => mod.Tooltip), { ssr: false });
+const ResponsiveContainer = dynamic(() => import('recharts').then(mod => mod.ResponsiveContainer), { ssr: false });
+const AreaChart = dynamic(() => import('recharts').then(mod => mod.AreaChart), { ssr: false });
+const Area = dynamic(() => import('recharts').then(mod => mod.Area), { ssr: false });
+const BarChart = dynamic(() => import('recharts').then(mod => mod.BarChart), { ssr: false });
+const Bar = dynamic(() => import('recharts').then(mod => mod.Bar), { ssr: false });
+
 import LandingPage from '@/app/welcome/page';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'motion/react';
@@ -44,31 +54,45 @@ function DashboardContent() {
 
   // Load from cache immediately on mount or user change
   useEffect(() => {
-    if (!user?.id || hasLoadedFromCache.current) return;
+    async function loadCache() {
+      if (!user?.id || hasLoadedFromCache.current) return;
 
-    const cachedWeather = getFromCache('weather');
-    const cachedForecast = getFromCache('forecast');
-    const cachedDiagnoses = getFromCache(`diagnoses_${user.id}`);
-    const cachedMyProducts = getFromCache(`my_products_${user.id}`);
-    const cachedOrders = getFromCache(`orders_${user.id}`);
-    const cachedFeatured = getFromCache('featured_products');
-    const cachedNotifs = getFromCache(`notifs_${user.id}`);
+      const [
+        cachedWeather,
+        cachedForecast,
+        cachedDiagnoses,
+        cachedMyProducts,
+        cachedOrders,
+        cachedFeatured,
+        cachedNotifs
+      ] = await Promise.all([
+        getFromCache('weather'),
+        getFromCache('forecast'),
+        getFromCache(`diagnoses_${user.id}`),
+        getFromCache(`my_products_${user.id}`),
+        getFromCache(`orders_${user.id}`),
+        getFromCache('featured_products'),
+        getFromCache(`notifs_${user.id}`)
+      ]);
 
-    if (cachedWeather) setWeather(cachedWeather);
-    if (cachedForecast) setForecast(cachedForecast);
-    if (cachedDiagnoses) setDiagnoses(cachedDiagnoses);
-    if (cachedMyProducts) setMyProducts(cachedMyProducts);
-    if (cachedOrders) setSellerOrders(cachedOrders);
-    if (cachedFeatured) setFeaturedProducts(cachedFeatured);
-    if (cachedNotifs) setNotifications(cachedNotifs);
+      if (cachedWeather) setWeather(cachedWeather);
+      if (cachedForecast) setForecast(cachedForecast);
+      if (cachedDiagnoses) setDiagnoses(cachedDiagnoses);
+      if (cachedMyProducts) setMyProducts(cachedMyProducts);
+      if (cachedOrders) setSellerOrders(cachedOrders);
+      if (cachedFeatured) setFeaturedProducts(cachedFeatured);
+      if (cachedNotifs) setNotifications(cachedNotifs);
 
-    // If we have at least partial data, we can stop the skeleton early
-    if (cachedWeather || cachedOrders || cachedMyProducts) {
-      setDataLoading(false);
-      setWeatherLoading(false);
+      // If we have at least partial data, we can stop the skeleton early
+      if (cachedWeather || cachedOrders || cachedMyProducts) {
+        setDataLoading(false);
+        setWeatherLoading(false);
+      }
+      
+      hasLoadedFromCache.current = true;
     }
     
-    hasLoadedFromCache.current = true;
+    loadCache();
   }, [user?.id, getFromCache]);
 
   useEffect(() => {

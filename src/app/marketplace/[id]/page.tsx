@@ -44,7 +44,7 @@ function ProductDetailContent() {
             saveToCache(`product_${id}`, data);
           }
         } else {
-          const cached = getFromCache(`product_${id}`);
+          const cached = await getFromCache(`product_${id}`);
           if (cached) {
             setProduct(cached);
             setSelectedUnit(cached.unit);
@@ -53,7 +53,7 @@ function ProductDetailContent() {
         }
       } catch (error) {
         console.error('Failed to fetch product:', error);
-        const cached = getFromCache(`product_${id}`);
+        const cached = await getFromCache(`product_${id}`);
         if (cached) {
           setProduct(cached);
           setSelectedUnit(cached.unit);

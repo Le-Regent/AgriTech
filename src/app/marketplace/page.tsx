@@ -43,7 +43,7 @@ function MarketplaceContent() {
 
   const fetchProducts = useCallback(async () => {
     // 1. Try to load from cache immediately for instant UI
-    const cachedProducts = getFromCache('marketplace_products');
+    const cachedProducts = await getFromCache('marketplace_products');
     if (cachedProducts) {
       setAllProducts(cachedProducts);
       setLoading(false); // Stop showing skeleton if we have cache

@@ -31,7 +31,7 @@ function OrdersContent() {
       
       // Load from cache first for fast UI
       const cacheKey = `orders_${user.id}`;
-      const cached = getFromCache(cacheKey);
+      const cached = await getFromCache(cacheKey);
       if (cached) {
         setOrders(cached);
         setLoading(false);

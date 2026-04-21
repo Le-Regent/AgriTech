@@ -75,3 +75,9 @@
   border-top-color: #17cf54 !important;
   border-left-color: #17cf54 !important;
 }
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
