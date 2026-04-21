@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
 import { MARKETPLACE_NAV } from '@/constants';
 import ResponsiveImage from '@/components/ui/ResponsiveImage';
@@ -50,11 +50,15 @@ export function Navbar({ onMenuClick }: NavbarProps) {
 
   const filteredNav = MARKETPLACE_NAV.filter(item => !item.roles || (user && item.roles.includes(user.role)));
 
+  const pathname = usePathname();
+  const isDashboard = pathname === '/';
+
   return (
     <header className="h-20 bg-white dark:bg-background-dark border-b border-slate-200 dark:border-slate-800 px-4 sm:px-8 flex items-center justify-between sticky top-0 z-10 transition-colors duration-300">
       <div className="flex items-center gap-4 lg:gap-8 flex-1">
         {onMenuClick && (
           <button 
+            id="mobile-menu-trigger"
             onClick={onMenuClick}
             className="lg:hidden w-10 h-10 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-colors"
             title="Open Menu"
@@ -63,14 +67,17 @@ export function Navbar({ onMenuClick }: NavbarProps) {
           </button>
         )}
         
-        <div className="relative flex-1 max-w-[140px] xs:max-w-[180px] sm:max-w-sm md:max-w-md lg:max-w-lg transition-all duration-300">
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px] sm:text-[20px]">search</span>
-          <input
-            type="text"
-            placeholder="Search..."
-            className="pl-9 sm:pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border-none rounded-xl w-full text-xs sm:text-sm focus:ring-2 focus:ring-primary/20 outline-none dark:text-white transition-colors"
-          />
-        </div>
+        {!isDashboard && (
+          <div className="relative flex-1 max-w-[140px] xs:max-w-[180px] sm:max-w-sm md:max-w-md lg:max-w-lg transition-all duration-300">
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px] sm:text-[20px]">search</span>
+            <input
+              id="navbar-search"
+              type="text"
+              placeholder="Search..."
+              className="pl-9 sm:pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border-none rounded-xl w-full text-xs sm:text-sm focus:ring-2 focus:ring-primary/20 outline-none dark:text-white transition-colors"
+            />
+          </div>
+        )}
         
         <nav className="hidden xl:flex items-center gap-6">
           {filteredNav.map((item) => (

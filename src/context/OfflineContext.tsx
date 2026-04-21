@@ -53,21 +53,33 @@ export const OfflineProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const saveToCache = useCallback((key: string, data: any) => {
     try {
-      localStorage.setItem(`agritech_cache_${key}`, JSON.stringify(data));
+      const stringifiedData = JSON.stringify(data);
+      // localStorage usually has a limit of 5-10MB. 
+      // If a single item is > 2MB, it's very risky for our app context.
+      if (stringifiedData.length > 2 * 1024 * 1024) {
+        console.warn(`Data for key ${key} is too large (${(stringifiedData.length / 1024 / 1024).toFixed(2)}MB), skipping cache.`);
+        return;
+      }
+      localStorage.setItem(`agritech_cache_${key}`, stringifiedData);
     } catch (e: any) {
-      if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+      if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED' || e.code === 22 || e.code === 1014) {
         console.warn('Cache quota exceeded, clearing old cache entries...');
+        
         // Clear all cached data (those starting with agritech_cache_)
         Object.keys(localStorage).forEach(k => {
           if (k.startsWith('agritech_cache_')) {
             localStorage.removeItem(k);
           }
         });
-        // Try again after clearing
+        
+        // Also clear other non-essential data if needed, but start with our cache
         try {
-          localStorage.setItem(`agritech_cache_${key}`, JSON.stringify(data));
+          const stringifiedData = JSON.stringify(data);
+          localStorage.setItem(`agritech_cache_${key}`, stringifiedData);
         } catch (retryError) {
           console.error('Failed to save to cache even after clearing:', retryError);
+          // If it still fails, it might be a single huge item or other non-removable data.
+          // We don't throw to avoid crashing the UI.
         }
       } else {
         console.error('Failed to save to cache', e);

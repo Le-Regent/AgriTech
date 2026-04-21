@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
 import { useUser } from '@/context/UserContext';
+import { useOffline } from '@/context/OfflineContext';
 import { supabaseService } from '@/services/supabaseService';
 import ResponsiveImage from '@/components/ui/ResponsiveImage';
 import ProtectedRoute from '@/components/layout/ProtectedRoute';
@@ -11,6 +12,7 @@ import { toast } from 'sonner';
 
 function OrdersContent() {
   const { user } = useUser();
+  const { isOnline, saveToCache, getFromCache } = useOffline();
   const searchParams = useSearchParams();
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -26,19 +28,42 @@ function OrdersContent() {
   useEffect(() => {
     const fetchOrders = async () => {
       if (!user) return;
-      setLoading(true);
+      
+      // Load from cache first for fast UI
+      const cacheKey = `orders_${user.id}`;
+      const cached = getFromCache(cacheKey);
+      if (cached) {
+        setOrders(cached);
+        setLoading(false);
+      } else {
+        setLoading(true);
+      }
+
+      if (!isOnline) {
+        setLoading(false);
+        return;
+      }
+
       try {
         const data = await supabaseService.getOrders(user.id, user.role);
-        setOrders(data || []);
-      } catch (error) {
+        const ordersData = data || [];
+        setOrders(ordersData);
+        saveToCache(cacheKey, ordersData);
+      } catch (error: any) {
         console.error('Failed to fetch orders:', error);
+        // Error is often "TypeError: Failed to fetch" when network is unstable
+        if (error.message?.includes('fetch') || !isOnline) {
+          toast.error('Network error while fetching orders. Showing offline data.');
+        } else {
+          toast.error('Failed to load orders. Please try again later.');
+        }
       } finally {
         setLoading(false);
       }
     };
 
     fetchOrders();
-  }, [user]);
+  }, [user, isOnline, getFromCache, saveToCache]);
 
   const isFarmer = user?.role === 'farmer';
 

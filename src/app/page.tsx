@@ -25,7 +25,7 @@ import { supabase } from '@/lib/supabase';
 
 function DashboardContent() {
   const { user } = useUser();
-  const { saveToCache, getFromCache } = useOffline();
+  const { isOnline, saveToCache, getFromCache } = useOffline();
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
   const [weather, setWeather] = useState<WeatherData | null>(null);
@@ -35,8 +35,10 @@ function DashboardContent() {
   const [sellerOrders, setSellerOrders] = useState<any[]>([]);
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [notifications, setNotifications] = useState<any[]>([]);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [weatherLoading, setWeatherLoading] = useState(true);
   const [dataLoading, setDataLoading] = useState(true);
+  const dateInputRef = useRef<HTMLInputElement>(null);
   const isFarmer = user?.role === 'farmer';
   const hasLoadedFromCache = useRef(false);
 
@@ -74,6 +76,12 @@ function DashboardContent() {
       // If we don't have cached data, show loading
       if (!hasLoadedFromCache.current) {
         setDataLoading(true);
+      }
+      
+      if (!isOnline) {
+        setDataLoading(false);
+        setWeatherLoading(false);
+        return;
       }
       
       try {
@@ -167,7 +175,7 @@ function DashboardContent() {
     if (user?.id) {
       fetchData();
     }
-  }, [isFarmer, user?.id, saveToCache]);
+  }, [isFarmer, user?.id, user?.role, saveToCache, isOnline]);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -426,9 +434,10 @@ function DashboardContent() {
           <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400">Welcome back, {user?.full_name}. Here&apos;s what&apos;s happening today.</p>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-          <form onSubmit={handleSearch} className="relative group min-w-[280px]">
+          <form id="dashboard-search-form" onSubmit={handleSearch} className="relative group min-w-[280px]">
             <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">search</span>
             <input 
+              id="dashboard-search-input"
               type="text" 
               placeholder="Search marketplace..."
               value={searchTerm}
@@ -436,11 +445,29 @@ function DashboardContent() {
               className="w-full pl-12 pr-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-primary/20 dark:text-white transition-all shadow-sm"
             />
           </form>
-          <button className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 py-2 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors dark:text-white">
-            <span className="material-symbols-outlined text-[20px]">calendar_today</span>
-            Mar 11
-          </button>
-          <Link href="/diagnosis" className="bg-primary text-white px-6 py-2 rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-primary/90 transition-all shadow-lg shadow-primary/20">
+          <div className="relative">
+            <input 
+              type="date" 
+              ref={dateInputRef}
+              className="absolute inset-0 opacity-0 cursor-pointer -z-10" 
+              onChange={(e) => {
+                if (e.target.value) {
+                  const newDate = new Date(e.target.value);
+                  setSelectedDate(newDate);
+                  toast.success(`Date updated to ${newDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`);
+                }
+              }}
+            />
+            <button 
+              id="dashboard-calendar-trigger"
+              onClick={() => dateInputRef.current?.showPicker?.() || dateInputRef.current?.click()}
+              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 py-2 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors dark:text-white"
+            >
+              <span className="material-symbols-outlined text-[20px]">calendar_today</span>
+              {selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+            </button>
+          </div>
+          <Link id="new-diagnosis-btn" href="/diagnosis" className="bg-primary text-white px-6 py-2 rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-primary/90 transition-all shadow-lg shadow-primary/20">
             <span className="material-symbols-outlined text-[20px]">add_a_photo</span>
             New Diagnosis
           </Link>
