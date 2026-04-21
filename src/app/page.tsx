@@ -25,7 +25,7 @@ import { supabase } from '@/lib/supabase';
 
 function DashboardContent() {
   const { user } = useUser();
-  const { isOnline, saveToCache, getFromCache } = useOffline();
+  const { isOnline, saveToCache, getFromCache, addToSyncQueue } = useOffline();
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
   const [weather, setWeather] = useState<WeatherData | null>(null);
@@ -631,38 +631,48 @@ function DashboardContent() {
                       ))}
                     </div>
                     <div className="flex gap-2">
-                      {order.status === 'pending' && (
-                        <button 
-                          onClick={async () => {
-                            try {
-                              await supabaseService.updateOrderStatus(order.id, 'processing');
-                              setSellerOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: 'processing' } : o));
-                              toast.success('Order moved to processing');
-                            } catch (err) {
-                              toast.error('Failed to update order');
-                            }
-                          }}
-                          className="flex-1 bg-primary text-white py-2 rounded-xl text-[10px] font-black uppercase tracking-wider hover:bg-primary/90 transition-all"
-                        >
-                          Accept Order
-                        </button>
-                      )}
-                      {order.status === 'processing' && (
-                        <button 
-                          onClick={async () => {
-                            try {
-                              await supabaseService.updateOrderStatus(order.id, 'shipped');
-                              setSellerOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: 'shipped' } : o));
-                              toast.success('Order marked as shipped');
-                            } catch (err) {
-                              toast.error('Failed to update order');
-                            }
-                          }}
-                          className="flex-1 bg-indigo-500 text-white py-2 rounded-xl text-[10px] font-black uppercase tracking-wider hover:bg-indigo-600 transition-all"
-                        >
-                          Mark as Shipped
-                        </button>
-                      )}
+                        {order.status === 'pending' && (
+                          <button 
+                            onClick={async () => {
+                              try {
+                                if (isOnline) {
+                                  await supabaseService.updateOrderStatus(order.id, 'processing');
+                                  toast.success('Order moved to processing');
+                                } else {
+                                  addToSyncQueue('ORDER_STATUS_UPDATE', { id: order.id, status: 'processing' });
+                                  toast.info('Order accepted offline. Will sync when online.');
+                                }
+                                setSellerOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: 'processing' } : o));
+                              } catch (err) {
+                                toast.error('Failed to update order');
+                              }
+                            }}
+                            className="flex-1 bg-primary text-white py-2 rounded-xl text-[10px] font-black uppercase tracking-wider hover:bg-primary/90 transition-all"
+                          >
+                            Accept Order
+                          </button>
+                        )}
+                        {order.status === 'processing' && (
+                          <button 
+                            onClick={async () => {
+                              try {
+                                if (isOnline) {
+                                  await supabaseService.updateOrderStatus(order.id, 'shipped');
+                                  toast.success('Order marked as shipped');
+                                } else {
+                                  addToSyncQueue('ORDER_STATUS_UPDATE', { id: order.id, status: 'shipped' });
+                                  toast.info('Order updated offline. Will sync when online.');
+                                }
+                                setSellerOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: 'shipped' } : o));
+                              } catch (err) {
+                                toast.error('Failed to update order');
+                              }
+                            }}
+                            className="flex-1 bg-indigo-500 text-white py-2 rounded-xl text-[10px] font-black uppercase tracking-wider hover:bg-indigo-600 transition-all"
+                          >
+                            Mark as Shipped
+                          </button>
+                        )}
                       <button className="px-3 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider hover:bg-slate-300 dark:hover:bg-slate-600 transition-all">
                         Details
                       </button>

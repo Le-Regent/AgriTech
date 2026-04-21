@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useOffline } from '@/context/OfflineContext';
 import { useCart } from '@/context/CartContext';
+import { supabaseService } from '@/services/supabaseService';
 
 export default function SyncManager() {
   const { isOnline, syncQueue, clearSyncQueue } = useOffline();
@@ -22,6 +23,11 @@ export default function SyncManager() {
           case 'ADD_REVIEW':
             // Sync review with server
             console.log('Syncing new review:', action.data);
+            break;
+          case 'ORDER_STATUS_UPDATE':
+            supabaseService.updateOrderStatus(action.data.id, action.data.status)
+              .then(() => console.log(`Synced order ${action.data.id} to ${action.data.status}`))
+              .catch(err => console.error(`Failed to sync order update:`, err));
             break;
           default:
             console.warn('Unknown sync action type:', action.type);

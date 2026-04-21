@@ -178,16 +178,33 @@ CREATE POLICY "Admins can manage all diagnoses" ON diagnoses FOR ALL USING (
   EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true)
 );
 
--- Orders: Buyers can see their own orders, Farmers can see orders for their products (simplified). Admins can manage all.
+-- Orders: Buyers can see their own orders. Farmers can see orders for their products. Admins manage all.
 CREATE POLICY "Buyers can view their own orders" ON orders FOR SELECT USING (auth.uid() = buyer_id);
+CREATE POLICY "Farmers can view orders for their products" ON orders FOR SELECT USING (
+  EXISTS (
+    SELECT 1 FROM order_items
+    JOIN products ON products.id = order_items.product_id
+    WHERE order_items.order_id = orders.id AND products.farmer_id = auth.uid()
+  )
+);
+CREATE POLICY "Farmers can update status of orders for their products" ON orders FOR UPDATE USING (
+  EXISTS (
+    SELECT 1 FROM order_items
+    JOIN products ON products.id = order_items.product_id
+    WHERE order_items.order_id = orders.id AND products.farmer_id = auth.uid()
+  )
+);
 CREATE POLICY "Buyers can create their own orders" ON orders FOR INSERT WITH CHECK (auth.uid() = buyer_id);
 CREATE POLICY "Admins can manage all orders" ON orders FOR ALL USING (
   EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true)
 );
 
--- Order Items: Buyers can manage items for their own orders.
+-- Order Items: Buyers can manage items for their own orders. Farmers can see items for their products.
 CREATE POLICY "Buyers can view their own order items" ON order_items FOR SELECT USING (
   EXISTS (SELECT 1 FROM orders WHERE orders.id = order_items.order_id AND orders.buyer_id = auth.uid())
+);
+CREATE POLICY "Farmers can view order items for their products" ON order_items FOR SELECT USING (
+  EXISTS (SELECT 1 FROM products WHERE products.id = order_items.product_id AND products.farmer_id = auth.uid())
 );
 CREATE POLICY "Buyers can insert their own order items" ON order_items FOR INSERT WITH CHECK (
   EXISTS (SELECT 1 FROM orders WHERE orders.id = order_items.order_id AND orders.buyer_id = auth.uid())
