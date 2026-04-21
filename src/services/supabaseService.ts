@@ -84,16 +84,18 @@ export const supabaseService = {
   },
 
   async updateProductStock(id: string, quantity: number) {
-    // First get current stock
+    // First get current stock and other info
     const { data, error: fetchError } = await supabase
       .from('products')
-      .select('stock_quantity')
+      .select('stock_quantity, initial_stock_quantity, farmer_id, name')
       .eq('id', id)
       .single();
     
     if (fetchError) throw new Error(fetchError.message);
     
-    const newStock = Math.max(0, data.stock_quantity - quantity);
+    const oldStock = data.stock_quantity;
+    const initialStock = data.initial_stock_quantity || oldStock;
+    const newStock = Math.max(0, oldStock - quantity);
     
     const { error: updateError } = await supabase
       .from('products')
@@ -101,6 +103,24 @@ export const supabaseService = {
       .eq('id', id);
     
     if (updateError) throw new Error(updateError.message);
+
+    // Check for low stock threshold (25%)
+    // Crosses threshold check: was above or equal, now below
+    const threshold = initialStock * 0.25;
+    if (newStock < threshold && oldStock >= threshold && initialStock > 0) {
+      try {
+        await this.createNotification({
+          user_id: data.farmer_id,
+          title: 'Low Stock Alert ⚠️',
+          message: `Your product "${data.name}" has dropped below 25% stock (${newStock} remaining). Consider restocking soon!`,
+          type: 'system',
+          link: '/listings'
+        });
+      } catch (notifyError) {
+        console.error('Failed to send low stock notification:', notifyError);
+      }
+    }
+
     return newStock;
   },
 

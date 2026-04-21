@@ -197,14 +197,21 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, far
 
     setSaving(true);
     try {
-      await onSave(formData);
-      toast.success(`${formData.name} added to cart`, {
-        description: `Quantity: ${formData.stock_quantity} ${formData.unit}`,
-        action: {
-          label: 'View Cart',
-          onClick: () => window.location.href = '/cart'
-        }
-      });
+      // Calculate initial_stock_quantity for threshold monitoring
+      const isNew = !initialData?.id;
+      const currentStock = Number(formData.stock_quantity) || 0;
+      const oldStock = Number(initialData?.stock_quantity) || 0;
+      const oldInitialStock = Number(initialData?.initial_stock_quantity) || oldStock;
+
+      const payload = {
+        ...formData,
+        initial_stock_quantity: (isNew || currentStock > oldStock)
+          ? currentStock
+          : oldInitialStock
+      };
+
+      await onSave(payload);
+      toast.success(isNew ? 'Product listed successfully!' : 'Product updated successfully!');
       onClose();
     } catch (error) {
       console.error('Failed to save product:', error);

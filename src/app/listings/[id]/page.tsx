@@ -99,7 +99,7 @@ export default function ProductInsightsPage() {
           <div className="flex items-center gap-4">
             <Link 
               href="/listings"
-              className="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-primary transition-colors"
+              className="w-10 h-10 rounded-xl bg-white dark:bg-surface-dark border border-slate-100 dark:border-border-border-dark flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-primary transition-colors"
             >
               <span className="material-symbols-outlined">arrow_back</span>
             </Link>
@@ -116,23 +116,23 @@ export default function ProductInsightsPage() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm">
+          <div className="bg-white dark:bg-surface-dark p-6 rounded-[2rem] border border-slate-100 dark:border-border-dark shadow-sm">
             <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Total Sold</p>
             <h3 className="text-3xl font-black dark:text-white">
               {stats.totalSold} <span className="text-sm font-medium text-slate-500">{formatUnit(product.unit)}</span>
             </h3>
           </div>
-          <div className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm">
+          <div className="bg-white dark:bg-surface-dark p-6 rounded-[2rem] border border-slate-100 dark:border-border-dark shadow-sm">
             <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Total Revenue</p>
             <h3 className="text-3xl font-black text-primary">
               {stats.totalRevenue.toLocaleString()} <span className="text-sm font-medium">FCFA</span>
             </h3>
           </div>
-          <div className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm">
+          <div className="bg-white dark:bg-surface-dark p-6 rounded-[2rem] border border-slate-100 dark:border-border-dark shadow-sm">
             <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Total Orders</p>
             <h3 className="text-3xl font-black dark:text-white">{stats.orderCount}</h3>
           </div>
-          <div className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm">
+          <div className="bg-white dark:bg-surface-dark p-6 rounded-[2rem] border border-slate-100 dark:border-border-dark shadow-sm">
             <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Avg. Order Size</p>
             <h3 className="text-3xl font-black dark:text-white">
               {stats.orderCount > 0 ? (stats.totalSold / stats.orderCount).toFixed(1) : 0}
@@ -143,7 +143,7 @@ export default function ProductInsightsPage() {
 
         {/* Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm">
+          <div className="bg-white dark:bg-surface-dark p-8 rounded-[2.5rem] border border-slate-100 dark:border-border-dark shadow-sm">
             <h3 className="text-lg font-black mb-6 dark:text-white">Sales Volume</h3>
             <div className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
@@ -166,7 +166,7 @@ export default function ProductInsightsPage() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm">
+          <div className="bg-white dark:bg-surface-dark p-8 rounded-[2.5rem] border border-slate-100 dark:border-border-dark shadow-sm">
             <h3 className="text-lg font-black mb-6 dark:text-white">Revenue Trend</h3>
             <div className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
@@ -185,14 +185,14 @@ export default function ProductInsightsPage() {
         </div>
 
         {/* Recent Sales Table */}
-        <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
-          <div className="p-8 border-b border-slate-100 dark:border-slate-800">
+        <div className="bg-white dark:bg-surface-dark rounded-[2.5rem] border border-slate-100 dark:border-border-dark shadow-sm overflow-hidden">
+          <div className="p-8 border-b border-slate-100 dark:border-border-dark">
             <h3 className="text-lg font-black dark:text-white">Recent Sales</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="bg-slate-50 dark:bg-slate-800/50">
+                <tr className="bg-slate-50 dark:bg-muted-dark/50">
                   <th className="px-8 py-4 text-xs font-black uppercase tracking-widest text-slate-400">Date</th>
                   <th className="px-8 py-4 text-xs font-black uppercase tracking-widest text-slate-400">Buyer</th>
                   <th className="px-8 py-4 text-xs font-black uppercase tracking-widest text-slate-400">Quantity</th>
@@ -200,9 +200,9 @@ export default function ProductInsightsPage() {
                   <th className="px-8 py-4 text-xs font-black uppercase tracking-widest text-slate-400">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              <tbody className="divide-y divide-slate-100 dark:divide-border-dark">
                 {sales.length > 0 ? sales.map((sale) => (
-                  <tr key={sale.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                  <tr key={sale.id} className="hover:bg-slate-50 dark:hover:bg-surface-hover-dark transition-colors">
                     <td className="px-8 py-4 text-sm dark:text-white">
                       {format(new Date(sale.orders.created_at), 'MMM dd, yyyy')}
                     </td>

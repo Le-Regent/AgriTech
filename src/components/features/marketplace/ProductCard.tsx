@@ -8,11 +8,21 @@ interface ProductCardProps {
   className?: string;
   children?: React.ReactNode;
   showBadges?: boolean;
+  onClick?: () => void;
 }
 
-export default function ProductCard({ product, className = '', children, showBadges = true }: ProductCardProps) {
+export default function ProductCard({ 
+  product, 
+  className = '', 
+  children, 
+  showBadges = true,
+  onClick 
+}: ProductCardProps) {
   return (
-    <div className={`group bg-white dark:bg-surface-dark rounded-[2.5rem] border border-slate-100 dark:border-border-dark shadow-sm hover:shadow-xl transition-all overflow-hidden flex flex-col ${className}`}>
+    <div 
+      onClick={onClick}
+      className={`group bg-white dark:bg-surface-dark rounded-[2.5rem] border border-slate-100 dark:border-border-dark shadow-sm hover:shadow-xl transition-all overflow-hidden flex flex-col ${onClick ? 'cursor-pointer' : ''} ${className}`}
+    >
       <div className="aspect-[4/3] relative overflow-hidden">
         <ResponsiveImage
           src={product.image_url || 'https://picsum.photos/seed/product/400/300'}
@@ -22,19 +32,23 @@ export default function ProductCard({ product, className = '', children, showBad
           baseHeight={300}
         />
         {showBadges && (
-          <div className="absolute top-4 left-4 flex gap-2">
+          <div className="absolute top-4 left-4 flex flex-col gap-2">
             {product.is_verified && (
-              <div className="bg-white/90 dark:bg-surface-dark/90 backdrop-blur px-2 py-1 rounded-lg shadow-sm flex items-center gap-1">
+              <div className="bg-white/90 dark:bg-surface-dark/90 backdrop-blur px-2 py-1 rounded-lg shadow-sm flex items-center gap-1 w-fit">
                 <span className="material-symbols-outlined text-primary text-[14px] fill-1">verified</span>
                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-900 dark:text-white">Verified</span>
               </div>
             )}
             {product.health_status && product.health_status !== 'N/A' && (
-              <div className="bg-primary/90 backdrop-blur px-2 py-1 rounded-lg shadow-sm flex items-center gap-1 text-white">
+              <div className="bg-primary/90 backdrop-blur px-2 py-1 rounded-lg shadow-sm flex items-center gap-1 text-white w-fit">
                 <span className="material-symbols-outlined text-[14px] fill-1">eco</span>
                 <span className="text-[10px] font-black uppercase tracking-widest">{product.health_status}</span>
               </div>
             )}
+            <div className="bg-emerald-500/90 backdrop-blur px-2 py-1 rounded-lg shadow-sm flex items-center gap-1 text-white w-fit">
+              <span className="material-symbols-outlined text-[14px] fill-1">inventory</span>
+              <span className="text-[10px] font-black uppercase tracking-widest">{product.stock_quantity > 0 ? `${product.stock_quantity} ${product.unit}` : 'Out of Stock'}</span>
+            </div>
           </div>
         )}
         {children}

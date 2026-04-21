@@ -10,7 +10,7 @@ import { useUser } from '@/context/UserContext';
 import { supabaseService } from '@/services/supabaseService';
 import ProtectedRoute from '@/components/layout/ProtectedRoute';
 import { toast } from 'sonner';
-import { formatUnit } from '@/lib/unitUtils';
+import { formatUnit, convertQuantity } from '@/lib/unitUtils';
 
 function CartContent() {
   const { cart, removeFromCart, clearCart, totalItems, updateQuantity } = useCart();
@@ -19,6 +19,23 @@ function CartContent() {
   const [isCheckingOut, setIsCheckingOut] = useState(false);
 
   const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  const handleUpdateQuantity = (item: any, delta: number) => {
+    const newQuantity = item.quantity + delta;
+    if (newQuantity <= 0) {
+      removeFromCart(item.id, item.unit);
+      return;
+    }
+
+    // Convert new quantity to base unit to check against stock
+    const qtyInBaseUnit = convertQuantity(newQuantity, item.unit, item.baseUnit);
+    if (delta > 0 && qtyInBaseUnit > item.stockQuantity) {
+      toast.error(`Only ${item.stockQuantity} ${item.baseUnit} available`);
+      return;
+    }
+
+    updateQuantity(item.id, newQuantity, item.unit);
+  };
 
   const handleCheckout = () => {
     if (!user) {
@@ -103,15 +120,16 @@ function CartContent() {
                   <div className="flex items-center justify-between mt-4">
                     <div className="flex items-center gap-3 bg-slate-50 dark:bg-slate-800 p-1 rounded-xl border border-slate-100 dark:border-slate-700">
                       <button 
-                        onClick={() => updateQuantity(item.id, item.quantity - 1, item.unit)}
-                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-all"
+                        onClick={() => handleUpdateQuantity(item, -1)}
+                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-all font-black"
                       >
                         <span className="material-symbols-outlined text-sm">remove</span>
                       </button>
                       <span className="font-black text-sm w-8 text-center dark:text-white">{item.quantity}</span>
                       <button 
-                        onClick={() => updateQuantity(item.id, item.quantity + 1, item.unit)}
-                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-all"
+                        onClick={() => handleUpdateQuantity(item, 1)}
+                        disabled={convertQuantity(item.quantity + 1, item.unit, item.baseUnit) > item.stockQuantity}
+                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-all font-black disabled:opacity-30"
                       >
                         <span className="material-symbols-outlined text-sm">add</span>
                       </button>

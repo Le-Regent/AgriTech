@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { motion } from 'motion/react';
 import { useUser } from '@/context/UserContext';
+import { useOffline } from '@/context/OfflineContext';
 import { supabaseService } from '@/services/supabaseService';
 import { Product } from '@/types';
 import ProductModal from '@/components/features/marketplace/ProductModal';
@@ -14,25 +15,41 @@ import { toast } from 'sonner';
 
 function ListingsContent() {
   const { user } = useUser();
+  const { isOnline, saveToCache, getFromCache } = useOffline();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | undefined>(undefined);
 
+  const productsRef = useRef<Product[]>(products);
+  useEffect(() => { productsRef.current = products; }, [products]);
+
   const fetchProducts = useCallback(async () => {
     if (!user) return;
-    setLoading(true);
+    
+    // 1. Try to load from cache immediately
+    const cachedProducts = await getFromCache(`farmer_listings_${user.id}`);
+    if (cachedProducts) {
+      setProducts(cachedProducts);
+      setLoading(false);
+    } else {
+      setLoading(true);
+    }
+
     try {
-      const data = await supabaseService.getProducts();
-      // Filter products by farmer_id
-      const farmerProducts = data.filter((p: any) => p.farmer_id === user.id);
-      setProducts(farmerProducts);
+      if (isOnline) {
+        const data = await supabaseService.getProductsByFarmerId(user.id);
+        if (data) {
+          setProducts(data);
+          saveToCache(`farmer_listings_${user.id}`, data);
+        }
+      }
     } catch (error) {
       console.error('Failed to fetch products:', error);
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, isOnline, getFromCache, saveToCache]);
 
   useEffect(() => {
     fetchProducts();
@@ -107,7 +124,7 @@ function ListingsContent() {
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="bg-white dark:bg-slate-900 h-64 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 animate-pulse" />
+            <div key={i} className="bg-white dark:bg-muted-dark h-64 rounded-[2.5rem] border border-slate-100 dark:border-border-dark animate-pulse" />
           ))}
         </div>
       ) : products.length > 0 ? (
@@ -117,23 +134,33 @@ function ListingsContent() {
               layout
               key={product.id}
             >
-              <ProductCard product={product}>
+              <ProductCard 
+                product={product}
+                onClick={() => openEditModal(product)}
+              >
                 <div className="absolute top-4 right-4 flex gap-2">
                   <Link
                     href={`/listings/${product.id}`}
-                    className="w-10 h-10 bg-white/90 dark:bg-slate-900/90 backdrop-blur rounded-xl shadow-lg flex items-center justify-center text-slate-600 hover:text-blue-500 transition-colors"
+                    onClick={(e) => e.stopPropagation()}
+                    className="w-10 h-10 bg-white/90 dark:bg-surface-dark/90 backdrop-blur rounded-xl shadow-lg flex items-center justify-center text-slate-600 hover:text-blue-500 transition-colors"
                   >
                     <span className="material-symbols-outlined text-[20px]">insights</span>
                   </Link>
                   <button
-                    onClick={() => openEditModal(product)}
-                    className="w-10 h-10 bg-white/90 dark:bg-slate-900/90 backdrop-blur rounded-xl shadow-lg flex items-center justify-center text-slate-600 hover:text-primary transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openEditModal(product);
+                    }}
+                    className="w-10 h-10 bg-white/90 dark:bg-surface-dark/90 backdrop-blur rounded-xl shadow-lg flex items-center justify-center text-slate-600 hover:text-primary transition-colors"
                   >
                     <span className="material-symbols-outlined text-[20px]">edit</span>
                   </button>
                   <button
-                    onClick={() => handleDeleteProduct(product.id)}
-                    className="w-10 h-10 bg-white/90 dark:bg-slate-900/90 backdrop-blur rounded-xl shadow-lg flex items-center justify-center text-slate-600 hover:text-red-500 transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteProduct(product.id);
+                    }}
+                    className="w-10 h-10 bg-white/90 dark:bg-surface-dark/90 backdrop-blur rounded-xl shadow-lg flex items-center justify-center text-slate-600 hover:text-red-500 transition-colors"
                   >
                     <span className="material-symbols-outlined text-[20px]">delete</span>
                   </button>
@@ -143,7 +170,7 @@ function ListingsContent() {
           ))}
         </div>
       ) : (
-        <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm min-h-[400px] flex flex-col items-center justify-center text-center">
+        <div className="bg-white dark:bg-surface-dark p-8 rounded-[2.5rem] border border-slate-100 dark:border-border-dark shadow-sm min-h-[400px] flex flex-col items-center justify-center text-center">
           <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center text-primary mb-6">
             <span className="material-symbols-outlined text-4xl">potted_plant</span>
           </div>

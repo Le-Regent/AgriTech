@@ -36,6 +36,7 @@ export interface Product {
   unit: string;
   image_url?: string;
   stock_quantity: number;
+  initial_stock_quantity?: number;
   min_quantity?: number;
   max_quantity?: number;
   is_verified: boolean;

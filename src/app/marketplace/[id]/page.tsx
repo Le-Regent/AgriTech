@@ -148,6 +148,19 @@ function ProductDetailContent() {
   const handleAddToCart = () => {
     if (!product) return;
 
+    if (product.stock_quantity <= 0) {
+      toast.error('This product is currently out of stock');
+      return;
+    }
+
+    // Validate quantity against stock
+    // We need to convert quantity back to base unit to compare with stock
+    const qtyInBaseUnit = convertQuantity(quantity, selectedUnit, product.unit);
+    if (qtyInBaseUnit > product.stock_quantity) {
+      toast.error(`Only ${product.stock_quantity} ${product.unit} available in stock`);
+      return;
+    }
+
     // Validate quantity range
     if (product.min_quantity && quantity < product.min_quantity) {
       toast.error(`Minimum order quantity is ${product.min_quantity} ${selectedUnit}`);
@@ -289,9 +302,15 @@ function ProductDetailContent() {
               <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest">{product.profiles?.full_name || 'Unknown Farmer'}</span>
             </div>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight dark:text-white">{product.name}</h2>
-            <div className="flex items-center gap-3 sm:gap-4">
+            <div className="flex items-center gap-3">
               <p className="text-2xl sm:text-3xl lg:text-4xl font-black text-primary">{pricePerSelectedUnit.toLocaleString()} <span className="text-sm sm:text-base lg:text-lg text-slate-400 font-bold">CFA / {selectedUnit}</span></p>
-              <div className="bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 px-2 sm:px-3 py-1 rounded-lg text-[10px] sm:text-xs font-black uppercase tracking-widest transition-colors">In Stock</div>
+              <div className={`px-2 sm:px-3 py-1 rounded-lg text-[10px] sm:text-xs font-black uppercase tracking-widest transition-colors ${
+                product.stock_quantity > 0 
+                  ? 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400' 
+                  : 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400'
+              }`}>
+                {product.stock_quantity > 0 ? `In Stock: ${product.stock_quantity} ${product.unit}` : 'Out of Stock'}
+              </div>
             </div>
             
             <div className="flex flex-wrap gap-4 py-2">
@@ -414,11 +433,12 @@ function ProductDetailContent() {
 
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1 space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Quantity</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Quantity ({formatUnit(selectedUnit)})</label>
                   <div className="flex items-center justify-between bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark rounded-2xl overflow-hidden transition-colors">
                     <button 
                       onClick={() => setQuantity(Math.max(product?.min_quantity || 1, quantity - 1))}
-                      className="px-4 py-3 hover:bg-slate-50 dark:hover:bg-surface-hover-dark text-slate-400 transition-colors"
+                      disabled={product.stock_quantity <= 0}
+                      className="px-4 py-3 hover:bg-slate-50 dark:hover:bg-surface-hover-dark text-slate-400 transition-colors disabled:opacity-30"
                     >
                       <span className="material-symbols-outlined">remove</span>
                     </button>
@@ -426,17 +446,31 @@ function ProductDetailContent() {
                       type="number"
                       value={quantity}
                       min={product?.min_quantity || 1}
-                      max={product?.max_quantity}
-                      onChange={(e) => setQuantity(Number(e.target.value))}
-                      className="w-full text-center font-black text-lg dark:text-white bg-transparent outline-none"
+                      max={Math.floor(product.stock_quantity / convertQuantity(1, selectedUnit, product.unit))}
+                      onChange={(e) => {
+                        const val = Number(e.target.value);
+                        const maxAllowed = Math.floor(product.stock_quantity / convertQuantity(1, selectedUnit, product.unit));
+                        setQuantity(Math.min(maxAllowed, Math.max(product?.min_quantity || 1, val)));
+                      }}
+                      disabled={product.stock_quantity <= 0}
+                      className="w-full text-center font-black text-lg dark:text-white bg-transparent outline-none disabled:opacity-30"
                     />
                     <button 
-                      onClick={() => setQuantity(product?.max_quantity ? Math.min(product.max_quantity, quantity + 1) : quantity + 1)}
-                      className="px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-400 transition-colors"
+                      onClick={() => {
+                        const maxAllowed = Math.floor(product.stock_quantity / convertQuantity(1, selectedUnit, product.unit));
+                        setQuantity(Math.min(maxAllowed, quantity + 1));
+                      }}
+                      disabled={product.stock_quantity <= 0 || (convertQuantity(quantity + 1, selectedUnit, product.unit) > product.stock_quantity)}
+                      className="px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-400 transition-colors disabled:opacity-30"
                     >
                       <span className="material-symbols-outlined">add</span>
                     </button>
                   </div>
+                  {product.stock_quantity > 0 && (
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest text-center">
+                      Max available: {Math.floor(product.stock_quantity / convertQuantity(1, selectedUnit, product.unit))} {formatUnit(selectedUnit)}
+                    </p>
+                  )}
                 </div>
                 <div className="flex-1 space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Total Price</label>
@@ -449,10 +483,11 @@ function ProductDetailContent() {
 
             <button 
               onClick={handleAddToCart}
-              className="w-full bg-primary text-white py-4 rounded-2xl font-black text-lg hover:bg-primary/90 transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-3 mt-4"
+              disabled={product.stock_quantity <= 0}
+              className="w-full bg-primary text-white py-4 rounded-2xl font-black text-lg hover:bg-primary/90 transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-3 mt-4 disabled:bg-slate-300 disabled:shadow-none"
             >
               <span className="material-symbols-outlined">shopping_cart</span>
-              Add to Cart
+              {product.stock_quantity > 0 ? 'Add to Cart' : 'Out of Stock'}
             </button>
           </div>
         </div>
