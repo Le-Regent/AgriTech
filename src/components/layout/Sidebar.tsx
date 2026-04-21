@@ -35,7 +35,7 @@ export function Sidebar({ onMobileClose }: SidebarProps) {
               className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
                 isActive
                   ? 'bg-primary/10 text-primary font-semibold'
-                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
+                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-surface-hover-dark hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               <div className="w-6 h-6 flex items-center justify-center">
@@ -52,7 +52,7 @@ export function Sidebar({ onMobileClose }: SidebarProps) {
   };
 
   return (
-    <aside className="w-full lg:w-64 bg-white dark:bg-background-dark border-r border-slate-200 dark:border-slate-800 h-full lg:h-screen lg:sticky top-0 flex flex-col transition-colors duration-300">
+    <aside className="w-full lg:w-64 bg-white dark:bg-background-dark border-r border-slate-200 dark:border-border-dark h-full lg:h-screen lg:sticky top-0 flex flex-col transition-colors duration-300">
       <div className="p-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white">
@@ -76,8 +76,8 @@ export function Sidebar({ onMobileClose }: SidebarProps) {
         {renderNavItems(MARKETPLACE_NAV, 'Marketplace')}
       </nav>
 
-      <div className="p-4 border-t border-slate-100 dark:border-slate-800">
-        <div className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-4 transition-colors">
+      <div className="p-4 border-t border-slate-100 dark:border-border-dark">
+        <div className="bg-slate-50 dark:bg-muted-dark rounded-2xl p-4 transition-colors">
           <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Pro Plan</p>
           <p className="text-sm text-slate-600 dark:text-slate-300 mb-3">Upgrade for advanced AI insights and global shipping.</p>
           <button className="w-full bg-primary text-white py-2 rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors">

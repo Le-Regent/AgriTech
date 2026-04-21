@@ -5,7 +5,11 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --color-primary: #17cf54;
   --color-background-light: #f6f8f6;
-  --color-background-dark: #112116;
+  --color-background-dark: #090b09;
+  --color-surface-dark: #121a13;
+  --color-surface-hover-dark: #1a251b;
+  --color-border-dark: #1a251b;
+  --color-muted-dark: #1a241d;
 }
 
 @variant dark (&:where(.dark, .dark *));

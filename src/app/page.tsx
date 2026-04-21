@@ -308,7 +308,7 @@ function DashboardContent() {
             <form onSubmit={handleSearch} className="relative group min-w-[280px]">
               <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">search</span>
               <input type="text" placeholder="Search marketplace..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-12 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all outline-none dark:text-white" />
+                className="w-full pl-12 pr-4 py-2.5 bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark rounded-xl text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all outline-none dark:text-white" />
             </form>
             <Link href="/marketplace" className="bg-primary text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-primary/90 transition-all shadow-lg shadow-primary/20">
               <span className="material-symbols-outlined text-[20px]">storefront</span> Browse
@@ -319,7 +319,7 @@ function DashboardContent() {
         <motion.div variants={containerVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {stats.map((stat, i) => (
             <motion.div key={i} variants={itemVariants}
-              className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all group">
+              className="bg-white dark:bg-surface-dark p-6 rounded-3xl border border-slate-100 dark:border-border-dark shadow-sm hover:shadow-xl transition-all group">
               <div className={`w-12 h-12 ${stat.bg} ${stat.color} rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
                 <span className="material-symbols-outlined fill-1 text-2xl">{stat.icon}</span>
               </div>
@@ -367,9 +367,9 @@ function DashboardContent() {
               </h3>
               <div className="space-y-4">
                 {sellerOrders.length > 0 ? sellerOrders.slice(0, 5).map((order) => (
-                  <div key={order.id} className="flex items-center justify-between p-5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border border-transparent hover:border-slate-200 dark:hover:border-slate-700">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-white dark:bg-slate-900 rounded-xl flex items-center justify-center border border-slate-100 dark:border-slate-800 shadow-sm">
+          <div key={order.id} className="flex items-center justify-between p-5 bg-slate-50 dark:bg-muted-dark/50 rounded-2xl hover:bg-slate-100 dark:hover:bg-surface-hover-dark transition-colors border border-transparent hover:border-slate-200 dark:hover:border-border-dark">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-white dark:bg-surface-dark rounded-xl flex items-center justify-center border border-slate-100 dark:border-border-dark shadow-sm">
                         <span className="material-symbols-outlined text-primary">package_2</span>
                       </div>
                       <div>
@@ -499,7 +499,7 @@ function DashboardContent() {
               placeholder="Search marketplace..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-primary/20 dark:text-white transition-all shadow-sm"
+              className="w-full pl-12 pr-4 py-2 bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-primary/20 dark:text-white transition-all shadow-sm"
             />
           </form>
           <div className="relative">
@@ -518,7 +518,7 @@ function DashboardContent() {
             <button 
               id="dashboard-calendar-trigger"
               onClick={() => dateInputRef.current?.showPicker?.() || dateInputRef.current?.click()}
-              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 py-2 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors dark:text-white"
+              className="bg-white dark:bg-muted-dark border border-slate-200 dark:border-border-dark px-4 py-2 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 hover:bg-slate-50 dark:hover:bg-surface-hover-dark transition-colors dark:text-white"
             >
               <span className="material-symbols-outlined text-[20px]">calendar_today</span>
               {selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
@@ -560,7 +560,7 @@ function DashboardContent() {
             bg: 'bg-amber-50 dark:bg-amber-500/10' 
           },
         ].map((stat, i) => (
-          <motion.div key={i} variants={itemVariants} className="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-all relative overflow-hidden">
+          <motion.div key={i} variants={itemVariants} className="bg-white dark:bg-surface-dark p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-100 dark:border-border-dark shadow-sm hover:shadow-md transition-all relative overflow-hidden">
             {stat.label === 'Crop Health' && (
               <div className={`absolute top-0 right-0 w-16 h-16 -mr-8 -mt-8 rounded-full opacity-20 blur-2xl ${
                 stat.healthStatus === 'healthy' ? 'bg-green-500' : 
@@ -618,15 +618,15 @@ function DashboardContent() {
 
       <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
         <motion.div variants={itemVariants} className="lg:col-span-2 space-y-6 sm:space-y-8">
-          <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-all">
+          <div className="bg-white dark:bg-surface-dark p-6 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] border border-slate-100 dark:border-border-dark shadow-sm transition-all">
             <div className="flex items-center justify-between mb-6 sm:mb-8">
               <h3 className="text-lg sm:text-xl font-bold dark:text-white">Field Status Map</h3>
               <div className="flex gap-2">
-                <button className="px-2 sm:px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-[10px] sm:text-xs font-bold dark:text-slate-300">Satellite</button>
+                <button className="px-2 sm:px-3 py-1 bg-slate-100 dark:bg-muted-dark rounded-lg text-[10px] sm:text-xs font-bold dark:text-slate-300">Satellite</button>
                 <button className="px-2 sm:px-3 py-1 text-[10px] sm:text-xs font-bold text-slate-400 dark:text-slate-500">Heatmap</button>
               </div>
             </div>
-            <div className="aspect-video bg-slate-100 dark:bg-slate-800 rounded-xl sm:rounded-2xl overflow-hidden relative group">
+            <div className="aspect-video bg-slate-100 dark:bg-muted-dark rounded-xl sm:rounded-2xl overflow-hidden relative group">
               <ResponsiveImage 
                 src="https://picsum.photos/seed/farm-map/1200/800" 
                 alt="Satellite view of the farm fields showing crop distribution and health zones" 
@@ -635,22 +635,22 @@ function DashboardContent() {
                 baseHeight={800}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-              <div className="absolute top-3 left-3 sm:top-4 sm:left-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur px-2 sm:px-3 py-1 sm:py-2 rounded-lg sm:rounded-xl shadow-sm flex items-center gap-1.5 sm:gap-2">
+              <div className="absolute top-3 left-3 sm:top-4 sm:left-4 bg-white/90 dark:bg-surface-dark/90 backdrop-blur px-2 sm:px-3 py-1 sm:py-2 rounded-lg sm:rounded-xl shadow-sm flex items-center gap-1.5 sm:gap-2">
                 <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full animate-pulse"></div>
                 <span className="text-[10px] sm:text-xs font-bold dark:text-white">Live Monitoring Active</span>
               </div>
               <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 flex gap-2">
-                <button className="w-8 h-8 sm:w-10 sm:h-10 bg-white dark:bg-slate-800 rounded-lg sm:rounded-xl shadow-lg flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                <button className="w-8 h-8 sm:w-10 sm:h-10 bg-white dark:bg-surface-dark rounded-lg sm:rounded-xl shadow-lg flex items-center justify-center hover:bg-slate-50 dark:hover:bg-surface-hover-dark transition-colors">
                   <span className="material-symbols-outlined text-lg sm:text-xl dark:text-white">add</span>
                 </button>
-                <button className="w-8 h-8 sm:w-10 sm:h-10 bg-white dark:bg-slate-800 rounded-lg sm:rounded-xl shadow-lg flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                <button className="w-8 h-8 sm:w-10 sm:h-10 bg-white dark:bg-surface-dark rounded-lg sm:rounded-xl shadow-lg flex items-center justify-center hover:bg-slate-50 dark:hover:bg-surface-hover-dark transition-colors">
                   <span className="material-symbols-outlined text-lg sm:text-xl dark:text-white">remove</span>
                 </button>
               </div>
             </div>
           </div>
 
-          <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-all">
+          <div className="bg-white dark:bg-surface-dark p-6 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] border border-slate-100 dark:border-border-dark shadow-sm transition-all">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg sm:text-xl font-bold dark:text-white">Orders to Process</h3>
               <span className="bg-primary/10 text-primary text-[10px] font-black px-2 py-1 rounded-lg">
@@ -660,10 +660,10 @@ function DashboardContent() {
             <div className="space-y-4">
               {sellerOrders.length > 0 ? (
                 sellerOrders.slice(0, 5).map((order) => (
-                  <div key={order.id} className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
+                  <div key={order.id} className="p-4 bg-slate-50 dark:bg-muted-dark/50 rounded-2xl border border-slate-100 dark:border-border-dark">
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-white dark:bg-slate-800 rounded-xl flex items-center justify-center text-slate-400 border border-slate-100 dark:border-slate-700">
+                        <div className="w-10 h-10 bg-white dark:bg-surface-dark rounded-xl flex items-center justify-center text-slate-400 border border-slate-100 dark:border-border-dark">
                           <span className="material-symbols-outlined text-sm">person</span>
                         </div>
                         <div>
@@ -730,7 +730,7 @@ function DashboardContent() {
                             Mark as Shipped
                           </button>
                         )}
-                      <button className="px-3 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider hover:bg-slate-300 dark:hover:bg-slate-600 transition-all">
+                      <button className="px-3 bg-slate-200 dark:bg-muted-dark text-slate-700 dark:text-slate-200 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider hover:bg-slate-300 dark:hover:bg-surface-hover-dark transition-all">
                         Details
                       </button>
                     </div>
@@ -744,7 +744,7 @@ function DashboardContent() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-all">
+          <div className="bg-white dark:bg-surface-dark p-6 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] border border-slate-100 dark:border-border-dark shadow-sm transition-all">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
                 <h3 className="text-lg sm:text-xl font-bold dark:text-white">Past Crop Diagnoses</h3>
@@ -762,7 +762,7 @@ function DashboardContent() {
             </div>
             <div className="space-y-4">
               {diagnoses.length > 0 ? diagnoses.slice(0, 3).map((diagnosis) => (
-                <div key={diagnosis.id} className="flex items-center gap-4 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
+                <div key={diagnosis.id} className="flex items-center gap-4 p-3 bg-slate-50 dark:bg-muted-dark/50 rounded-2xl border border-slate-100 dark:border-border-dark">
                   <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0">
                     <ResponsiveImage 
                       src={diagnosis.image_url} 
@@ -806,7 +806,7 @@ function DashboardContent() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-all">
+          <div className="bg-white dark:bg-surface-dark p-6 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] border border-slate-100 dark:border-border-dark shadow-sm transition-all">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
                 <h3 className="text-lg sm:text-xl font-bold dark:text-white">My Inventory</h3>

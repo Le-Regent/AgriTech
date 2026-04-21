@@ -277,10 +277,10 @@ export default function HistoryContent() {
             className="space-y-8"
           >
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-colors">
+              <div className="bg-white dark:bg-surface-dark p-8 rounded-[2.5rem] border border-slate-100 dark:border-border-dark shadow-sm transition-colors">
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total {isFarmer ? 'Revenue' : 'Spent'}</p>
                 {loading && history.length === 0 ? (
-                  <div className="h-10 w-32 bg-slate-100 dark:bg-slate-800 rounded-lg mt-3 animate-pulse"></div>
+                  <div className="h-10 w-32 bg-slate-100 dark:bg-muted-dark rounded-lg mt-3 animate-pulse"></div>
                 ) : (
                   <p className="text-4xl font-black text-slate-900 dark:text-white mt-3">
                     {(history.reduce((acc, curr) => acc + (curr.type === 'Sale' || !isFarmer ? curr.amount : 0), 0) || 0).toLocaleString()} CFA
@@ -292,10 +292,10 @@ export default function HistoryContent() {
                 </div>
               </div>
 
-              <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-colors">
+              <div className="bg-white dark:bg-surface-dark p-8 rounded-[2.5rem] border border-slate-100 dark:border-border-dark shadow-sm transition-colors">
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Transactions</p>
                 {loading && history.length === 0 ? (
-                  <div className="h-10 w-16 bg-slate-100 dark:bg-slate-800 rounded-lg mt-3 animate-pulse"></div>
+                  <div className="h-10 w-16 bg-slate-100 dark:bg-muted-dark rounded-lg mt-3 animate-pulse"></div>
                 ) : (
                   <p className="text-4xl font-black text-slate-900 dark:text-white mt-3">{history.length}</p>
                 )}
@@ -305,10 +305,10 @@ export default function HistoryContent() {
                 </div>
               </div>
 
-              <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-colors">
+              <div className="bg-white dark:bg-surface-dark p-8 rounded-[2.5rem] border border-slate-100 dark:border-border-dark shadow-sm transition-colors">
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pending Actions</p>
                 {loading && history.length === 0 ? (
-                  <div className="h-10 w-12 bg-slate-100 dark:bg-slate-800 rounded-lg mt-3 animate-pulse"></div>
+                  <div className="h-10 w-12 bg-slate-100 dark:bg-muted-dark rounded-lg mt-3 animate-pulse"></div>
                 ) : (
                   <p className="text-4xl font-black text-slate-900 dark:text-white mt-3">0</p>
                 )}
@@ -319,8 +319,8 @@ export default function HistoryContent() {
               </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden transition-colors">
-              <div className="p-8 border-b border-slate-50 dark:border-slate-800 flex justify-between items-center">
+            <div className="bg-white dark:bg-surface-dark rounded-[2.5rem] border border-slate-100 dark:border-border-dark shadow-sm overflow-hidden transition-colors">
+              <div className="p-8 border-b border-slate-50 dark:border-border-dark flex justify-between items-center">
                 <h2 className="text-xl font-black text-slate-900 dark:text-white">Recent Transactions</h2>
                 {!isOnline && (
                   <span className="px-4 py-1.5 bg-amber-100 text-amber-700 text-[10px] font-black uppercase tracking-widest rounded-full">
@@ -332,7 +332,7 @@ export default function HistoryContent() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="bg-slate-50/50 dark:bg-slate-800/50 border-y border-slate-100 dark:border-slate-800">
+                    <tr className="bg-slate-50/50 dark:bg-muted-dark/50 border-y border-slate-100 dark:border-border-dark">
                       <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</th>
                       <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Type</th>
                       <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Item</th>
@@ -345,15 +345,15 @@ export default function HistoryContent() {
                     {loading && history.length === 0 ? (
                       [...Array(5)].map((_, i) => (
                         <tr key={i} className="animate-pulse">
-                          <td className="px-8 py-5"><div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-24"></div></td>
-                          <td className="px-8 py-5"><div className="h-6 bg-slate-100 dark:bg-slate-800 rounded-full w-16"></div></td>
+                          <td className="px-8 py-5"><div className="h-4 bg-slate-100 dark:bg-muted-dark rounded w-24"></div></td>
+                          <td className="px-8 py-5"><div className="h-6 bg-slate-100 dark:bg-muted-dark rounded-full w-16"></div></td>
                           <td className="px-8 py-5">
-                            <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-32 mb-1"></div>
-                            <div className="h-3 bg-slate-100 dark:bg-slate-800 rounded w-20"></div>
+                            <div className="h-4 bg-slate-100 dark:bg-muted-dark rounded w-32 mb-1"></div>
+                            <div className="h-3 bg-slate-100 dark:bg-muted-dark rounded w-20"></div>
                           </td>
-                          <td className="px-8 py-5"><div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-20 ml-auto"></div></td>
-                          <td className="px-8 py-5"><div className="h-6 bg-slate-100 dark:bg-slate-800 rounded-full w-20 mx-auto"></div></td>
-                          <td className="px-8 py-5"><div className="h-8 bg-slate-100 dark:bg-slate-800 rounded-xl w-24 ml-auto"></div></td>
+                          <td className="px-8 py-5"><div className="h-4 bg-slate-100 dark:bg-muted-dark rounded w-20 ml-auto"></div></td>
+                          <td className="px-8 py-5"><div className="h-6 bg-slate-100 dark:bg-muted-dark rounded-full w-20 mx-auto"></div></td>
+                          <td className="px-8 py-5"><div className="h-8 bg-slate-100 dark:bg-muted-dark rounded-xl w-24 ml-auto"></div></td>
                         </tr>
                       ))
                     ) : (
@@ -425,16 +425,16 @@ export default function HistoryContent() {
             {loading && diagnoses.length === 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {[...Array(3)].map((_, i) => (
-                  <div key={i} className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 animate-pulse">
+                  <div key={i} className="bg-white dark:bg-surface-dark p-8 rounded-[2.5rem] border border-slate-100 dark:border-border-dark animate-pulse">
                     <div className="flex justify-between items-start mb-6">
-                      <div className="w-14 h-14 bg-slate-100 dark:bg-slate-800 rounded-2xl"></div>
-                      <div className="h-6 w-24 bg-slate-100 dark:bg-slate-800 rounded-full"></div>
+                      <div className="w-14 h-14 bg-slate-100 dark:bg-muted-dark rounded-2xl"></div>
+                      <div className="h-6 w-24 bg-slate-100 dark:bg-muted-dark rounded-full"></div>
                     </div>
-                    <div className="h-6 w-3/4 bg-slate-100 dark:bg-slate-800 rounded mb-2"></div>
-                    <div className="h-4 w-full bg-slate-100 dark:bg-slate-800 rounded mb-6"></div>
-                    <div className="pt-6 border-t border-slate-50 dark:border-slate-800 flex justify-between">
-                      <div className="h-4 w-20 bg-slate-100 dark:bg-slate-800 rounded"></div>
-                      <div className="h-4 w-16 bg-slate-100 dark:bg-slate-800 rounded"></div>
+                    <div className="h-6 w-3/4 bg-slate-100 dark:bg-muted-dark rounded mb-2"></div>
+                    <div className="h-4 w-full bg-slate-100 dark:bg-muted-dark rounded mb-6"></div>
+                    <div className="pt-6 border-t border-slate-50 dark:border-border-dark flex justify-between">
+                      <div className="h-4 w-20 bg-slate-100 dark:bg-muted-dark rounded"></div>
+                      <div className="h-4 w-16 bg-slate-100 dark:bg-muted-dark rounded"></div>
                     </div>
                   </div>
                 ))}
@@ -442,7 +442,7 @@ export default function HistoryContent() {
             ) : diagnoses.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {diagnoses.map((diag) => (
-                  <div key={diag.id} className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl hover:shadow-primary/5 transition-all group">
+                  <div key={diag.id} className="bg-white dark:bg-surface-dark p-8 rounded-[2.5rem] border border-slate-100 dark:border-border-dark shadow-sm hover:shadow-xl hover:shadow-primary/5 transition-all group">
                     <div className="flex justify-between items-start mb-6">
                       <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
                         <span className="material-symbols-outlined text-3xl">potted_plant</span>
@@ -455,7 +455,7 @@ export default function HistoryContent() {
                     </div>
                     <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2">{diag.crop_type}</h3>
                     <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 line-clamp-2">{diag.result_label || diag.result}</p>
-                    <div className="flex items-center justify-between pt-6 border-t border-slate-50 dark:border-slate-800">
+                    <div className="flex items-center justify-between pt-6 border-t border-slate-50 dark:border-border-dark">
                       <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
                         {new Date(diag.created_at).toLocaleDateString()}
                       </span>
@@ -471,7 +471,7 @@ export default function HistoryContent() {
                 ))}
               </div>
             ) : (
-              <div className="bg-white dark:bg-slate-900 p-20 rounded-[3rem] border border-dashed border-slate-200 dark:border-slate-800 text-center">
+              <div className="bg-white dark:bg-surface-dark p-20 rounded-[3rem] border border-dashed border-slate-200 dark:border-border-dark text-center">
                 <span className="material-symbols-outlined text-6xl text-slate-200 mb-6">biotech</span>
                 <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-2">No Diagnoses Yet</h3>
                 <p className="text-slate-500 dark:text-slate-400 mb-8">Run your first crop health check to see results here.</p>
@@ -491,7 +491,7 @@ export default function HistoryContent() {
             className="space-y-8"
           >
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-              <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm relative">
+              <div className="bg-white dark:bg-surface-dark p-8 rounded-[2.5rem] border border-slate-100 dark:border-border-dark shadow-sm relative">
                 <div className="flex items-center justify-between mb-8">
                   <div>
                     <h3 className="text-xl font-black text-slate-900 dark:text-white">Soil Moisture Trend</h3>
@@ -540,7 +540,7 @@ export default function HistoryContent() {
                 )}
               </div>
 
-              <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm relative">
+              <div className="bg-white dark:bg-surface-dark p-8 rounded-[2.5rem] border border-slate-100 dark:border-border-dark shadow-sm relative">
                 <div className="flex items-center justify-between mb-8">
                   <div>
                     <h3 className="text-xl font-black text-slate-900 dark:text-white">Temperature vs Humidity</h3>
@@ -551,7 +551,7 @@ export default function HistoryContent() {
                   </div>
                 </div>
                 {loading && sensorHistory.length === 0 ? (
-                  <div className="h-[300px] w-full bg-slate-50 dark:bg-slate-800/50 rounded-2xl animate-pulse"></div>
+                  <div className="h-[300px] w-full bg-slate-50 dark:bg-muted-dark/50 rounded-2xl animate-pulse"></div>
                 ) : (
                   <div className="h-[300px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
@@ -591,10 +591,10 @@ export default function HistoryContent() {
               </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-colors">
+            <div className="bg-white dark:bg-surface-dark p-8 rounded-[2.5rem] border border-slate-100 dark:border-border-dark shadow-sm transition-colors">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-widest">Raw Sensor Logs</h3>
-                <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-xl text-[10px] font-black text-slate-400">
+                <span className="px-3 py-1 bg-slate-100 dark:bg-muted-dark rounded-xl text-[10px] font-black text-slate-400">
                   {loading && sensorHistory.length === 0 ? 'Updating records...' : `Last ${sensorHistory.length} readings`}
                 </span>
               </div>

@@ -54,13 +54,13 @@ export function Navbar({ onMenuClick }: NavbarProps) {
   const isDashboard = pathname === '/';
 
   return (
-    <header className="h-20 bg-white dark:bg-background-dark border-b border-slate-200 dark:border-slate-800 px-4 sm:px-8 flex items-center justify-between sticky top-0 z-10 transition-colors duration-300">
+    <header className="h-20 bg-white dark:bg-background-dark border-b border-slate-200 dark:border-border-dark px-4 sm:px-8 flex items-center justify-between sticky top-0 z-10 transition-colors duration-300">
       <div className="flex items-center gap-4 lg:gap-8 flex-1">
         {onMenuClick && (
           <button 
             id="mobile-menu-trigger"
             onClick={onMenuClick}
-            className="lg:hidden w-10 h-10 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-colors"
+            className="lg:hidden w-10 h-10 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-surface-hover-dark rounded-xl transition-colors"
             title="Open Menu"
           >
             <span className="material-symbols-outlined">menu</span>
@@ -74,7 +74,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
               id="navbar-search"
               type="text"
               placeholder="Search..."
-              className="pl-9 sm:pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border-none rounded-xl w-full text-xs sm:text-sm focus:ring-2 focus:ring-primary/20 outline-none dark:text-white transition-colors"
+              className="pl-9 sm:pl-10 pr-4 py-2 bg-slate-50 dark:bg-muted-dark border-none rounded-xl w-full text-xs sm:text-sm focus:ring-2 focus:ring-primary/20 outline-none dark:text-white transition-colors"
             />
           </div>
         )}
@@ -123,7 +123,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
         <button 
           id="theme-toggle"
           onClick={handleToggleTheme}
-          className="w-8 h-8 sm:w-10 sm:h-10 rounded-full hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400 transition-colors"
+          className="w-8 h-8 sm:w-10 sm:h-10 rounded-full hover:bg-slate-50 dark:hover:bg-surface-hover-dark flex items-center justify-center text-slate-500 dark:text-slate-400 transition-colors"
           title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
         >
           <span className="material-symbols-outlined text-[20px] sm:text-[24px]">
@@ -132,7 +132,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
         </button>
         <Link 
           href="/cart"
-          className="w-8 h-8 sm:w-10 sm:h-10 rounded-full hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400 relative transition-colors"
+          className="w-8 h-8 sm:w-10 sm:h-10 rounded-full hover:bg-slate-50 dark:hover:bg-surface-hover-dark flex items-center justify-center text-slate-500 dark:text-slate-400 relative transition-colors"
           title="Shopping Cart"
         >
           <span className="material-symbols-outlined text-[20px] sm:text-[24px]">shopping_cart</span>
@@ -143,7 +143,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
           )}
         </Link>
         <button 
-          className="w-8 h-8 sm:w-10 sm:h-10 rounded-full hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400 relative transition-colors"
+          className="w-8 h-8 sm:w-10 sm:h-10 rounded-full hover:bg-slate-50 dark:hover:bg-surface-hover-dark flex items-center justify-center text-slate-500 dark:text-slate-400 relative transition-colors"
           title="Notifications"
         >
           <span className="material-symbols-outlined text-[20px] sm:text-[24px]">notifications</span>
@@ -153,7 +153,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
         <div className="relative" ref={menuRef}>
           <button 
             onClick={() => setShowProfileMenu(!showProfileMenu)}
-            className="flex items-center gap-2 sm:gap-3 pl-2 sm:pl-4 border-l border-slate-100 dark:border-slate-800 hover:opacity-80 transition-opacity"
+            className="flex items-center gap-2 sm:gap-3 pl-2 sm:pl-4 border-l border-slate-100 dark:border-border-dark hover:opacity-80 transition-opacity"
           >
             <div className="hidden md:block text-right">
               <p className="text-xs sm:text-sm font-bold truncate max-w-[80px] lg:max-w-none dark:text-white">
@@ -178,9 +178,9 @@ export function Navbar({ onMenuClick }: NavbarProps) {
                 initial={{ opacity: 0, y: 10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                className="absolute right-0 mt-2 w-64 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden z-50"
+                className="absolute right-0 mt-2 w-64 bg-white dark:bg-surface-dark rounded-2xl shadow-2xl border border-slate-100 dark:border-border-dark overflow-hidden z-50"
               >
-                <div className="p-4 border-b border-slate-100 dark:border-slate-800">
+                <div className="p-4 border-b border-slate-100 dark:border-border-dark">
                   <p className="text-sm font-black dark:text-white">{user?.full_name}</p>
                   <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{user?.email}</p>
                   <div className="mt-2 inline-flex items-center px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest">
@@ -191,7 +191,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
                   <Link 
                     href="/profile" 
                     onClick={() => setShowProfileMenu(false)}
-                    className="flex items-center gap-3 px-3 py-2 text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-colors"
+                    className="flex items-center gap-3 px-3 py-2 text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-surface-hover-dark rounded-xl transition-colors"
                   >
                     <span className="material-symbols-outlined text-[20px]">person</span>
                     My Profile

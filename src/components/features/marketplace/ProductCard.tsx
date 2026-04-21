@@ -12,7 +12,7 @@ interface ProductCardProps {
 
 export default function ProductCard({ product, className = '', children, showBadges = true }: ProductCardProps) {
   return (
-    <div className={`group bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all overflow-hidden flex flex-col ${className}`}>
+    <div className={`group bg-white dark:bg-surface-dark rounded-[2.5rem] border border-slate-100 dark:border-border-dark shadow-sm hover:shadow-xl transition-all overflow-hidden flex flex-col ${className}`}>
       <div className="aspect-[4/3] relative overflow-hidden">
         <ResponsiveImage
           src={product.image_url || 'https://picsum.photos/seed/product/400/300'}
@@ -24,7 +24,7 @@ export default function ProductCard({ product, className = '', children, showBad
         {showBadges && (
           <div className="absolute top-4 left-4 flex gap-2">
             {product.is_verified && (
-              <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur px-2 py-1 rounded-lg shadow-sm flex items-center gap-1">
+              <div className="bg-white/90 dark:bg-surface-dark/90 backdrop-blur px-2 py-1 rounded-lg shadow-sm flex items-center gap-1">
                 <span className="material-symbols-outlined text-primary text-[14px] fill-1">verified</span>
                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-900 dark:text-white">Verified</span>
               </div>

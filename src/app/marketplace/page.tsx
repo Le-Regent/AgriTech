@@ -342,13 +342,13 @@ function MarketplaceContent() {
               placeholder="Search products by name or description..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-primary/20 dark:text-white transition-all"
+              className="w-full pl-12 pr-4 py-3 bg-white dark:bg-muted-dark border border-slate-200 dark:border-border-dark rounded-2xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-primary/20 dark:text-white transition-all transition-colors"
             />
           </div>
           <div className="flex gap-2 sm:gap-3">
             <button 
               onClick={() => setRunTour(true)}
-              className="flex-1 sm:flex-none border border-slate-200 dark:border-slate-700 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 hover:bg-slate-50 dark:hover:bg-slate-700 dark:text-white transition-colors"
+              className="flex-1 sm:flex-none border border-slate-200 dark:border-border-dark px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 hover:bg-slate-50 dark:hover:bg-surface-hover-dark dark:text-white transition-colors"
               title="Replay Onboarding Tour"
             >
               <span className="material-symbols-outlined text-[18px] sm:text-[20px]">help</span>
@@ -367,32 +367,32 @@ function MarketplaceContent() {
             <button 
               id="marketplace-filters-btn"
               onClick={() => setShowFilters(!showFilters)}
-              className={`flex-1 sm:flex-none border px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-colors ${showFilters ? 'bg-primary text-white border-primary' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-700'}`}
+              className={`flex-1 sm:flex-none border px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-colors ${showFilters ? 'bg-primary text-white border-primary' : 'bg-white dark:bg-muted-dark border-slate-200 dark:border-border-dark dark:text-white hover:bg-slate-50 dark:hover:bg-surface-hover-dark'}`}
             >
               <span className="material-symbols-outlined text-[18px] sm:text-[20px]">filter_list</span>
               Filters
             </button>
             <div id="marketplace-sort-btn" className="relative group flex-1 sm:flex-none">
-              <button className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 hover:bg-slate-50 dark:hover:bg-slate-700 dark:text-white transition-colors">
+              <button className="w-full bg-white dark:bg-muted-dark border border-slate-200 dark:border-border-dark px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 hover:bg-slate-50 dark:hover:bg-surface-hover-dark dark:text-white transition-colors">
                 <span className="material-symbols-outlined text-[18px] sm:text-[20px]">sort</span>
                 <span className="truncate">Sort: {sortBy === 'name-asc' ? 'A-Z' : sortBy === 'price-low' ? 'Low-High' : 'High-Low'}</span>
               </button>
-              <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10 p-2 space-y-1">
+              <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-muted-dark border border-slate-100 dark:border-border-dark rounded-2xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10 p-2 space-y-1">
                 <button 
                   onClick={() => setSortBy('name-asc')}
-                  className={`w-full text-left px-4 py-2 rounded-xl text-[10px] sm:text-xs font-bold transition-colors ${sortBy === 'name-asc' ? 'bg-primary text-white' : 'hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300'}`}
+                  className={`w-full text-left px-4 py-2 rounded-xl text-[10px] sm:text-xs font-bold transition-colors ${sortBy === 'name-asc' ? 'bg-primary text-white' : 'hover:bg-slate-50 dark:hover:bg-surface-hover-dark text-slate-600 dark:text-slate-300'}`}
                 >
                   Name (A-Z)
                 </button>
                 <button 
                   onClick={() => setSortBy('price-low')}
-                  className={`w-full text-left px-4 py-2 rounded-xl text-[10px] sm:text-xs font-bold transition-colors ${sortBy === 'price-low' ? 'bg-primary text-white' : 'hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300'}`}
+                  className={`w-full text-left px-4 py-2 rounded-xl text-[10px] sm:text-xs font-bold transition-colors ${sortBy === 'price-low' ? 'bg-primary text-white' : 'hover:bg-slate-50 dark:hover:bg-surface-hover-dark text-slate-600 dark:text-slate-300'}`}
                 >
                   Price: Low to High
                 </button>
                 <button 
                   onClick={() => setSortBy('price-high')}
-                  className={`w-full text-left px-4 py-2 rounded-xl text-[10px] sm:text-xs font-bold transition-colors ${sortBy === 'price-high' ? 'bg-primary text-white' : 'hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300'}`}
+                  className={`w-full text-left px-4 py-2 rounded-xl text-[10px] sm:text-xs font-bold transition-colors ${sortBy === 'price-high' ? 'bg-primary text-white' : 'hover:bg-slate-50 dark:hover:bg-surface-hover-dark text-slate-600 dark:text-slate-300'}`}
                 >
                   Price: High to Low
                 </button>
@@ -407,7 +407,7 @@ function MarketplaceContent() {
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
           exit={{ opacity: 0, height: 0 }}
-          className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm grid grid-cols-1 md:grid-cols-3 gap-8 transition-all overflow-hidden"
+          className="bg-white dark:bg-surface-dark p-6 rounded-[2rem] border border-slate-100 dark:border-border-dark shadow-sm grid grid-cols-1 md:grid-cols-3 gap-8 transition-all overflow-hidden"
         >
           <div className="space-y-4">
             <button 
@@ -423,7 +423,7 @@ function MarketplaceContent() {
                   <button
                     key={country}
                     onClick={() => setFilters({ ...filters, origin: country })}
-                    className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${filters.origin === country ? 'bg-primary text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+                    className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${filters.origin === country ? 'bg-primary text-white' : 'bg-slate-50 dark:bg-muted-dark text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-surface-hover-dark'}`}
                   >
                     {country}
                   </button>

@@ -230,12 +230,12 @@ function ProductDetailContent() {
           Back to Marketplace
         </Link>
         <div className="flex gap-3 relative">
-          <button className="w-10 h-10 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl flex items-center justify-center text-slate-400 hover:text-red-500 transition-colors">
+          <button className="w-10 h-10 bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark rounded-xl flex items-center justify-center text-slate-400 hover:text-red-500 transition-colors">
             <span className="material-symbols-outlined">favorite</span>
           </button>
           <button 
             onClick={handleShare}
-            className="w-10 h-10 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl flex items-center justify-center text-slate-400 hover:text-primary transition-colors"
+            className="w-10 h-10 bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark rounded-xl flex items-center justify-center text-slate-400 hover:text-primary transition-colors"
           >
             <span className="material-symbols-outlined">share</span>
           </button>
@@ -244,7 +244,7 @@ function ProductDetailContent() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
         <div className="space-y-4 sm:space-y-6">
-          <div className="aspect-square bg-white dark:bg-slate-900 rounded-[2rem] sm:rounded-[3rem] overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm relative transition-colors">
+          <div className="aspect-square bg-white dark:bg-surface-dark rounded-[2rem] sm:rounded-[3rem] overflow-hidden border border-slate-100 dark:border-border-dark shadow-sm relative transition-colors">
             <ResponsiveImage 
               src={product.image_url || 'https://picsum.photos/seed/product/1000/1000'} 
               alt={`Detailed view of ${product.name}`} 
@@ -254,7 +254,7 @@ function ProductDetailContent() {
             />
             <div className="absolute top-4 sm:top-6 left-4 sm:left-6 flex flex-col gap-2 sm:gap-3">
               {product.is_verified && (
-                <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl shadow-lg flex items-center gap-2 transition-colors">
+                <div className="bg-white/90 dark:bg-surface-dark/90 backdrop-blur px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl shadow-lg flex items-center gap-2 transition-colors">
                   <span className="material-symbols-outlined text-primary fill-1 text-sm sm:text-base">verified</span>
                   <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest dark:text-white">Health Verified</span>
                 </div>
@@ -269,7 +269,7 @@ function ProductDetailContent() {
           </div>
           <div className="grid grid-cols-4 gap-2 sm:gap-4">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="aspect-square bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800 cursor-pointer hover:border-primary transition-colors">
+              <div key={i} className="aspect-square bg-white dark:bg-surface-dark rounded-xl sm:rounded-2xl overflow-hidden border border-slate-100 dark:border-border-dark cursor-pointer hover:border-primary transition-colors">
                 <ResponsiveImage 
                   src={`https://picsum.photos/seed/${product.id}-${i}/200/200`} 
                   alt={`Thumbnail view ${i} of ${product.name}`} 
@@ -311,7 +311,7 @@ function ProductDetailContent() {
               {product.description}
             </p>
 
-            <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-colors">
+            <div className="bg-slate-50 dark:bg-muted-dark/50 p-6 rounded-2xl border border-slate-100 dark:border-border-dark flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-colors">
               <div className="flex items-center gap-4">
                 <ResponsiveImage 
                   src={product.profiles?.avatar_url || `https://picsum.photos/seed/${product.id}/100/100`} 
@@ -359,7 +359,7 @@ function ProductDetailContent() {
                 { label: 'Category', value: product.category, icon: 'category' },
                 { label: 'Location', value: product.location || 'Unknown', icon: 'location_on' },
               ].map((detail, i) => (
-                <div key={i} className="bg-slate-50 dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 transition-colors">
+                <div key={i} className="bg-slate-50 dark:bg-muted-dark p-4 rounded-2xl border border-slate-100 dark:border-border-dark transition-colors">
                   <span className="material-symbols-outlined text-primary text-xl mb-2">{detail.icon}</span>
                   <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">{detail.label}</p>
                   <p className="text-sm font-bold dark:text-white">{detail.value}</p>
@@ -368,7 +368,7 @@ function ProductDetailContent() {
             </div>
           </div>
 
-          <div className="bg-slate-50 dark:bg-slate-900 p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] space-y-4 sm:space-y-6 transition-colors">
+          <div className="bg-slate-50 dark:bg-muted-dark p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] space-y-4 sm:space-y-6 transition-colors">
             <h4 className="font-black text-base sm:text-lg dark:text-white">Diagnostic History</h4>
             <div className="space-y-3 sm:space-y-4">
               {[
@@ -389,7 +389,7 @@ function ProductDetailContent() {
             </div>
           </div>
 
-          <div className="bg-slate-50 dark:bg-slate-900 p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] space-y-4 sm:space-y-6 transition-colors">
+          <div className="bg-slate-50 dark:bg-muted-dark p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] space-y-4 sm:space-y-6 transition-colors">
             <h4 className="font-black text-base sm:text-lg dark:text-white">Order Customization</h4>
             
             <div className="space-y-4">
@@ -415,10 +415,10 @@ function ProductDetailContent() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1 space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Quantity</label>
-                  <div className="flex items-center justify-between bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden transition-colors">
+                  <div className="flex items-center justify-between bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark rounded-2xl overflow-hidden transition-colors">
                     <button 
                       onClick={() => setQuantity(Math.max(product?.min_quantity || 1, quantity - 1))}
-                      className="px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-400 transition-colors"
+                      className="px-4 py-3 hover:bg-slate-50 dark:hover:bg-surface-hover-dark text-slate-400 transition-colors"
                     >
                       <span className="material-symbols-outlined">remove</span>
                     </button>
