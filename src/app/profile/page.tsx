@@ -6,6 +6,7 @@ import { useUser } from '@/context/UserContext';
 import ResponsiveImage from '@/components/ui/ResponsiveImage';
 import ProtectedRoute from '@/components/layout/ProtectedRoute';
 import { supabaseService } from '@/services/supabaseService';
+import { profileService } from '@/services/profileService';
 import { CropDiagnosis } from '@/types';
 import { downloadDiagnosisReport } from '@/lib/diagnosisUtils';
 import Link from 'next/link';
