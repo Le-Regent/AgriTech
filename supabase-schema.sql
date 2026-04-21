@@ -26,6 +26,8 @@ CREATE TABLE products (
   unit TEXT NOT NULL,
   image_url TEXT,
   stock_quantity NUMERIC DEFAULT 0,
+  min_quantity NUMERIC DEFAULT 1,
+  max_quantity NUMERIC,
   is_verified BOOLEAN DEFAULT false,
   harvest_date DATE,
   harvest_season TEXT,
@@ -110,7 +112,19 @@ CREATE TABLE payments (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- 10. Auth Trigger for Profiles
+-- 10. Notifications
+CREATE TABLE notifications (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+  title TEXT NOT NULL,
+  message TEXT NOT NULL,
+  type TEXT CHECK (type IN ('order', 'system', 'message', 'stock')),
+  is_read BOOLEAN DEFAULT false,
+  link TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- 11. Auth Trigger for Profiles
 -- This function automatically creates a profile entry when a new user signs up.
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
@@ -140,6 +154,7 @@ ALTER TABLE sensor_data ENABLE ROW LEVEL SECURITY;
 ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE product_reviews ENABLE ROW LEVEL SECURITY;
 ALTER TABLE payments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies
 
@@ -206,6 +221,10 @@ CREATE POLICY "Users can create their own payments" ON payments FOR INSERT WITH 
 CREATE POLICY "Admins can manage all payments" ON payments FOR ALL USING (
   EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true)
 );
+
+-- Notifications: Users can manage their own notifications.
+CREATE POLICY "Users can manage their own notifications" ON notifications FOR ALL USING (auth.uid() = user_id);
+CREATE POLICY "System can create notifications" ON notifications FOR INSERT WITH CHECK (true);
 
 -- 8. Schema Permissions
 -- Ensure the public schema is accessible to all necessary roles.

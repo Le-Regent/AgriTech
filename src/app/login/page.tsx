@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import ResponsiveImage from '@/components/ResponsiveImage';
+import ResponsiveImage from '@/components/ui/ResponsiveImage';
 import { useUser } from '@/context/UserContext';
 
 export default function LoginPage() {

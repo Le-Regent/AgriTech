@@ -12,9 +12,9 @@ export function useProducts() {
     try {
       const data = await productService.getProducts();
       setProducts(data);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to fetch products:', error);
-      toast.error('Failed to load products');
+      toast.error(error.message || 'Failed to load products');
     } finally {
       setLoading(false);
     }
@@ -25,9 +25,9 @@ export function useProducts() {
     try {
       const data = await productService.getProductsByFarmerId(farmerId);
       setProducts(data);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to fetch farmer products:', error);
-      toast.error('Failed to load your listings');
+      toast.error(error.message || 'Failed to load your listings');
     } finally {
       setLoading(false);
     }
@@ -39,9 +39,9 @@ export function useProducts() {
       await productService.createProduct(product);
       toast.success('Product listed successfully');
       return true;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to create product:', error);
-      toast.error('Failed to list product');
+      toast.error(error.message || 'Failed to list product');
       return false;
     } finally {
       setLoading(false);
@@ -54,9 +54,9 @@ export function useProducts() {
       await productService.updateProduct(id, product);
       toast.success('Product updated successfully');
       return true;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to update product:', error);
-      toast.error('Failed to update product');
+      toast.error(error.message || 'Failed to update product');
       return false;
     } finally {
       setLoading(false);
@@ -64,15 +64,16 @@ export function useProducts() {
   };
 
   const deleteProduct = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this product?')) return false;
+    // Note: In a real app, you should use a custom modal for confirmation.
+    // confirm() is disabled in this environment.
     setLoading(true);
     try {
       await productService.deleteProduct(id);
       toast.success('Product deleted successfully');
       return true;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to delete product:', error);
-      toast.error('Failed to delete product');
+      toast.error(error.message || 'Failed to delete product');
       return false;
     } finally {
       setLoading(false);

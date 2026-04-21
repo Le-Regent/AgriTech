@@ -4,15 +4,16 @@ import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
-import ResponsiveImage from '@/components/ResponsiveImage';
+import ResponsiveImage from '@/components/ui/ResponsiveImage';
 import { INITIAL_PRODUCTS } from '@/constants';
 import { useCart } from '@/context/CartContext';
 import { useOffline } from '@/context/OfflineContext';
 import { useUser } from '@/context/UserContext';
 import { supabaseService } from '@/services/supabaseService';
 import { Product, ProductReview } from '@/types';
-import ProtectedRoute from '@/app/components/ProtectedRoute';
+import ProtectedRoute from '@/components/layout/ProtectedRoute';
 import { toast } from 'sonner';
+import { convertQuantity, getAvailableUnits, Unit, formatUnit } from '@/lib/unitUtils';
 
 function ProductDetailContent() {
   const params = useParams();
@@ -25,6 +26,8 @@ function ProductDetailContent() {
   const [reviews, setReviews] = useState<any[]>([]);
   const [loadingReviews, setLoadingReviews] = useState(true);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+  const [selectedUnit, setSelectedUnit] = useState<string>('');
+  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -34,17 +37,28 @@ function ProductDetailContent() {
         if (isOnline) {
           const data = await supabaseService.getProductById(id);
           if (data) {
-            setProduct(data as Product);
+            const prod = data as Product;
+            setProduct(prod);
+            setSelectedUnit(prod.unit);
+            setQuantity(prod.min_quantity || 1);
             saveToCache(`product_${id}`, data);
           }
         } else {
           const cached = getFromCache(`product_${id}`);
-          if (cached) setProduct(cached);
+          if (cached) {
+            setProduct(cached);
+            setSelectedUnit(cached.unit);
+            setQuantity(cached.min_quantity || 1);
+          }
         }
       } catch (error) {
         console.error('Failed to fetch product:', error);
         const cached = getFromCache(`product_${id}`);
-        if (cached) setProduct(cached);
+        if (cached) {
+          setProduct(cached);
+          setSelectedUnit(cached.unit);
+          setQuantity(cached.min_quantity || 1);
+        }
       } finally {
         setLoading(false);
       }
@@ -95,7 +109,6 @@ function ProductDetailContent() {
     }
   }, [id, product]);
 
-  const [quantity, setQuantity] = useState(10);
   const [newReview, setNewReview] = useState({ rating: 5, comment: '' });
   const [submittingReview, setSubmittingReview] = useState(false);
 
@@ -133,9 +146,21 @@ function ProductDetailContent() {
   }
 
   const handleAddToCart = () => {
-    addToCart(product, quantity);
+    if (!product) return;
+
+    // Validate quantity range
+    if (product.min_quantity && quantity < product.min_quantity) {
+      toast.error(`Minimum order quantity is ${product.min_quantity} ${selectedUnit}`);
+      return;
+    }
+    if (product.max_quantity && quantity > product.max_quantity) {
+      toast.error(`Maximum order quantity is ${product.max_quantity} ${selectedUnit}`);
+      return;
+    }
+
+    addToCart(product, quantity, selectedUnit, pricePerSelectedUnit);
     toast.success(`${product.name} added to cart`, {
-      description: `Quantity: ${quantity} ${product.unit}`,
+      description: `Quantity: ${quantity} ${selectedUnit}`,
       action: {
         label: 'View Cart',
         onClick: () => window.location.href = '/cart'
@@ -190,6 +215,12 @@ function ProductDetailContent() {
       setSubmittingReview(false);
     }
   };
+
+  const availableUnits = product ? getAvailableUnits(product.unit) : [];
+
+  // Calculate price based on selected unit
+  const pricePerSelectedUnit = product ? product.price * convertQuantity(1, selectedUnit, product.unit) : 0;
+  const totalPrice = pricePerSelectedUnit * quantity;
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
@@ -259,9 +290,23 @@ function ProductDetailContent() {
             </div>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight dark:text-white">{product.name}</h2>
             <div className="flex items-center gap-3 sm:gap-4">
-              <p className="text-2xl sm:text-3xl lg:text-4xl font-black text-primary">{product.price.toLocaleString()} <span className="text-sm sm:text-base lg:text-lg text-slate-400 font-bold">CFA / {product.unit}</span></p>
+              <p className="text-2xl sm:text-3xl lg:text-4xl font-black text-primary">{pricePerSelectedUnit.toLocaleString()} <span className="text-sm sm:text-base lg:text-lg text-slate-400 font-bold">CFA / {selectedUnit}</span></p>
               <div className="bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 px-2 sm:px-3 py-1 rounded-lg text-[10px] sm:text-xs font-black uppercase tracking-widest transition-colors">In Stock</div>
             </div>
+            
+            <div className="flex flex-wrap gap-4 py-2">
+              <div className="bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-xl flex items-center gap-2">
+                <span className="material-symbols-outlined text-sm text-slate-400">inventory</span>
+                <span className="text-xs font-bold dark:text-white">Min: {product.min_quantity || 1} {product.unit}</span>
+              </div>
+              {product.max_quantity && (
+                <div className="bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-xl flex items-center gap-2">
+                  <span className="material-symbols-outlined text-sm text-slate-400">block</span>
+                  <span className="text-xs font-bold dark:text-white">Max: {product.max_quantity} {product.unit}</span>
+                </div>
+              )}
+            </div>
+
             <p className="text-sm sm:text-base lg:text-lg text-slate-500 dark:text-slate-400 leading-relaxed transition-colors">
               {product.description}
             </p>
@@ -310,7 +355,7 @@ function ProductDetailContent() {
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-4">
               {[
-                { label: 'Harvest Season', value: product.harvest_season || 'Year-round', icon: 'schedule' },
+                { label: 'Harvest Season', value: product.harvest_season || 'Year round', icon: 'schedule' },
                 { label: 'Category', value: product.category, icon: 'category' },
                 { label: 'Location', value: product.location || 'Unknown', icon: 'location_on' },
               ].map((detail, i) => (
@@ -344,25 +389,67 @@ function ProductDetailContent() {
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 relative">
-            <div className="flex items-center justify-between sm:justify-start bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden transition-colors">
-              <button 
-                onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                className="px-4 py-3 sm:py-4 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-400 transition-colors"
-              >
-                <span className="material-symbols-outlined">remove</span>
-              </button>
-              <span className="px-6 font-black text-lg dark:text-white">{quantity}</span>
-              <button 
-                onClick={() => setQuantity(quantity + 1)}
-                className="px-4 py-3 sm:py-4 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-400 transition-colors"
-              >
-                <span className="material-symbols-outlined">add</span>
-              </button>
+          <div className="bg-slate-50 dark:bg-slate-900 p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] space-y-4 sm:space-y-6 transition-colors">
+            <h4 className="font-black text-base sm:text-lg dark:text-white">Order Customization</h4>
+            
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Select Unit</label>
+                <div className="flex flex-wrap gap-2">
+                  {availableUnits.map((u) => (
+                    <button
+                      key={u}
+                      onClick={() => setSelectedUnit(u)}
+                      className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${
+                        selectedUnit === u 
+                          ? 'bg-primary text-white shadow-lg shadow-primary/20' 
+                          : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-100 dark:border-slate-700'
+                      }`}
+                    >
+                      {formatUnit(u)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex-1 space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Quantity</label>
+                  <div className="flex items-center justify-between bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden transition-colors">
+                    <button 
+                      onClick={() => setQuantity(Math.max(product?.min_quantity || 1, quantity - 1))}
+                      className="px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-400 transition-colors"
+                    >
+                      <span className="material-symbols-outlined">remove</span>
+                    </button>
+                    <input 
+                      type="number"
+                      value={quantity}
+                      min={product?.min_quantity || 1}
+                      max={product?.max_quantity}
+                      onChange={(e) => setQuantity(Number(e.target.value))}
+                      className="w-full text-center font-black text-lg dark:text-white bg-transparent outline-none"
+                    />
+                    <button 
+                      onClick={() => setQuantity(product?.max_quantity ? Math.min(product.max_quantity, quantity + 1) : quantity + 1)}
+                      className="px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-400 transition-colors"
+                    >
+                      <span className="material-symbols-outlined">add</span>
+                    </button>
+                  </div>
+                </div>
+                <div className="flex-1 space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Total Price</label>
+                  <div className="h-[52px] flex items-center px-6 bg-primary/5 dark:bg-primary/10 rounded-2xl border border-primary/10">
+                    <p className="font-black text-xl text-primary">{totalPrice.toLocaleString()} CFA</p>
+                  </div>
+                </div>
+              </div>
             </div>
+
             <button 
               onClick={handleAddToCart}
-              className="flex-1 bg-primary text-white py-3 sm:py-0 rounded-2xl font-black text-base sm:text-lg hover:bg-primary/90 transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-3"
+              className="w-full bg-primary text-white py-4 rounded-2xl font-black text-lg hover:bg-primary/90 transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-3 mt-4"
             >
               <span className="material-symbols-outlined">shopping_cart</span>
               Add to Cart

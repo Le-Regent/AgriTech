@@ -5,11 +5,12 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useCart } from '@/context/CartContext';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import ResponsiveImage from '@/components/ResponsiveImage';
+import ResponsiveImage from '@/components/ui/ResponsiveImage';
 import { useUser } from '@/context/UserContext';
 import { supabaseService } from '@/services/supabaseService';
-import ProtectedRoute from '@/app/components/ProtectedRoute';
+import ProtectedRoute from '@/components/layout/ProtectedRoute';
 import { toast } from 'sonner';
+import { formatUnit } from '@/lib/unitUtils';
 
 function CartContent() {
   const { cart, removeFromCart, clearCart, totalItems, updateQuantity } = useCart();
@@ -90,9 +91,10 @@ function CartContent() {
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <h3 className="font-black text-base sm:text-lg dark:text-white truncate">{item.name}</h3>
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{item.price.toLocaleString()} CFA / {formatUnit(item.unit)}</p>
                     </div>
                     <button 
-                      onClick={() => removeFromCart(item.id)}
+                      onClick={() => removeFromCart(item.id, item.unit)}
                       className="text-slate-300 hover:text-red-500 transition-colors"
                     >
                       <span className="material-symbols-outlined text-xl">close</span>
@@ -101,20 +103,23 @@ function CartContent() {
                   <div className="flex items-center justify-between mt-4">
                     <div className="flex items-center gap-3 bg-slate-50 dark:bg-slate-800 p-1 rounded-xl border border-slate-100 dark:border-slate-700">
                       <button 
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        onClick={() => updateQuantity(item.id, item.quantity - 1, item.unit)}
                         className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-all"
                       >
                         <span className="material-symbols-outlined text-sm">remove</span>
                       </button>
-                      <span className="font-black text-sm w-4 text-center dark:text-white">{item.quantity}</span>
+                      <span className="font-black text-sm w-8 text-center dark:text-white">{item.quantity}</span>
                       <button 
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        onClick={() => updateQuantity(item.id, item.quantity + 1, item.unit)}
                         className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-all"
                       >
                         <span className="material-symbols-outlined text-sm">add</span>
                       </button>
                     </div>
-                    <p className="font-black text-slate-900 dark:text-white">{(item.price * item.quantity).toLocaleString()} CFA</p>
+                    <div className="text-right">
+                      <p className="font-black text-slate-900 dark:text-white">{(item.price * item.quantity).toLocaleString()} CFA</p>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{item.unit}</p>
+                    </div>
                   </div>
                 </div>
               </motion.div>

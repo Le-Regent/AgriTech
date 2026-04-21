@@ -6,16 +6,16 @@ import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { Joyride, Step, STATUS } from 'react-joyride';
 import { GoogleGenAI } from "@google/genai";
-import ResponsiveImage from '@/components/ResponsiveImage';
+import ResponsiveImage from '@/components/ui/ResponsiveImage';
 import { INITIAL_PRODUCTS } from '@/constants';
 import { useOffline } from '@/context/OfflineContext';
 import { useCart } from '@/context/CartContext';
 import { supabaseService } from '@/services/supabaseService';
 import { Product } from '@/types';
-import ProtectedRoute from '@/app/components/ProtectedRoute';
+import ProtectedRoute from '@/components/layout/ProtectedRoute';
 import { toast } from 'sonner';
-import ProductModal from '@/components/ProductModal';
-import ProductCard from '@/components/marketplace/ProductCard';
+import ProductModal from '@/components/features/marketplace/ProductModal';
+import ProductCard from '@/components/features/marketplace/ProductCard';
 import { useUser } from '@/context/UserContext';
 
 type SortOption = 'name-asc' | 'price-low' | 'price-high';
@@ -38,10 +38,22 @@ function MarketplaceContent() {
   const [loading, setLoading] = useState(true);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
+  const productsRef = useRef<Product[]>(allProducts);
+  useEffect(() => { productsRef.current = allProducts; }, [allProducts]);
+
   const fetchProducts = useCallback(async () => {
-    setLoading(true);
+    // 1. Try to load from cache immediately for instant UI
+    const cachedProducts = getFromCache('marketplace_products');
+    if (cachedProducts) {
+      setAllProducts(cachedProducts);
+      setLoading(false); // Stop showing skeleton if we have cache
+    } else {
+      setLoading(true);
+    }
+
     try {
       if (isOnline) {
+        // 2. Fetch fresh data regardless of cache (SWR pattern)
         const data = await supabaseService.getProducts();
         if (data && data.length > 0) {
           const mappedProducts: Product[] = data.map((p: any) => ({
@@ -55,7 +67,7 @@ function MarketplaceContent() {
             is_verified: p.is_verified,
             health_status: p.health_status || 'N/A',
             certifications: p.certifications || [],
-            harvest_season: p.harvest_season || 'Year-round',
+            harvest_season: p.harvest_season || 'Year round',
             category: p.category,
             description: p.description || '',
             stock_quantity: p.stock_quantity || 0,
@@ -65,18 +77,11 @@ function MarketplaceContent() {
           setAllProducts(mappedProducts);
           saveToCache('marketplace_products', mappedProducts);
         }
-      } else {
-        const cachedProducts = getFromCache('marketplace_products');
-        if (cachedProducts) {
-          setAllProducts(cachedProducts);
-        }
       }
     } catch (error) {
       console.error('Failed to fetch products from Supabase:', error);
-      const cachedProducts = getFromCache('marketplace_products');
-      if (cachedProducts) {
-        setAllProducts(cachedProducts);
-      } else {
+      // If we already set products from cache, we're fine
+      if (!productsRef.current.length || productsRef.current === INITIAL_PRODUCTS) {
         setAllProducts(INITIAL_PRODUCTS);
       }
     } finally {
@@ -424,7 +429,7 @@ function MarketplaceContent() {
             </button>
             {!collapsedFilters.includes('season') && (
               <div className="flex flex-wrap gap-2">
-                {['All', 'Spring', 'Summer', 'Fall', 'Winter', 'Year-round'].map(season => (
+                {['All', 'Raining', 'Dry', 'Year round'].map(season => (
                   <button
                     key={season}
                     onClick={() => setFilters({ ...filters, season: season })}
@@ -478,7 +483,7 @@ function MarketplaceContent() {
       )}
 
       <div id="marketplace-category-tabs" className="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
-        {['All Produce', 'Vegetables', 'Fruits', 'Grains', 'Dairy', 'Organic', 'Bulk'].map((cat) => (
+        {['All Produce', 'Foodstuff', 'Grains & Beans', 'Spices & Pepper', 'Oils', 'Vegetables', 'Fruits', 'Meat & Eggs'].map((cat) => (
           <button
             key={cat}
             onClick={() => setFilters({ ...filters, category: cat })}

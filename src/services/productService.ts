@@ -8,7 +8,7 @@ export const productService = {
       .from('products')
       .select('*, profiles(full_name, avatar_url, is_verified)');
     
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return data;
   },
 
@@ -18,7 +18,7 @@ export const productService = {
       .select('*, profiles(full_name, avatar_url, is_verified)')
       .eq('farmer_id', farmerId);
     
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return data;
   },
 
@@ -29,7 +29,7 @@ export const productService = {
       .eq('id', id)
       .single();
     
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return data;
   },
 
@@ -38,7 +38,7 @@ export const productService = {
       .from('products')
       .insert([product]);
     
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return data;
   },
 
@@ -48,7 +48,7 @@ export const productService = {
       .update(product)
       .eq('id', id);
     
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return data;
   },
 
@@ -58,7 +58,7 @@ export const productService = {
       .delete()
       .eq('id', id);
     
-    if (error) throw error;
+    if (error) throw new Error(error.message);
   },
 
   async updateProductStock(id: string, quantity: number) {
@@ -68,7 +68,7 @@ export const productService = {
       .eq('id', id)
       .single();
     
-    if (fetchError) throw fetchError;
+    if (fetchError) throw new Error(fetchError.message);
     
     const newStock = Math.max(0, data.stock_quantity - quantity);
     
@@ -77,7 +77,7 @@ export const productService = {
       .update({ stock_quantity: newStock })
       .eq('id', id);
     
-    if (updateError) throw updateError;
+    if (updateError) throw new Error(updateError.message);
     return newStock;
   },
 
@@ -89,7 +89,7 @@ export const productService = {
       .eq('farmer_id', farmerId)
       .order('created_at', { ascending: false });
     
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return data;
   },
 
@@ -98,7 +98,7 @@ export const productService = {
       .from('diagnoses')
       .insert([diagnosis]);
     
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return data;
   },
 
@@ -110,7 +110,7 @@ export const productService = {
       .eq('product_id', productId)
       .order('created_at', { ascending: false });
     
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return data;
   },
 
@@ -119,7 +119,7 @@ export const productService = {
       .from('product_reviews')
       .insert([review]);
     
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return data;
   },
 
@@ -132,7 +132,7 @@ export const productService = {
       .order('recorded_at', { ascending: false })
       .limit(limit);
     
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return data;
   },
 

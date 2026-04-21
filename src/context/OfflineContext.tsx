@@ -54,8 +54,24 @@ export const OfflineProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const saveToCache = useCallback((key: string, data: any) => {
     try {
       localStorage.setItem(`agritech_cache_${key}`, JSON.stringify(data));
-    } catch (e) {
-      console.error('Failed to save to cache', e);
+    } catch (e: any) {
+      if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+        console.warn('Cache quota exceeded, clearing old cache entries...');
+        // Clear all cached data (those starting with agritech_cache_)
+        Object.keys(localStorage).forEach(k => {
+          if (k.startsWith('agritech_cache_')) {
+            localStorage.removeItem(k);
+          }
+        });
+        // Try again after clearing
+        try {
+          localStorage.setItem(`agritech_cache_${key}`, JSON.stringify(data));
+        } catch (retryError) {
+          console.error('Failed to save to cache even after clearing:', retryError);
+        }
+      } else {
+        console.error('Failed to save to cache', e);
+      }
     }
   }, []);
 

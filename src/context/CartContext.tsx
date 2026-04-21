@@ -5,18 +5,20 @@ import { useUser } from '@/context/UserContext';
 interface CartItem {
   id: string;
   name: string;
-  price: number;
+  price: number; // Price per selected unit
   quantity: number;
+  unit: string;
+  baseUnit: string;
   image: string;
 }
 
 interface CartContextType {
   cart: CartItem[];
-  addToCart: (product: any, quantity: number) => void;
-  removeFromCart: (id: string) => void;
+  addToCart: (product: any, quantity: number, unit?: string, price?: number) => void;
+  removeFromCart: (id: string, unit?: string) => void;
   clearCart: () => void;
   totalItems: number;
-  updateQuantity: (id: string, quantity: number) => void;
+  updateQuantity: (id: string, quantity: number, unit?: string) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -33,7 +35,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const saved = localStorage.getItem(cartKey);
     if (saved) {
       try {
-        setCart(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        // Migration: Ensure items have baseUnit
+        const migrated = (parsed as any[]).map(item => ({
+          ...item,
+          baseUnit: item.baseUnit || item.unit
+        }));
+        setCart(migrated);
       } catch (e) {
         console.error('Failed to parse cart from localStorage:', e);
         setCart([]);
@@ -51,42 +59,46 @@ export function CartProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(cartKey, JSON.stringify(cart));
   }, [cart, user, isLoaded]);
 
-  const addToCart = useCallback((product: any, quantity: number) => {
+  const addToCart = useCallback((product: any, quantity: number, unit?: string, price?: number) => {
+    const selectedUnit = unit || product.unit;
+    const selectedPrice = price !== undefined ? price : product.price;
     setCart(prev => {
-      const existing = prev.find(item => item.id === product.id);
+      const existing = prev.find(item => item.id === product.id && item.unit === selectedUnit);
       let newCart;
       if (existing) {
         newCart = prev.map(item => 
-          item.id === product.id ? { ...item, quantity: item.quantity + quantity } : item
+          (item.id === product.id && item.unit === selectedUnit) ? { ...item, quantity: item.quantity + quantity } : item
         );
       } else {
         newCart = [...prev, { 
           id: product.id, 
           name: product.name, 
-          price: product.price, 
+          price: selectedPrice, 
           quantity, 
-          image: product.image 
+          unit: selectedUnit,
+          baseUnit: product.unit,
+          image: product.image || product.image_url
         }];
       }
 
       if (!isOnline) {
-        addToSyncQueue('ADD_TO_CART', { productId: product.id, quantity });
+        addToSyncQueue('ADD_TO_CART', { productId: product.id, quantity, unit: selectedUnit });
       }
 
       return newCart;
     });
   }, [isOnline, addToSyncQueue]);
 
-  const removeFromCart = useCallback((id: string) => {
-    setCart(prev => prev.filter(item => item.id !== id));
+  const removeFromCart = useCallback((id: string, unit?: string) => {
+    setCart(prev => prev.filter(item => !(item.id === id && (unit ? item.unit === unit : true))));
   }, []);
 
-  const updateQuantity = useCallback((id: string, quantity: number) => {
+  const updateQuantity = useCallback((id: string, quantity: number, unit?: string) => {
     if (quantity <= 0) {
-      removeFromCart(id);
+      removeFromCart(id, unit);
       return;
     }
-    setCart(prev => prev.map(item => item.id === id ? { ...item, quantity } : item));
+    setCart(prev => prev.map(item => (item.id === id && (unit ? item.unit === unit : true)) ? { ...item, quantity } : item));
   }, [removeFromCart]);
 
   const clearCart = useCallback(() => setCart([]), []);

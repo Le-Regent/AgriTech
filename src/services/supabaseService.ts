@@ -10,7 +10,7 @@ export const supabaseService = {
       .eq('id', userId)
       .single();
     
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return data;
   },
 
@@ -20,7 +20,7 @@ export const supabaseService = {
       .update(profile)
       .eq('id', userId);
     
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return data;
   },
 
@@ -30,7 +30,7 @@ export const supabaseService = {
       .from('products')
       .select('*, profiles(full_name, avatar_url, is_verified)');
     
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return data;
   },
 
@@ -40,7 +40,7 @@ export const supabaseService = {
       .select('*, profiles(full_name, avatar_url, is_verified)')
       .eq('farmer_id', farmerId);
     
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return data;
   },
 
@@ -51,7 +51,7 @@ export const supabaseService = {
       .eq('id', id)
       .single();
     
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return data;
   },
 
@@ -60,7 +60,7 @@ export const supabaseService = {
       .from('products')
       .insert([product]);
     
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return data;
   },
 
@@ -70,7 +70,7 @@ export const supabaseService = {
       .update(product)
       .eq('id', id);
     
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return data;
   },
 
@@ -80,7 +80,7 @@ export const supabaseService = {
       .delete()
       .eq('id', id);
     
-    if (error) throw error;
+    if (error) throw new Error(error.message);
   },
 
   async updateProductStock(id: string, quantity: number) {
@@ -91,7 +91,7 @@ export const supabaseService = {
       .eq('id', id)
       .single();
     
-    if (fetchError) throw fetchError;
+    if (fetchError) throw new Error(fetchError.message);
     
     const newStock = Math.max(0, data.stock_quantity - quantity);
     
@@ -100,7 +100,7 @@ export const supabaseService = {
       .update({ stock_quantity: newStock })
       .eq('id', id);
     
-    if (updateError) throw updateError;
+    if (updateError) throw new Error(updateError.message);
     return newStock;
   },
 
@@ -115,7 +115,7 @@ export const supabaseService = {
     
     if (orderError) {
       console.error('Order creation error:', orderError);
-      throw orderError;
+      throw new Error(orderError.message);
     }
 
     console.log('Order created successfully:', orderData);
@@ -128,32 +128,97 @@ export const supabaseService = {
     
     if (itemsError) {
       console.error('Order items insertion error:', itemsError);
-      throw itemsError;
+      throw new Error(itemsError.message);
     }
+
+    // Notify sellers
+    try {
+      const productIds = items.map(item => item.product_id).filter(Boolean);
+      const { data: products, error: productsError } = await supabase
+        .from('products')
+        .select('farmer_id')
+        .in('id', productIds);
+
+      if (productsError) throw productsError;
+
+      if (products && products.length > 0) {
+        const uniqueFarmerIds = Array.from(new Set(products.map(p => p.farmer_id).filter(Boolean)));
+        console.log('Notifying farmers:', uniqueFarmerIds);
+        
+        await Promise.all(uniqueFarmerIds.map(farmerId => 
+          supabaseService.createNotification({
+            user_id: farmerId,
+            title: 'New Order Received',
+            message: `You have a new order for your products. Order ID: ${orderData.id.slice(0, 8)}`,
+            type: 'order',
+            link: '/orders'
+          })
+        ));
+      }
+    } catch (notifyError: any) {
+      console.error('Failed to notify sellers. Error details:', {
+        message: notifyError?.message,
+        details: notifyError?.details,
+        hint: notifyError?.hint,
+        code: notifyError?.code,
+        fullError: notifyError
+      });
+    }
+
     return orderData;
   },
 
   async getOrders(userId: string, role: 'farmer' | 'buyer' = 'buyer') {
-    let query = supabase.from('orders').select(`
-      *,
-      order_items (
-        *,
-        products (*)
-      )
-    `);
-    
     if (role === 'buyer') {
-      query = query.eq('buyer_id', userId);
+      const { data, error } = await supabase
+        .from('orders')
+        .select(`
+          *,
+          order_items (
+            *,
+            products (*, profiles:farmer_id(*))
+          )
+        `)
+        .eq('buyer_id', userId)
+        .order('created_at', { ascending: false });
+      
+      if (error) throw new Error(error.message);
+      return data;
     } else {
-      // For farmers, we want to see orders containing their products
-      // This is a bit more complex in Supabase without a direct join on the top level
-      // but for now we'll filter by the products they own
-      query = query.eq('order_items.products.farmer_id', userId);
-    }
+      // For farmers, we fetch order items for their products first
+      // We use !inner to ensure we only get items where the products match the farmer_id
+      const { data: items, error: itemsError } = await supabase
+        .from('order_items')
+        .select(`
+          *,
+          orders!inner (*, buyer:profiles!buyer_id(full_name, avatar_url, email)),
+          products!inner (*)
+        `)
+        .eq('products.farmer_id', userId);
+      
+      if (itemsError) throw new Error(itemsError.message);
 
-    const { data, error } = await query.order('created_at', { ascending: false });
-    if (error) throw error;
-    return data;
+      // Group items by order
+      const ordersMap = new Map();
+      items.forEach((item: any) => {
+        if (!item.orders) return;
+        if (!ordersMap.has(item.order_id)) {
+          ordersMap.set(item.order_id, {
+            ...item.orders,
+            profiles: item.orders.buyer, // Map buyer profile to profiles for consistency with dashboard UI
+            order_items: []
+          });
+        }
+        ordersMap.get(item.order_id).order_items.push({
+          ...item,
+          orders: undefined // Remove circular ref
+        });
+      });
+
+      return Array.from(ordersMap.values()).sort((a, b) => 
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+    }
   },
 
   async updateOrderStatus(orderId: string, status: Order['status']) {
@@ -162,7 +227,7 @@ export const supabaseService = {
       .update({ status })
       .eq('id', orderId);
     
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return data;
   },
 
@@ -174,7 +239,7 @@ export const supabaseService = {
       .eq('farmer_id', farmerId)
       .order('created_at', { ascending: false });
     
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return data;
   },
 
@@ -183,7 +248,7 @@ export const supabaseService = {
       .from('diagnoses')
       .insert([diagnosis]);
     
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return data;
   },
 
@@ -195,7 +260,7 @@ export const supabaseService = {
       .eq('product_id', productId)
       .order('created_at', { ascending: false });
     
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return data;
   },
 
@@ -204,7 +269,18 @@ export const supabaseService = {
       .from('product_reviews')
       .insert([review]);
     
-    if (error) throw error;
+    if (error) throw new Error(error.message);
+    return data;
+  },
+
+  async getProductSales(productId: string) {
+    const { data, error } = await supabase
+      .from('order_items')
+      .select('*, orders(id, buyer_id, status, total_amount, created_at, profiles:buyer_id(full_name, email))')
+      .eq('product_id', productId)
+      .order('created_at', { ascending: false });
+    
+    if (error) throw new Error(error.message);
     return data;
   },
 
@@ -216,7 +292,7 @@ export const supabaseService = {
       .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`)
       .order('created_at', { ascending: true });
     
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return data;
   },
 
@@ -225,7 +301,7 @@ export const supabaseService = {
       .from('messages')
       .insert([message]);
     
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return data;
   },
 
@@ -235,7 +311,7 @@ export const supabaseService = {
       .from('payments')
       .insert([payment]);
     
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return data;
   },
 
@@ -245,7 +321,7 @@ export const supabaseService = {
       .select('*')
       .eq('order_id', orderId);
     
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return data;
   },
 
@@ -258,7 +334,7 @@ export const supabaseService = {
       .order('recorded_at', { ascending: false })
       .limit(limit);
     
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return data;
   },
 
@@ -288,12 +364,49 @@ export const supabaseService = {
       .from(bucket)
       .upload(filePath, file);
 
-    if (error) throw error;
+    if (error) throw new Error(error.message);
 
     const { data: { publicUrl } } = supabase.storage
       .from(bucket)
       .getPublicUrl(filePath);
 
     return publicUrl;
+  },
+
+  // Notifications
+  async getNotifications(userId: string) {
+    const { data, error } = await supabase
+      .from('notifications')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      // If table doesn't exist, return empty array instead of throwing
+      if (error.code === 'PGRST116' || error.message?.includes('notifications\' not found') || error.message?.includes('schema cache')) {
+        console.warn('Notifications table not found in Supabase schema.');
+        return [];
+      }
+      throw new Error(error.message);
+    }
+    return data;
+  },
+
+  async createNotification(notification: any) {
+    const { data, error } = await supabase
+      .from('notifications')
+      .insert([notification]);
+    
+    if (error) throw new Error(error.message);
+    return data;
+  },
+
+  async markNotificationAsRead(id: string) {
+    const { error } = await supabase
+      .from('notifications')
+      .update({ is_read: true })
+      .eq('id', id);
+    
+    if (error) throw new Error(error.message);
   }
 };

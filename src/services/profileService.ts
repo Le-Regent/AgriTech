@@ -9,7 +9,7 @@ export const profileService = {
       .eq('id', userId)
       .single();
     
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return data;
   },
 
@@ -19,7 +19,7 @@ export const profileService = {
       .update(profile)
       .eq('id', userId);
     
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return data;
   }
 };

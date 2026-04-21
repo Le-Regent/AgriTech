@@ -4,8 +4,8 @@ import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useUser } from '@/context/UserContext';
 import { supabaseService } from '@/services/supabaseService';
 import { Message } from '@/types';
-import ProtectedRoute from '@/app/components/ProtectedRoute';
-import ResponsiveImage from '@/components/ResponsiveImage';
+import ProtectedRoute from '@/components/layout/ProtectedRoute';
+import ResponsiveImage from '@/components/ui/ResponsiveImage';
 import { useSearchParams } from 'next/navigation';
 
 function MessagesContent() {

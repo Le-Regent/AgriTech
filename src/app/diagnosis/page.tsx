@@ -2,9 +2,9 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import ResponsiveImage from '@/components/ResponsiveImage';
+import ResponsiveImage from '@/components/ui/ResponsiveImage';
 import { GoogleGenAI, Type } from "@google/genai";
-import ProtectedRoute from '@/app/components/ProtectedRoute';
+import ProtectedRoute from '@/components/layout/ProtectedRoute';
 import { getWeatherData, getCurrentPosition, WeatherData } from '@/lib/weatherService';
 import { supabaseService } from '@/services/supabaseService';
 import { useUser } from '@/context/UserContext';

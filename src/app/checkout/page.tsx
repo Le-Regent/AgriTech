@@ -3,13 +3,15 @@
 import React, { useState, useMemo } from 'react';
 import { useCart } from '@/context/CartContext';
 import { useUser } from '@/context/UserContext';
-import ProtectedRoute from '@/app/components/ProtectedRoute';
+import ProtectedRoute from '@/components/layout/ProtectedRoute';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import ResponsiveImage from '@/components/ResponsiveImage';
+import ResponsiveImage from '@/components/ui/ResponsiveImage';
 import { motion, AnimatePresence } from 'motion/react';
 import { supabaseService } from '@/services/supabaseService';
 import { toast } from 'sonner';
+import { formatUnit } from '@/lib/unitUtils';
+import { convertQuantity } from '@/lib/unitUtils';
 
 function CheckoutContent() {
   const { cart, clearCart } = useCart();
@@ -72,21 +74,27 @@ function CheckoutContent() {
         shipping_address: `${formData.address}, ${formData.city}, ${formData.zip}`
       };
 
-      const orderItems = cart.map(item => ({
-        product_id: item.id,
-        quantity: Number(item.quantity),
-        price_at_purchase: Number(item.price)
-      }));
+      const orderItems = cart.map(item => {
+        const baseQuantity = convertQuantity(item.quantity, item.unit, item.baseUnit);
+        const pricePerBaseUnit = (item.price * item.quantity) / baseQuantity;
+        
+        return {
+          product_id: item.id,
+          quantity: Number(baseQuantity),
+          price_at_purchase: Number(pricePerBaseUnit)
+        };
+      });
 
       // 2. Create Order and Items
       const order = await supabaseService.createOrder(orderData, orderItems);
 
       if (order) {
         // 3. Update Product Stock (Parallelized for speed)
-        await Promise.all(cart.map(item => 
-          supabaseService.updateProductStock(item.id, item.quantity)
-            .catch(err => console.error(`Failed to update stock for ${item.id}:`, err))
-        ));
+        await Promise.all(cart.map(item => {
+          const baseQuantity = convertQuantity(item.quantity, item.unit, item.baseUnit);
+          return supabaseService.updateProductStock(item.id, baseQuantity)
+            .catch(err => console.error(`Failed to update stock for ${item.id}:`, err));
+        }));
 
         // 4. Create a simulated payment record
         await supabaseService.createPayment({
@@ -433,7 +441,7 @@ function CheckoutContent() {
                             </div>
                             <div>
                               <p className="text-sm font-bold dark:text-white">{item.name}</p>
-                              <p className="text-xs text-slate-400">Qty: {item.quantity}</p>
+                              <p className="text-xs text-slate-400">Qty: {item.quantity} {formatUnit(item.unit)}</p>
                             </div>
                           </div>
                           <p className="text-sm font-black dark:text-white">{(item.price * item.quantity).toLocaleString()} CFA</p>

@@ -1,10 +1,10 @@
 'use client';
 
 import { ReactNode, useState } from 'react';
-import { Sidebar } from '@/components/Sidebar';
-import { Navbar } from '@/components/Navbar';
-import { BottomNav } from '@/components/BottomNav';
-import { OnboardingTour } from '@/components/OnboardingTour';
+import { Sidebar } from './Sidebar';
+import { Navbar } from './Navbar';
+import { BottomNav } from './BottomNav';
+import { OnboardingTour } from '@/components/features/onboarding/OnboardingTour';
 import { motion, AnimatePresence } from 'motion/react';
 import { usePathname } from 'next/navigation';
 import { useUser } from '@/context/UserContext';

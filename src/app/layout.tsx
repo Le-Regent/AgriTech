@@ -2,9 +2,9 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { Providers } from '@/app/providers';
-import ClientLayout from '@/app/components/ClientLayout';
+import ClientLayout from '@/components/layout/ClientLayout';
 import { Toaster } from 'sonner';
-import ProgressBar from '@/app/components/ProgressBar';
+import ProgressBar from '@/components/ui/ProgressBar';
 import { Suspense } from 'react';
 
 const inter = Inter({ subsets: ['latin'] });

@@ -2,9 +2,9 @@
 
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import ResponsiveImage from '@/components/ResponsiveImage';
+import ResponsiveImage from '@/components/ui/ResponsiveImage';
 import { useEffect, useState } from 'react';
-import ProtectedRoute from '@/app/components/ProtectedRoute';
+import ProtectedRoute from '@/components/layout/ProtectedRoute';
 import { downloadDiagnosisReport } from '@/lib/diagnosisUtils';
 
 function DiagnosisResultContent() {

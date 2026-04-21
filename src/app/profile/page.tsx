@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '@/context/ThemeContext';
 import { useUser } from '@/context/UserContext';
-import ResponsiveImage from '@/components/ResponsiveImage';
-import ProtectedRoute from '@/app/components/ProtectedRoute';
+import ResponsiveImage from '@/components/ui/ResponsiveImage';
+import ProtectedRoute from '@/components/layout/ProtectedRoute';
 import { supabaseService } from '@/services/supabaseService';
 import { CropDiagnosis } from '@/types';
 import { downloadDiagnosisReport } from '@/lib/diagnosisUtils';

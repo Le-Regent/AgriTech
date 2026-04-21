@@ -1,14 +1,15 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import { motion } from 'motion/react';
 import { useUser } from '@/context/UserContext';
 import { supabaseService } from '@/services/supabaseService';
 import { Product } from '@/types';
-import ProductModal from '@/components/ProductModal';
-import ProductCard from '@/components/marketplace/ProductCard';
-import ResponsiveImage from '@/components/ResponsiveImage';
-import ProtectedRoute from '@/app/components/ProtectedRoute';
+import ProductModal from '@/components/features/marketplace/ProductModal';
+import ProductCard from '@/components/features/marketplace/ProductCard';
+import ResponsiveImage from '@/components/ui/ResponsiveImage';
+import ProtectedRoute from '@/components/layout/ProtectedRoute';
 import { toast } from 'sonner';
 
 function ListingsContent() {
@@ -39,19 +40,28 @@ function ListingsContent() {
 
   const handleSaveProduct = async (productData: Partial<Product>) => {
     try {
+      // Strip fields that are not in the products table
+      const { profiles, id, ...cleanData } = productData as any;
+      
       if (editingProduct) {
-        await supabaseService.updateProduct(editingProduct.id, productData);
+        await supabaseService.updateProduct(editingProduct.id, cleanData);
+        toast.success('Product updated successfully');
       } else {
         await supabaseService.createProduct({
-          ...productData,
+          ...cleanData,
           farmer_id: user?.id,
           is_verified: true, // Auto-verify for now
           created_at: new Date().toISOString()
         });
+        toast.success('Product created successfully');
       }
       fetchProducts();
-    } catch (error) {
+      setIsModalOpen(false);
+    } catch (error: any) {
       console.error('Failed to save product:', error);
+      // Better error reporting
+      const errorMessage = error.message || error.details || 'Unknown error';
+      toast.error(`Failed to save product: ${errorMessage}`);
       throw error;
     }
   };
@@ -109,6 +119,12 @@ function ListingsContent() {
             >
               <ProductCard product={product}>
                 <div className="absolute top-4 right-4 flex gap-2">
+                  <Link
+                    href={`/listings/${product.id}`}
+                    className="w-10 h-10 bg-white/90 dark:bg-slate-900/90 backdrop-blur rounded-xl shadow-lg flex items-center justify-center text-slate-600 hover:text-blue-500 transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-[20px]">insights</span>
+                  </Link>
                   <button
                     onClick={() => openEditModal(product)}
                     className="w-10 h-10 bg-white/90 dark:bg-slate-900/90 backdrop-blur rounded-xl shadow-lg flex items-center justify-center text-slate-600 hover:text-primary transition-colors"

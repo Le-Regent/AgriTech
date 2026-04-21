@@ -1,5 +1,5 @@
 import React from 'react';
-import ResponsiveImage from '@/components/ResponsiveImage';
+import ResponsiveImage from '@/components/ui/ResponsiveImage';
 import { Product } from '@/types';
 
 interface ProductCardProps {

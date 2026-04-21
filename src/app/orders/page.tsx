@@ -5,8 +5,9 @@ import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
 import { useUser } from '@/context/UserContext';
 import { supabaseService } from '@/services/supabaseService';
-import ResponsiveImage from '@/components/ResponsiveImage';
-import ProtectedRoute from '@/app/components/ProtectedRoute';
+import ResponsiveImage from '@/components/ui/ResponsiveImage';
+import ProtectedRoute from '@/components/layout/ProtectedRoute';
+import { toast } from 'sonner';
 
 function OrdersContent() {
   const { user } = useUser();
@@ -27,7 +28,7 @@ function OrdersContent() {
       if (!user) return;
       setLoading(true);
       try {
-        const data = await supabaseService.getOrders(user.id);
+        const data = await supabaseService.getOrders(user.id, user.role);
         setOrders(data || []);
       } catch (error) {
         console.error('Failed to fetch orders:', error);
@@ -38,6 +39,8 @@ function OrdersContent() {
 
     fetchOrders();
   }, [user]);
+
+  const isFarmer = user?.role === 'farmer';
 
   const getStatusStep = (status: string) => {
     const steps = ['pending', 'processing', 'shipped', 'delivered'];
@@ -71,8 +74,12 @@ function OrdersContent() {
   return (
     <div className="space-y-8">
       <div className="flex flex-col gap-2">
-        <h2 className="text-3xl font-bold tracking-tight dark:text-white">My Orders</h2>
-        <p className="text-slate-500 dark:text-slate-400">Manage your purchases and track their delivery status.</p>
+        <h2 className="text-3xl font-bold tracking-tight dark:text-white">{isFarmer ? 'Incoming Orders' : 'My Orders'}</h2>
+        <p className="text-slate-500 dark:text-slate-400">
+          {isFarmer 
+            ? 'Manage your sales and fulfill orders to your customers.' 
+            : 'Manage your purchases and track their delivery status.'}
+        </p>
       </div>
 
       <AnimatePresence>
@@ -87,8 +94,8 @@ function OrdersContent() {
               <span className="material-symbols-outlined">check_circle</span>
             </div>
             <div>
-              <h4 className="font-black text-green-800 dark:text-green-400">Order Placed Successfully!</h4>
-              <p className="text-sm text-green-700 dark:text-green-500/80">Your order has been received and is being processed.</p>
+              <h4 className="font-black text-green-800 dark:text-green-400">Success!</h4>
+              <p className="text-sm text-green-700 dark:text-green-500/80">Your action was completed successfully.</p>
             </div>
             <button onClick={() => setShowSuccess(false)} className="ml-auto text-green-500 hover:text-green-700">
               <span className="material-symbols-outlined">close</span>
@@ -110,14 +117,24 @@ function OrdersContent() {
                 <div className="p-6 sm:p-8 border-b border-slate-50 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-slate-400">
-                      <span className="material-symbols-outlined">receipt_long</span>
+                      <span className="material-symbols-outlined">{isFarmer ? 'person' : 'receipt_long'}</span>
                     </div>
                     <div>
-                      <p className="text-xs font-black uppercase tracking-widest text-slate-400">Order ID</p>
-                      <p className="font-bold dark:text-white">{order.id.slice(0, 8).toUpperCase()}</p>
+                      <p className="text-xs font-black uppercase tracking-widest text-slate-400">{isFarmer ? 'Customer' : 'Order ID'}</p>
+                      <p className="font-bold dark:text-white">
+                        {isFarmer 
+                          ? (order.profiles?.full_name || 'AgriTech Customer') 
+                          : order.id.slice(0, 8).toUpperCase()}
+                      </p>
                     </div>
                   </div>
                   <div className="flex flex-wrap items-center gap-6">
+                    {!isFarmer && (
+                      <div>
+                        <p className="text-xs font-black uppercase tracking-widest text-slate-400">Merchant</p>
+                        <p className="font-bold dark:text-white">{order.order_items?.[0]?.products?.profiles?.full_name || 'AgriTech Seller'}</p>
+                      </div>
+                    )}
                     <div>
                       <p className="text-xs font-black uppercase tracking-widest text-slate-400">Date</p>
                       <p className="font-bold dark:text-white">{new Date(order.created_at).toLocaleDateString()}</p>
@@ -162,11 +179,74 @@ function OrdersContent() {
                     })}
                   </div>
 
-                  {order.status === 'shipped' && (
-                    <button className="w-full bg-slate-900 dark:bg-white dark:text-slate-900 text-white py-4 rounded-2xl font-black text-sm hover:scale-[1.02] transition-all flex items-center justify-center gap-2">
-                      <span className="material-symbols-outlined">local_shipping</span>
-                      Track Shipment
-                    </button>
+                  {isFarmer && (
+                    <div className="flex flex-col sm:flex-row gap-4">
+                      {order.status === 'pending' && (
+                        <button 
+                          onClick={async () => {
+                            try {
+                              await supabaseService.updateOrderStatus(order.id, 'processing');
+                              setOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: 'processing' } : o));
+                              toast.success('Order accepted!');
+                            } catch (err) {
+                              toast.error('Failed to update order');
+                            }
+                          }}
+                          className="flex-1 bg-primary text-white py-4 rounded-2xl font-black text-sm hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
+                        >
+                          <span className="material-symbols-outlined">check_circle</span>
+                          Accept Order
+                        </button>
+                      )}
+                      {order.status === 'processing' && (
+                        <button 
+                          onClick={async () => {
+                            try {
+                              await supabaseService.updateOrderStatus(order.id, 'shipped');
+                              setOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: 'shipped' } : o));
+                              toast.success('Order marked as shipped!');
+                            } catch (err) {
+                              toast.error('Failed to update order');
+                            }
+                          }}
+                          className="flex-1 bg-indigo-500 text-white py-4 rounded-2xl font-black text-sm hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
+                        >
+                          <span className="material-symbols-outlined">local_shipping</span>
+                          Mark as Shipped
+                        </button>
+                      )}
+                      {order.status === 'shipped' && (
+                        <div className="flex-1 bg-slate-100 dark:bg-slate-800 text-slate-500 py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2">
+                           <span className="material-symbols-outlined">info</span>
+                           Waiting for buyer confirmation
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {!isFarmer && order.status === 'shipped' && (
+                    <div className="flex flex-col sm:flex-row gap-4">
+                      <button className="flex-1 bg-slate-900 dark:bg-white dark:text-slate-900 text-white py-4 rounded-2xl font-black text-sm hover:scale-[1.02] transition-all flex items-center justify-center gap-2">
+                        <span className="material-symbols-outlined">local_shipping</span>
+                        Track Shipment
+                      </button>
+                      <button 
+                        onClick={async () => {
+                          try {
+                            await supabaseService.updateOrderStatus(order.id, 'delivered');
+                            setOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: 'delivered' } : o));
+                            toast.success('Order marked as received!');
+                          } catch (err) {
+                            console.error('Failed to update order status:', err);
+                            toast.error('Failed to update order status');
+                          }
+                        }}
+                        className="flex-1 bg-green-500 text-white py-4 rounded-2xl font-black text-sm hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
+                      >
+                        <span className="material-symbols-outlined">check_circle</span>
+                        Mark as Received
+                      </button>
+                    </div>
                   )}
                 </div>
                 <div className="p-6 sm:p-8 bg-slate-50/50 dark:bg-slate-900/50">

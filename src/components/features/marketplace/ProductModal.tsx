@@ -5,6 +5,7 @@ import { GoogleGenAI } from "@google/genai";
 import { Product } from '@/types';
 import { supabaseService } from '@/services/supabaseService';
 import { toast } from 'sonner';
+import { formatUnit } from '@/lib/unitUtils';
 
 interface ProductModalProps {
   isOpen: boolean;
@@ -14,19 +15,19 @@ interface ProductModalProps {
   farmerId: string;
 }
 
-const CATEGORIES = ['Vegetables', 'Fruits', 'Grains', 'Dairy', 'Organic', 'Bulk'];
-const UNITS = ['kg', 'lb', 'box', 'crate', 'ton', 'unit'];
-const SEASONS = ['Spring', 'Summer', 'Autumn', 'Winter', 'Year-round'];
+const CATEGORIES = ['Foodstuff', 'Grains & Beans', 'Spices & Pepper', 'Oils', 'Vegetables', 'Fruits', 'Meat & Eggs'];
+const UNITS = ['bag', 'bucket', 'crate', 'bunch', 'jerrycan', 'bottle', 'liter', 'mesh_bag', 'heap', 'piece', 'kg', 'g', 'ton'];
+const SEASONS = ['Raining', 'Dry', 'Year round'];
 const HEALTH_STATUSES = ['Healthy', 'Warning', 'Critical', 'N/A'];
 
 const DEFAULT_FORM_DATA: Partial<Product> = {
   name: '',
   description: '',
-  category: 'Vegetables',
+  category: 'Foodstuff',
   price: 0,
-  unit: 'kg',
+  unit: 'bag',
   stock_quantity: 0,
-  harvest_season: 'Year-round',
+  harvest_season: 'Year round',
   health_status: 'Healthy',
   certifications: [],
   location: '',
@@ -303,7 +304,7 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, far
                     onChange={handleChange}
                     className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 focus:border-primary outline-none transition-all dark:text-white"
                   >
-                    {UNITS.map(unit => <option key={unit} value={unit}>{unit}</option>)}
+                    {UNITS.map(unit => <option key={unit} value={unit}>{formatUnit(unit)}</option>)}
                   </select>
                 </div>
                 <div className="space-y-2">

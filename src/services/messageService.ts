@@ -9,7 +9,7 @@ export const messageService = {
       .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`)
       .order('created_at', { ascending: true });
     
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return data;
   },
 
@@ -18,7 +18,7 @@ export const messageService = {
       .from('messages')
       .insert([message]);
     
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return data;
   }
 };

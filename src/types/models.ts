@@ -1,5 +1,3 @@
-import { ReactNode } from 'react';
-
 export interface User {
   id: string;
   full_name: string;
@@ -14,13 +12,6 @@ export interface User {
   farm_name?: string;
   website?: string;
   created_at?: string;
-}
-
-export interface NavItem {
-  label: string;
-  icon: string;
-  path: string;
-  roles?: string[];
 }
 
 export interface CropDiagnosis {
@@ -45,6 +36,8 @@ export interface Product {
   unit: string;
   image_url?: string;
   stock_quantity: number;
+  min_quantity?: number;
+  max_quantity?: number;
   is_verified: boolean;
   harvest_date?: string;
   harvest_season?: string;

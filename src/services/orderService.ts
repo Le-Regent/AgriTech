@@ -10,14 +10,14 @@ export const orderService = {
       .select()
       .single();
     
-    if (orderError) throw orderError;
+    if (orderError) throw new Error(orderError.message);
 
     const itemsWithOrderId = items.map(item => ({ ...item, order_id: orderData.id }));
     const { error: itemsError } = await supabase
       .from('order_items')
       .insert(itemsWithOrderId);
     
-    if (itemsError) throw itemsError;
+    if (itemsError) throw new Error(itemsError.message);
     return orderData;
   },
 
@@ -37,7 +37,7 @@ export const orderService = {
     }
 
     const { data, error } = await query.order('created_at', { ascending: false });
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return data;
   },
 
@@ -47,7 +47,7 @@ export const orderService = {
       .update({ status })
       .eq('id', orderId);
     
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return data;
   },
 
@@ -57,7 +57,7 @@ export const orderService = {
       .from('payments')
       .insert([payment]);
     
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return data;
   },
 
@@ -67,7 +67,7 @@ export const orderService = {
       .select('*')
       .eq('order_id', orderId);
     
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return data;
   }
 };

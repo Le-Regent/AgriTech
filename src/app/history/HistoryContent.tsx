@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useOffline } from '@/context/OfflineContext';
 import { useUser } from '@/context/UserContext';
-import ResponsiveImage from '@/components/ResponsiveImage';
+import ResponsiveImage from '@/components/ui/ResponsiveImage';
 import { supabaseService } from '@/services/supabaseService';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -22,26 +22,38 @@ export default function HistoryContent() {
   useEffect(() => {
     setMounted(true);
     const fetchHistory = async () => {
+      if (!user) return;
       setLoading(true);
       try {
         if (isFarmer) {
-          const diagData = await supabaseService.getDiagnoses(user!.id);
+          const [diagData, salesData] = await Promise.all([
+            supabaseService.getDiagnoses(user.id),
+            supabaseService.getOrders(user.id, 'farmer')
+          ]);
           setDiagnoses(diagData || []);
+          
+          // Map sales to history format
+          const mappedSales = (salesData || []).map((order: any) => ({
+            id: order.id,
+            date: new Date(order.created_at).toLocaleDateString(),
+            type: 'Sale',
+            crop: order.order_items?.[0]?.products?.name || 'Produce',
+            amount: order.total_amount,
+            status: order.status.charAt(0).toUpperCase() + order.status.slice(1)
+          }));
+          setHistory(mappedSales);
+        } else {
+          const purchaseData = await supabaseService.getOrders(user.id, 'buyer');
+          const mappedPurchases = (purchaseData || []).map((order: any) => ({
+            id: order.id,
+            date: new Date(order.created_at).toLocaleDateString(),
+            type: 'Purchase',
+            crop: order.order_items?.[0]?.products?.name || 'Produce',
+            amount: order.total_amount,
+            status: order.status.charAt(0).toUpperCase() + order.status.slice(1)
+          }));
+          setHistory(mappedPurchases);
         }
-        // Mock transactions for now as per original
-        const farmerHistory = [
-          { id: 1, date: '2024-03-20', type: 'Sale', crop: 'Tomatoes', amount: 450, status: 'Completed' },
-          { id: 2, date: '2024-03-18', type: 'Sale', crop: 'Potatoes', amount: 320, status: 'Completed' },
-          { id: 3, date: '2024-03-15', type: 'Purchase', item: 'Fertilizer', amount: 150, status: 'Completed' },
-          { id: 4, date: '2024-03-10', type: 'Sale', crop: 'Onions', amount: 280, status: 'Completed' },
-        ];
-        const buyerHistory = [
-          { id: 1, date: '2024-03-22', type: 'Purchase', crop: 'Tomatoes', amount: 120, status: 'Completed' },
-          { id: 2, date: '2024-03-20', type: 'Purchase', crop: 'Potatoes', amount: 85, status: 'Completed' },
-          { id: 3, date: '2024-03-18', type: 'Purchase', crop: 'Onions', amount: 65, status: 'Completed' },
-          { id: 4, date: '2024-03-15', type: 'Purchase', crop: 'Carrots', amount: 45, status: 'Completed' },
-        ];
-        setHistory(isFarmer ? farmerHistory : buyerHistory);
       } catch (error) {
         console.error('Error fetching history:', error);
       } finally {
@@ -49,7 +61,7 @@ export default function HistoryContent() {
       }
     };
 
-    if (user) fetchHistory();
+    fetchHistory();
   }, [user, isFarmer]);
 
   const downloadReport = (diagnosis: any) => {
@@ -128,7 +140,7 @@ export default function HistoryContent() {
               <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-colors">
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total {isFarmer ? 'Revenue' : 'Spent'}</p>
                 <p className="text-4xl font-black text-slate-900 dark:text-white mt-3">
-                  ${history.reduce((acc, curr) => acc + (curr.type === 'Sale' || !isFarmer ? curr.amount : 0), 0).toLocaleString()}
+                  {history.reduce((acc, curr) => acc + (curr.type === 'Sale' || !isFarmer ? curr.amount : 0), 0).toLocaleString()} CFA
                 </p>
                 <div className="mt-4 flex items-center text-xs text-green-600 font-black">
                   <span className="material-symbols-outlined text-sm mr-1">trending_up</span>
@@ -188,7 +200,7 @@ export default function HistoryContent() {
                           </span>
                         </td>
                         <td className="px-8 py-5 text-sm font-bold text-slate-900 dark:text-white">{item.crop || item.item}</td>
-                        <td className="px-8 py-5 text-sm text-slate-900 dark:text-white text-right font-black">${item.amount}</td>
+                        <td className="px-8 py-5 text-sm text-slate-900 dark:text-white text-right font-black">{item.amount.toLocaleString()} CFA</td>
                         <td className="px-8 py-5 text-center">
                           <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
                             {item.status}

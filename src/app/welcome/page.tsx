@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import ResponsiveImage from '@/components/ResponsiveImage';
+import ResponsiveImage from '@/components/ui/ResponsiveImage';
 import { useUser } from '@/context/UserContext';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';

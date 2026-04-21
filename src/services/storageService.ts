@@ -10,7 +10,7 @@ export const storageService = {
       .from(bucket)
       .upload(filePath, file);
 
-    if (error) throw error;
+    if (error) throw new Error(error.message);
 
     const { data: { publicUrl } } = supabase.storage
       .from(bucket)
