@@ -61,7 +61,15 @@ export function UserProvider({ children }: { children: ReactNode }) {
       // 2. Fetch full profile in background
       try {
         const profile = await profileService.getProfile(sessionUser.id);
-        setUser(profile);
+        if (profile) {
+          setUser(profile);
+          // Cache full profile for offline access
+          try {
+            localStorage.setItem(`agritech_profile_${sessionUser.id}`, JSON.stringify(profile));
+          } catch (e) {
+            console.warn('Failed to cache profile:', e);
+          }
+        }
       } catch (error: any) {
         if (error.code === 'PGRST116') { // Not found
           console.warn('Profile not found, attempting to create from metadata');
@@ -78,6 +86,17 @@ export function UserProvider({ children }: { children: ReactNode }) {
             } catch (insertError) {
               console.error('Failed to manually create profile:', insertError);
             }
+          }
+        } else if (error.message?.includes('fetch') || (typeof window !== 'undefined' && !window.navigator.onLine)) {
+          // Network error - try to load from local cache
+          console.warn('Network error fetching profile, checking local cache');
+          try {
+            const cached = localStorage.getItem(`agritech_profile_${sessionUser.id}`);
+            if (cached) {
+              setUser(JSON.parse(cached));
+            }
+          } catch (e) {
+            console.error('Failed to load profile from cache:', e);
           }
         } else {
           console.error('Error fetching profile:', error);
@@ -185,8 +204,31 @@ export function UserProvider({ children }: { children: ReactNode }) {
     if (!user) return { error: 'Not authenticated' };
     setLoading(true);
     try {
+      // 1. Update the profiles table
       await profileService.updateProfile(user.id, updates);
-      setUser(prev => prev ? { ...prev, ...updates } : null);
+      
+      // 2. Sync with Auth Metadata if critical fields changed
+      if (updates.full_name || updates.avatar_url) {
+        const { error: authError } = await supabase.auth.updateUser({
+          data: { 
+            full_name: updates.full_name || user.full_name,
+            avatar_url: updates.avatar_url || user.avatar_url 
+          }
+        });
+        if (authError) console.warn('Auth metadata sync failed:', authError.message);
+      }
+
+      // 3. Update local state and cache
+      setUser(prev => {
+        if (!prev) return null;
+        const updated = { ...prev, ...updates };
+        try {
+          localStorage.setItem(`agritech_profile_${user.id}`, JSON.stringify(updated));
+        } catch (e) {
+          console.warn('Failed to update profile cache:', e);
+        }
+        return updated;
+      });
       return { error: null };
     } catch (error: any) {
       console.error('Error updating profile:', error);

@@ -11,6 +11,9 @@ CREATE TABLE profiles (
   plan TEXT DEFAULT 'standard',
   bio TEXT,
   location_name TEXT,
+  phone_number TEXT,
+  farm_name TEXT,
+  website TEXT,
   gps_coords POINT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
@@ -159,7 +162,7 @@ ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
 -- RLS Policies
 
 -- Profiles: Users can only update their own profile. Admins can manage all.
-CREATE POLICY "Users can view their own profile" ON profiles FOR SELECT USING (auth.uid() = id);
+CREATE POLICY "Anyone can view profiles" ON profiles FOR SELECT USING (auth.uid() IS NOT NULL);
 CREATE POLICY "Users can update their own profile" ON profiles FOR UPDATE USING (auth.uid() = id);
 CREATE POLICY "Admins can manage all profiles" ON profiles FOR ALL USING (
   EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true)
