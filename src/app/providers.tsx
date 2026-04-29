@@ -5,12 +5,14 @@ import { UserProvider } from '@/context/UserContext';
 import { OfflineProvider } from '@/context/OfflineContext';
 import { NotificationProvider } from '@/context/NotificationContext';
 import { CartProvider } from '@/context/CartContext';
+import { LanguageProvider } from '@/context/LanguageContext';
 import SyncManager from '@/components/features/sync/SyncManager';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider>
-      <UserProvider>
+      <LanguageProvider>
+        <UserProvider>
         <OfflineProvider>
           <NotificationProvider>
             <CartProvider>
@@ -20,6 +22,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
           </NotificationProvider>
         </OfflineProvider>
       </UserProvider>
-    </ThemeProvider>
+    </LanguageProvider>
+  </ThemeProvider>
   );
 }

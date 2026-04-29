@@ -62,15 +62,18 @@ export const productService = {
   },
 
   async updateProductStock(id: string, quantity: number) {
+    // First get current stock and other info
     const { data, error: fetchError } = await supabase
       .from('products')
-      .select('stock_quantity')
+      .select('stock_quantity, initial_stock_quantity, farmer_id, name')
       .eq('id', id)
       .single();
     
     if (fetchError) throw new Error(fetchError.message);
     
-    const newStock = Math.max(0, data.stock_quantity - quantity);
+    const oldStock = data.stock_quantity;
+    const initialStock = data.initial_stock_quantity || oldStock;
+    const newStock = Math.max(0, oldStock - quantity);
     
     const { error: updateError } = await supabase
       .from('products')
@@ -78,6 +81,31 @@ export const productService = {
       .eq('id', id);
     
     if (updateError) throw new Error(updateError.message);
+
+    // Check for low stock threshold (25%)
+    const threshold = initialStock * 0.25;
+    if (newStock < threshold && oldStock >= threshold && initialStock > 0) {
+      try {
+        // Since productService doesn't have createNotification directly, 
+        // in a real app these services would be merged or one would call the other.
+        // For consistency in this specific applet environment, we'll implement it here too
+        // but ideally we should consolidate these services.
+        await supabase
+          .from('notifications')
+          .insert([{
+            user_id: data.farmer_id,
+            title: 'Low Stock Alert ⚠️',
+            message: `Your product "${data.name}" has dropped below 25% stock (${newStock} remaining). Consider restocking soon!`,
+            type: 'system',
+            link: '/listings',
+            is_read: false,
+            created_at: new Date().toISOString()
+          }]);
+      } catch (notifyError) {
+        console.error('Failed to send low stock notification in productService:', notifyError);
+      }
+    }
+
     return newStock;
   },
 

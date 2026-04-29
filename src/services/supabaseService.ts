@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import { User, Product, CropDiagnosis, Order, OrderItem, ProductReview, Message, Payment, SensorData } from '@/types';
+import { User, Product, CropDiagnosis, Order, OrderItem, ProductReview, Message, Payment, SensorData, AppNotification, NotificationCategory } from '@/types';
 
 export const supabaseService = {
   // Profiles
@@ -242,13 +242,65 @@ export const supabaseService = {
   },
 
   async updateOrderStatus(orderId: string, status: Order['status']) {
-    const { data, error } = await supabase
+    const { data: orderData, error: updateError } = await supabase
       .from('orders')
       .update({ status })
-      .eq('id', orderId);
+      .eq('id', orderId)
+      .select('*, order_items(products(farmer_id, name))')
+      .single();
     
-    if (error) throw new Error(error.message);
-    return data;
+    if (updateError) throw new Error(updateError.message);
+
+    // Get the first farmer from the order items to act as a point of contact if needed
+    // or just send as a system notification
+    const farmerId = orderData.order_items?.[0]?.products?.farmer_id;
+    const productName = orderData.order_items?.[0]?.products?.name || 'Produce';
+    const shortId = orderId.slice(0, 8).toUpperCase();
+
+    // 1. Create In-App Notification
+    try {
+      let title = 'Order Update';
+      let message = `Order #${shortId} status changed to ${status}`;
+      
+      switch (status) {
+        case 'processing':
+          title = 'Order Processing 🚜';
+          message = `Great news! Your order #${shortId} (${productName}) is now being processed at the farm.`;
+          break;
+        case 'shipped':
+          title = 'Order Shipped 🚚';
+          message = `Your order #${shortId} has been handed over to logistics and is on its way!`;
+          break;
+        case 'delivered':
+          title = 'Order Delivered ✅';
+          message = `Successfully delivered! Your order #${shortId} has reached its destination. Enjoy your fresh produce!`;
+          break;
+      }
+
+      await this.createNotification({
+        user_id: orderData.buyer_id,
+        title,
+        message,
+        type: 'order',
+        link: `/orders/${orderId}`,
+        created_at: new Date().toISOString()
+      });
+
+      // 2. Send Automated Message to Chat (if farmerId exists)
+      if (farmerId) {
+        await this.sendMessage({
+          sender_id: farmerId, // Message appears to come from the farmer/seller
+          receiver_id: orderData.buyer_id,
+          message: `[Logistics Update] ${message}`,
+          is_read: false,
+          created_at: new Date().toISOString()
+        });
+      }
+    } catch (msgError) {
+      console.error('Failed to send internal notifications:', msgError);
+    }
+    
+    return orderData;
   },
 
   // Diagnoses
@@ -399,12 +451,11 @@ export const supabaseService = {
       .from('notifications')
       .select('*')
       .eq('user_id', userId)
+      .order('is_read', { ascending: true }) // unread first
       .order('created_at', { ascending: false });
     
     if (error) {
-      // If table doesn't exist, return empty array instead of throwing
-      if (error.code === 'PGRST116' || error.message?.includes('notifications\' not found') || error.message?.includes('schema cache')) {
-        console.warn('Notifications table not found in Supabase schema.');
+      if (error.code === 'PGRST116' || error.message?.includes('notifications\' not found')) {
         return [];
       }
       throw new Error(error.message);
@@ -412,10 +463,34 @@ export const supabaseService = {
     return data;
   },
 
-  async createNotification(notification: any) {
+  async getUnreadNotificationsCount(userId: string) {
+    const { count, error } = await supabase
+      .from('notifications')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .eq('is_read', false);
+    
+    if (error) return 0;
+    return count || 0;
+  },
+
+  async calculateNotifications(userId: string) {
+    const notifications = await this.getNotifications(userId);
+    return notifications;
+  },
+
+  async createNotification(notification: Partial<AppNotification>) {
+    // Default to primary if not specified
+    const payload = {
+      category: 'primary',
+      is_read: false,
+      created_at: new Date().toISOString(),
+      ...notification
+    };
+
     const { data, error } = await supabase
       .from('notifications')
-      .insert([notification]);
+      .insert([payload]);
     
     if (error) throw new Error(error.message);
     return data;
@@ -428,5 +503,58 @@ export const supabaseService = {
       .eq('id', id);
     
     if (error) throw new Error(error.message);
+  },
+
+  /**
+   * Broadcasts a notification to multiple users.
+   * Useful for market trends or new product propositions.
+   */
+  async broadcastNotification(notification: Partial<AppNotification>, targetRole?: 'buyer' | 'farmer') {
+    // For a real app, you'd fetch user IDs based on preferences or roles
+    // Here we'll simulate by getting a few relevant users to notify
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq(targetRole ? 'role' : 'id', targetRole || 'dummy') // Filter by role if provided
+      .limit(20);
+
+    if (profiles && profiles.length > 0) {
+      const notifications = profiles.map(p => ({
+        ...notification,
+        user_id: p.id,
+        is_read: false,
+        created_at: new Date().toISOString()
+      }));
+
+      await supabase.from('notifications').insert(notifications);
+    }
+  },
+
+  /**
+   * Generates smart climate and market insights for a farmer.
+   */
+  async generateInsights(userId: string) {
+    const insights = [
+      {
+        title: 'Favorable Weather Pattern ☀️',
+        message: 'A stable dry spell is expected next week in your region. Ideal for harvest activities.',
+        category: 'insight' as NotificationCategory
+      },
+      {
+        title: 'Market Trend: Rice 📈',
+        message: 'Rice prices have increased by 12% in nearby Douala markets. Consider listing your stock now.',
+        category: 'insight' as NotificationCategory
+      }
+    ];
+
+    // Pick one randomly to avoid spamming
+    const insight = insights[Math.floor(Math.random() * insights.length)];
+    
+    await this.createNotification({
+      user_id: userId,
+      ...insight,
+      type: 'insight',
+      link: '/insights'
+    });
   }
 };

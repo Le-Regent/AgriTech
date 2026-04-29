@@ -5,10 +5,12 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import ResponsiveImage from '@/components/ui/ResponsiveImage';
 import { useUser } from '@/context/UserContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function LoginPage() {
   const router = useRouter();
   const { login, signUp, resendConfirmation, loading } = useUser();
+  const { t, language, setLanguage } = useLanguage();
   const [isLogin, setIsLogin] = useState(true);
   const [role, setRole] = useState<'farmer' | 'buyer'>('farmer');
   const [name, setName] = useState('');
@@ -68,17 +70,33 @@ export default function LoginPage() {
           <div className="absolute -left-20 -bottom-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl"></div>
           
           <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-8 sm:mb-12">
-              <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white">
-                <span className="material-symbols-outlined fill-1">potted_plant</span>
+            <div className="flex items-center justify-between mb-8 sm:mb-12">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white">
+                  <span className="material-symbols-outlined fill-1">potted_plant</span>
+                </div>
+                <h1 className="font-bold text-xl tracking-tight">AgriTech Pro</h1>
               </div>
-              <h1 className="font-bold text-xl tracking-tight">AgriTech Pro</h1>
+              <div className="flex gap-1">
+                <button 
+                  onClick={() => setLanguage('en')}
+                  className={`text-[10px] font-black px-2 py-1 rounded-md transition-all ${language === 'en' ? 'bg-primary text-white' : 'text-slate-500 hover:text-white'}`}
+                >
+                  EN
+                </button>
+                <button 
+                  onClick={() => setLanguage('fr')}
+                  className={`text-[10px] font-black px-2 py-1 rounded-md transition-all ${language === 'fr' ? 'bg-primary text-white' : 'text-slate-500 hover:text-white'}`}
+                >
+                  FR
+                </button>
+              </div>
             </div>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tighter leading-none mb-4 sm:mb-6">
-              Empowering the <span className="text-primary">Next Generation</span> of Farmers.
+              Empowering the <span className="text-primary italic">Next Generation</span> of Cameroonian Farmers 🇨🇲.
             </h2>
             <p className="text-slate-400 text-base sm:text-lg leading-relaxed">
-              Join thousands of farmers worldwide using AI to optimize their yields and reach global markets.
+              Connect directly with buyers, track logistics via MoMo, and use AI to secure your harvest across all 10 regions.
             </p>
           </div>
 
@@ -104,7 +122,7 @@ export default function LoginPage() {
         <div className="md:w-1/2 p-8 sm:p-12 flex flex-col justify-center">
           <div className="max-w-sm mx-auto w-full space-y-6 sm:space-y-8">
             <div className="space-y-2">
-              <h3 className="text-2xl sm:text-3xl font-black tracking-tight dark:text-white">{isLogin ? 'Welcome Back' : 'Create Account'}</h3>
+              <h3 className="text-2xl sm:text-3xl font-black tracking-tight dark:text-white">{isLogin ? t('welcome_back') : t('create_account')}</h3>
               <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400 transition-colors">
                 {isLogin ? "Don't have an account?" : "Already have an account?"}{' '}
                 <button 
@@ -115,7 +133,7 @@ export default function LoginPage() {
                   }}
                   className="text-primary font-bold hover:underline"
                 >
-                  {isLogin ? 'Sign Up' : 'Log In'}
+                  {isLogin ? t('sign_up') : t('log_in')}
                 </button>
               </p>
             </div>
@@ -154,7 +172,7 @@ export default function LoginPage() {
                       : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'
                   }`}
                 >
-                  Farmer
+                  {t('farmer')}
                 </button>
                 <button
                   type="button"
@@ -165,7 +183,7 @@ export default function LoginPage() {
                       : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'
                   }`}
                 >
-                  Buyer
+                  {t('buyer')}
                 </button>
               </div>
 
@@ -183,18 +201,18 @@ export default function LoginPage() {
                 </div>
               )}
               <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Email Address</label>
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{t('email_address')}</label>
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="john@example.com"
+                  placeholder="name@example.com"
                   className="w-full px-6 py-3 sm:py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-bold focus:ring-2 focus:ring-primary/20 outline-none dark:text-white transition-colors"
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Password</label>
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{t('password')}</label>
                 <input
                   type="password"
                   required
@@ -206,7 +224,7 @@ export default function LoginPage() {
               </div>
               {isLogin && (
                 <div className="text-right">
-                  <Link href="/forgot-password" title="Reset your password" className="text-xs font-bold text-slate-400 hover:text-primary transition-colors">Forgot Password?</Link>
+                  <Link href="/forgot-password" title="Reset your password" className="text-xs font-bold text-slate-400 hover:text-primary transition-colors">{t('forgot_password')}</Link>
                 </div>
               )}
               <button 
@@ -214,7 +232,7 @@ export default function LoginPage() {
                 disabled={loading}
                 className="w-full bg-primary text-white py-3 sm:py-4 rounded-2xl font-black text-base sm:text-lg shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Processing...' : (isLogin ? 'Log In' : 'Create Account')}
+                {loading ? 'Processing...' : (isLogin ? t('log_in') : t('sign_up'))}
               </button>
             </form>
 
@@ -223,7 +241,7 @@ export default function LoginPage() {
                 <div className="w-full border-t border-slate-100 dark:border-slate-800 transition-colors"></div>
               </div>
               <div className="relative flex justify-center text-[10px] uppercase font-black tracking-widest text-slate-400">
-                <span className="bg-white dark:bg-slate-900 px-4 transition-colors">Or continue with</span>
+                <span className="bg-white dark:bg-slate-900 px-4 transition-colors">{t('or_continue_with')}</span>
               </div>
             </div>
 
@@ -238,15 +256,9 @@ export default function LoginPage() {
                 />
                 <span className="text-xs sm:text-sm font-bold dark:text-white transition-colors">Google</span>
               </button>
-              <button className="flex items-center justify-center gap-2 py-2 sm:py-3 border border-slate-100 dark:border-slate-800 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                <ResponsiveImage 
-                  src="https://github.com/favicon.ico" 
-                  alt="GitHub logo" 
-                  className="w-4 h-4" 
-                  baseWidth={16}
-                  baseHeight={16}
-                />
-                <span className="text-xs sm:text-sm font-bold dark:text-white transition-colors">GitHub</span>
+              <button className="flex items-center justify-center gap-2 py-2 sm:py-3 border border-primary/20 bg-primary/5 rounded-2xl hover:bg-primary/10 transition-colors group">
+                <span className="material-symbols-outlined text-sm text-primary group-hover:scale-110 transition-transform">call</span>
+                <span className="text-xs sm:text-sm font-bold text-primary transition-colors">Phone</span>
               </button>
             </div>
           </div>

@@ -8,6 +8,8 @@ import { useTheme } from '@/context/ThemeContext';
 import { useCart } from '@/context/CartContext';
 import { useOffline } from '@/context/OfflineContext';
 import { useUser } from '@/context/UserContext';
+import { useLanguage } from '@/context/LanguageContext';
+import { NotificationCenter } from './NotificationCenter';
 
 interface NavbarProps {
   onMenuClick?: () => void;
@@ -15,6 +17,7 @@ interface NavbarProps {
 
 export function Navbar({ onMenuClick }: NavbarProps) {
   const { theme, toggleTheme } = useTheme();
+  const { language, setLanguage } = useLanguage();
   const { totalItems } = useCart();
   const { isOnline } = useOffline();
   const { user, logout } = useUser();
@@ -120,6 +123,22 @@ export function Navbar({ onMenuClick }: NavbarProps) {
             </motion.div>
           )}
         </AnimatePresence>
+
+        <div className="flex bg-slate-50 dark:bg-slate-800 p-1 rounded-xl border border-slate-100 dark:border-border-dark mr-1 sm:mr-2">
+          <button 
+            onClick={() => setLanguage('en')}
+            className={`w-7 h-7 flex items-center justify-center rounded-lg text-[9px] font-black transition-all ${language === 'en' ? 'bg-primary text-white shadow-sm' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'}`}
+          >
+            EN
+          </button>
+          <button 
+            onClick={() => setLanguage('fr')}
+            className={`w-7 h-7 flex items-center justify-center rounded-lg text-[9px] font-black transition-all ${language === 'fr' ? 'bg-primary text-white shadow-sm' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'}`}
+          >
+            FR
+          </button>
+        </div>
+
         <button 
           id="theme-toggle"
           onClick={handleToggleTheme}
@@ -142,13 +161,8 @@ export function Navbar({ onMenuClick }: NavbarProps) {
             </span>
           )}
         </Link>
-        <button 
-          className="w-8 h-8 sm:w-10 sm:h-10 rounded-full hover:bg-slate-50 dark:hover:bg-surface-hover-dark flex items-center justify-center text-slate-500 dark:text-slate-400 relative transition-colors"
-          title="Notifications"
-        >
-          <span className="material-symbols-outlined text-[20px] sm:text-[24px]">notifications</span>
-          <span className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 w-1.5 h-1.5 sm:w-2 sm:h-2 bg-red-500 rounded-full border-2 border-white dark:border-background-dark"></span>
-        </button>
+        
+        <NotificationCenter />
         
         <div className="relative" ref={menuRef}>
           <button 

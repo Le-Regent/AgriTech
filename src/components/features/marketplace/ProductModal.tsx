@@ -211,6 +211,18 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, far
       };
 
       await onSave(payload);
+
+      // Broadcast proposition to buyers if it's a new product
+      if (isNew) {
+        supabaseService.broadcastNotification({
+          title: `New Arrival: ${payload.name} 🥗`,
+          message: `Freshly harvested ${payload.name} is now available in ${payload.category}. Check it out!`,
+          category: 'proposition',
+          type: 'proposition',
+          link: '/marketplace'
+        }, 'buyer').catch(err => console.error('Broadcast failed:', err));
+      }
+
       toast.success(isNew ? 'Product listed successfully!' : 'Product updated successfully!');
       onClose();
     } catch (error) {

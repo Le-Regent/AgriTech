@@ -6,11 +6,12 @@ import { useRouter } from 'next/navigation';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import ResponsiveImage from '@/components/ui/ResponsiveImage';
 import { useUser } from '@/context/UserContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { useOffline } from '@/context/OfflineContext';
 import { INITIAL_PRODUCTS } from '@/constants';
 import { getWeatherData, getCurrentPosition, getForecastData, WeatherData, ForecastData } from '@/lib/weatherService';
 import { supabaseService } from '@/services/supabaseService';
-import { CropDiagnosis, Product, Order } from '@/types';
+import { CropDiagnosis, Product, Order, AppNotification } from '@/types';
 import { downloadDiagnosisReport } from '@/lib/diagnosisUtils';
 import { formatDistanceToNow } from 'date-fns';
 import dynamic from 'next/dynamic';
@@ -35,6 +36,7 @@ import { supabase } from '@/lib/supabase';
 
 function DashboardContent() {
   const { user } = useUser();
+  const { t } = useLanguage();
   const { isOnline, saveToCache, getFromCache, addToSyncQueue } = useOffline();
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
@@ -44,7 +46,7 @@ function DashboardContent() {
   const [myProducts, setMyProducts] = useState<Product[]>([]);
   const [sellerOrders, setSellerOrders] = useState<any[]>([]);
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [weatherLoading, setWeatherLoading] = useState(true);
   const [dataLoading, setDataLoading] = useState(true);
@@ -212,6 +214,18 @@ function DashboardContent() {
 
         // Fire weather and app data in parallel for maximum speed
         await Promise.all([fetchWeather(), fetchAppData()]);
+
+        // Smart Logic: Occasionally trigger market/climate insights for farmers
+        if (isFarmer && user?.id && isOnline) {
+          const lastInsightTime = localStorage.getItem('last_insight_trigger');
+          const now = Date.now();
+          const oneHour = 3600000;
+
+          if (!lastInsightTime || (now - parseInt(lastInsightTime)) > oneHour) {
+            supabaseService.generateInsights(user.id);
+            localStorage.setItem('last_insight_trigger', now.toString());
+          }
+        }
       } catch (error: any) {
         console.error('Failed to update dashboard data:', error);
       } finally {
@@ -401,29 +415,44 @@ function DashboardContent() {
           </div>
 
           <div className="space-y-8">
-            <div className="bg-gradient-to-br from-primary to-primary-dark text-white p-8 rounded-[2rem] shadow-2xl relative overflow-hidden group">
+            <div className={`bg-gradient-to-br ${isFarmer ? 'from-emerald-600 to-teal-700' : 'from-primary to-primary-dark'} text-white p-8 rounded-[2rem] shadow-2xl relative overflow-hidden group`}>
               <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/20 rounded-full blur-3xl group-hover:scale-125 transition-transform duration-700"></div>
               <h3 className="text-xl font-bold mb-4 relative z-10 flex items-center gap-2">
-                <span className="material-symbols-outlined text-white/50">trending_up</span> Market Insights
+                <span className="material-symbols-outlined text-white/50">{isFarmer ? 'lightbulb' : 'trending_up'}</span> 
+                {isFarmer ? t('smart_insights') : t('market_trends')}
               </h3>
-              <p className="text-xs text-white/80 mb-6 relative z-10 leading-relaxed font-medium">Stay updated with local market fluctuations in Cameroon.</p>
+              
               <div className="space-y-4 relative z-10">
-                {[
-                  { name: 'Cassava (Garri)', trend: '+12%', color: 'text-emerald-300' },
-                  { name: 'Cocoa Beans', trend: '+5%', color: 'text-emerald-300' },
-                  { name: 'Plantains', trend: '-2%', color: 'text-rose-300' }
-                ].map((item, i) => (
-                  <div key={i} className="flex items-center justify-between text-xs font-bold bg-white/10 p-3 rounded-xl border border-white/10 backdrop-blur-sm">
-                    <span className="tracking-tight">{item.name}</span>
-                    <span className={`flex items-center gap-1 ${item.color}`}>
-                      <span className="material-symbols-outlined text-sm">{item.trend.startsWith('+') ? 'trending_up' : 'trending_down'}</span>
-                      {item.trend}
-                    </span>
+                {notifications.filter(n => n.category === 'insight' || n.category === 'proposition').length > 0 ? (
+                  notifications
+                    .filter(n => n.category === 'insight' || n.category === 'proposition')
+                    .slice(0, 3)
+                    .map((item, i) => (
+                      <div key={i} className="bg-white/10 p-4 rounded-xl border border-white/10 backdrop-blur-sm space-y-1">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-white/60">{item.title}</p>
+                        <p className="text-xs font-bold leading-relaxed">{item.message}</p>
+                      </div>
+                    ))
+                ) : (
+                  <div className="space-y-3">
+                    {[
+                      { name: 'Cassava (Garri)', trend: '+12%', color: 'text-emerald-300' },
+                      { name: 'Cocoa Beans', trend: '+5%', color: 'text-emerald-300' },
+                      { name: 'Plantains', trend: '-2%', color: 'text-rose-300' }
+                    ].map((item, i) => (
+                      <div key={i} className="flex items-center justify-between text-xs font-bold bg-white/10 p-3 rounded-xl border border-white/10 backdrop-blur-sm">
+                        <span className="tracking-tight">{item.name}</span>
+                        <span className={`flex items-center gap-1 ${item.color}`}>
+                          <span className="material-symbols-outlined text-sm">{item.trend.startsWith('+') ? 'trending_up' : 'trending_down'}</span>
+                        </span>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                )}
               </div>
-              <Link href="/marketplace" className="mt-8 w-full bg-white/20 hover:bg-white/30 text-white text-xs font-black uppercase tracking-widest py-3 rounded-xl transition-all flex items-center justify-center gap-2 backdrop-blur-sm relative z-10">
-                Analyze Market <span className="material-symbols-outlined text-sm">arrow_forward</span>
+              
+              <Link href={isFarmer ? "/insights" : "/marketplace"} className="mt-8 w-full bg-white text-slate-900 text-[10px] font-black uppercase tracking-widest py-3 rounded-xl transition-all flex items-center justify-center gap-2 relative z-10">
+                Learn More <span className="material-symbols-outlined text-sm">arrow_forward</span>
               </Link>
             </div>
 
@@ -487,8 +516,8 @@ function DashboardContent() {
     >
       <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl sm:text-3xl font-black tracking-tight dark:text-white">Farm Overview</h2>
-          <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400">Welcome back, {user?.full_name}. Here&apos;s what&apos;s happening today.</p>
+          <h2 className="text-2xl sm:text-3xl font-black tracking-tight dark:text-white">Farm Overview 🇨🇲</h2>
+          <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400">Welcome back, {user?.full_name}. Local time: {new Date().toLocaleTimeString('en-CM')}</p>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <form id="dashboard-search-form" onSubmit={handleSearch} className="relative group min-w-[280px]">
