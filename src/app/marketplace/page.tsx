@@ -518,7 +518,7 @@ function MarketplaceContent() {
         </motion.div>
       )}
 
-      <motion.div variants={itemVariants} id="marketplace-category-tabs" className="flex gap-2 overflow-x-auto pb-4 no-scrollbar -mx-4 px-4 sticky top-16 md:top-20 z-30 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-xl py-2">
+      <motion.div variants={itemVariants} id="marketplace-category-tabs" className="flex gap-2 overflow-x-auto pb-4 no-scrollbar -mx-4 px-4 sticky top-0 z-30 bg-background-light dark:bg-background-dark/80 backdrop-blur-xl py-2">
         {['All Produce', 'Foodstuff', 'Grains & Beans', 'Spices & Pepper', 'Oils', 'Vegetables', 'Fruits', 'Meat & Eggs'].map((cat) => (
           <button
             key={cat}
@@ -534,7 +534,7 @@ function MarketplaceContent() {
         ))}
       </motion.div>
 
-      <div className="flex items-center justify-between gap-2 md:gap-4 sticky top-[116px] md:top-32 z-20 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md py-2 -mx-4 px-4">
+      <div className="flex items-center justify-between gap-2 md:gap-4 sticky top-[52px] z-20 bg-background-light dark:bg-background-dark/80 backdrop-blur-md py-2 -mx-4 px-4 shadow-sm border-b border-white/5">
         <div className="flex gap-2">
           <button 
             id="marketplace-filters-btn"

@@ -26,14 +26,14 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
   const showLayout = !isNoLayoutRoute && (user !== null || pathname !== '/');
 
   if (!showLayout || !isAuthReady) {
-    return <>{children}</>;
+    return <div className="h-screen overflow-y-auto no-scrollbar scroll-smooth">{children}</div>;
   }
 
   return (
-    <div className="flex min-h-screen bg-background-light dark:bg-background-dark transition-colors duration-300">
+    <div className="flex h-screen overflow-hidden bg-background-light dark:bg-background-dark transition-colors duration-300">
       <OnboardingTour />
       {/* Desktop Sidebar */}
-      <div className="hidden lg:block">
+      <div className="hidden lg:block h-full">
         <Sidebar />
       </div>
 
@@ -46,14 +46,14 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsMobileMenuOpen(false)}
-              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden"
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] lg:hidden"
             />
             <motion.div
               initial={{ x: -280 }}
               animate={{ x: 0 }}
               exit={{ x: -280 }}
               transition={{ type: 'spring' as const, damping: 25, stiffness: 200 }}
-              className="fixed inset-y-0 left-0 w-[280px] bg-white dark:bg-background-dark z-50 lg:hidden shadow-2xl"
+              className="fixed inset-y-0 left-0 w-[280px] bg-white dark:bg-background-dark z-[70] lg:hidden shadow-2xl"
             >
               <Sidebar onMobileClose={() => setIsMobileMenuOpen(false)} />
             </motion.div>
@@ -61,10 +61,12 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
         )}
       </AnimatePresence>
 
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 h-full relative">
         <Navbar onMenuClick={() => setIsMobileMenuOpen(true)} />
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 pb-24 lg:pb-8">
-          {children}
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 no-scrollbar scroll-smooth">
+          <div className="max-w-7xl mx-auto w-full pb-32 lg:pb-8">
+            {children}
+          </div>
         </main>
         <BottomNav />
       </div>
