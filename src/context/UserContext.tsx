@@ -57,8 +57,12 @@ export function UserProvider({ children }: { children: ReactNode }) {
       };
       
       setUser(preliminaryUser);
-      setIsAuthReady(true);
-      clearTimeout(timeout);
+
+      // If we have user_type in metadata, we can show the UI immediately
+      if (preliminaryUser.user_type) {
+        setIsAuthReady(true);
+        clearTimeout(timeout);
+      }
 
       // 2. Fetch full profile in background
       try {
@@ -103,6 +107,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
         } else {
           console.error('Error fetching profile:', error);
         }
+      } finally {
+        setIsAuthReady(true);
+        clearTimeout(timeout);
       }
     };
 
