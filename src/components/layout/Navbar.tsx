@@ -60,9 +60,18 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
   const isDashboard = pathname === '/';
 
   return (
-    <header className="h-16 md:h-20 bg-white/70 dark:bg-background-dark/70 backdrop-blur-xl border-b border-slate-200/50 dark:border-white/5 px-4 sm:px-8 flex items-center justify-between sticky top-0 z-40 transition-all duration-300">
-      <div className="flex items-center gap-2 md:gap-8 flex-1">
-        <Link href="/" className="flex items-center gap-2 group">
+    <header className="h-16 md:h-20 bg-white/70 dark:bg-background-dark/70 backdrop-blur-xl border-b border-slate-200/50 dark:border-white/5 sticky top-0 z-40 transition-all duration-300">
+      <div className="max-w-7xl mx-auto h-full px-4 sm:px-8 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-2 md:gap-8 flex-1">
+          {onMenuClick && (
+            <button 
+              onClick={onMenuClick}
+              className="lg:hidden w-10 h-10 flex items-center justify-center text-slate-500 hover:text-slate-900 transition-colors"
+            >
+              <span className="material-symbols-outlined">menu</span>
+            </button>
+          )}
+          <Link href="/" className="flex items-center gap-2 group shrink-0">
           <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-primary to-green-400 rounded-lg flex items-center justify-center text-white shadow-lg shadow-primary/20 group-hover:rotate-6 transition-transform">
             <span className="material-symbols-outlined text-[20px] md:text-[24px] font-bold">agriculture</span>
           </div>
@@ -234,6 +243,7 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
           </AnimatePresence>
         </div>
       </div>
-    </header>
+    </div>
+  </header>
   );
 }
