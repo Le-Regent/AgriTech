@@ -15,6 +15,7 @@ import { CropDiagnosis, Product, Order, AppNotification } from '@/types';
 import { downloadDiagnosisReport } from '@/lib/diagnosisUtils';
 import { formatDistanceToNow } from 'date-fns';
 import dynamic from 'next/dynamic';
+import LiveMap from '@/components/ui/LiveMap';
 
 const LineChart = dynamic(() => import('recharts').then(mod => mod.LineChart), { ssr: false });
 const Line = dynamic(() => import('recharts').then(mod => mod.Line), { ssr: false });
@@ -655,26 +656,19 @@ function DashboardContent() {
                 <button className="px-2 sm:px-3 py-1 text-[10px] sm:text-xs font-bold text-slate-400 dark:text-slate-500">{t('heatmap')}</button>
               </div>
             </div>
-            <div className="aspect-video bg-slate-100 dark:bg-muted-dark rounded-xl sm:rounded-2xl overflow-hidden relative group">
-              <ResponsiveImage 
-                src="https://picsum.photos/seed/farm-map/1200/800" 
-                alt="Satellite view of the farm fields showing crop distribution and health zones" 
-                className="w-full h-full object-cover opacity-80 dark:opacity-60"
-                baseWidth={1200}
-                baseHeight={800}
+            <div className="aspect-video bg-slate-100 dark:bg-muted-dark rounded-xl sm:rounded-2xl overflow-hidden relative group border border-slate-100 dark:border-border-dark">
+              <LiveMap 
+                center={[4.0511, 9.7679]} 
+                zoom={14}
+                markers={[
+                  { position: [4.0511, 9.7679], title: 'North Field', description: 'Healthy - Corn' },
+                  { position: [4.0530, 9.7710], title: 'West Sector', description: 'Warning - Cassava' },
+                  { position: [4.0490, 9.7650], title: 'South Buffer', description: 'Healthy - Plantain' }
+                ]}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-              <div className="absolute top-3 left-3 sm:top-4 sm:left-4 bg-white/90 dark:bg-surface-dark/90 backdrop-blur px-2 sm:px-3 py-1 sm:py-2 rounded-lg sm:rounded-xl shadow-sm flex items-center gap-1.5 sm:gap-2">
+              <div className="absolute top-3 left-3 sm:top-4 sm:left-4 bg-white/90 dark:bg-surface-dark/90 backdrop-blur px-2 sm:px-3 py-1 sm:py-2 rounded-lg sm:rounded-xl shadow-sm flex items-center gap-1.5 sm:gap-2 z-[400]">
                 <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full animate-pulse"></div>
                 <span className="text-[10px] sm:text-xs font-bold dark:text-white">{t('live_monitoring')}</span>
-              </div>
-              <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 flex gap-2">
-                <button className="w-8 h-8 sm:w-10 sm:h-10 bg-white dark:bg-surface-dark rounded-lg sm:rounded-xl shadow-lg flex items-center justify-center hover:bg-slate-50 dark:hover:bg-surface-hover-dark transition-colors">
-                  <span className="material-symbols-outlined text-lg sm:text-xl dark:text-white">add</span>
-                </button>
-                <button className="w-8 h-8 sm:w-10 sm:h-10 bg-white dark:bg-surface-dark rounded-lg sm:rounded-xl shadow-lg flex items-center justify-center hover:bg-slate-50 dark:hover:bg-surface-hover-dark transition-colors">
-                  <span className="material-symbols-outlined text-lg sm:text-xl dark:text-white">remove</span>
-                </button>
               </div>
             </div>
           </div>

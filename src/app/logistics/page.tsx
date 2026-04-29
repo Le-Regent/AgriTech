@@ -9,6 +9,7 @@ import { useLanguage } from '@/context/LanguageContext';
 import { supabaseService } from '@/services/supabaseService';
 import { supabase } from '@/lib/supabase';
 import ResponsiveImage from '@/components/ui/ResponsiveImage';
+import LiveMap from '@/components/ui/LiveMap';
 import { format } from 'date-fns';
 
 const TRACKING_STEPS = [
@@ -272,11 +273,22 @@ function LogisticsContent() {
                 <span className="bg-primary/20 text-primary-light px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest animate-pulse">Live</span>
               </div>
               
-              <div className="aspect-square bg-slate-900 rounded-[2rem] border border-white/10 flex flex-col items-center justify-center gap-4 relative group-hover:scale-[1.02] transition-transform duration-500 overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 to-teal-500/20" />
-                <div className="absolute inset-0 bg-[grid-white-5] [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]" />
-                <span className="material-symbols-outlined text-6xl text-primary drop-shadow-lg relative z-10">my_location</span>
-                <p className="relative z-10 text-[10px] font-black tracking-[0.2em] uppercase text-white/50 font-mono">GPS ACTIVE: {user?.location_name || 'Cameroon'}</p>
+              <div className="aspect-square bg-slate-900 rounded-[2rem] border border-white/10 flex flex-col items-center justify-center relative group-hover:scale-[1.02] transition-transform duration-500 overflow-hidden">
+                <LiveMap 
+                  center={[3.8480, 11.5021]} 
+                  zoom={12}
+                  className="h-full w-full opacity-60"
+                  markers={[
+                    { position: [3.8480, 11.5021], title: 'Fleet A-1', description: 'En route to Yaoundé' },
+                    { position: [3.8600, 11.5200], title: 'Fleet B-4', description: 'Loading at Hub' }
+                  ]}
+                />
+                <div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-slate-950 to-transparent z-[400] pointer-events-none">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+                    <p className="text-[10px] font-black tracking-[0.2em] uppercase text-white/90 font-mono">GPS ACTIVE: {user?.location_name || 'Yaoundé, CM'}</p>
+                  </div>
+                </div>
               </div>
 
               <button className="w-full bg-primary text-white py-4 rounded-2xl font-black text-sm hover:translate-y-[-2px] hover:shadow-2xl hover:shadow-primary/30 transition-all shadow-xl shadow-primary/10 uppercase tracking-widest">

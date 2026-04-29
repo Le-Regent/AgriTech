@@ -1,6 +1,6 @@
 {
-  "name": "AgriTech Pro v 0.0.1",
-  "description": "A comprehensive agricultural management platform featuring AI-powered crop diagnosis, real-time sensor integration, and a verified marketplace.",
+  "name": "E-Agro: Integrated Agri-Tech Ecosystem",
+  "description": "An integrated web application for Agritech: Connecting AI-powered diagnosis, real-time digital advisory, and secure market linkages for smallholder farmers in Cameroon.",
   "requestFramePermissions": [
     "camera",
     "geolocation"
