@@ -42,6 +42,8 @@ export function Navbar({ onMenuClick }: NavbarProps) {
     setTimeout(() => setShowThemeConfirm(false), 2000);
   };
 
+  const { t } = useLanguage();
+
   const handleLogout = async () => {
     try {
       await logout();
@@ -76,7 +78,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
             <input
               id="navbar-search"
               type="text"
-              placeholder="Search..."
+              placeholder={t('search')}
               className="pl-9 sm:pl-10 pr-4 py-2 bg-slate-50 dark:bg-muted-dark border-none rounded-xl w-full text-xs sm:text-sm focus:ring-2 focus:ring-primary/20 outline-none dark:text-white transition-colors"
             />
           </div>
@@ -87,11 +89,11 @@ export function Navbar({ onMenuClick }: NavbarProps) {
             <Link
               key={item.path}
               href={item.path}
-              title={item.label}
+              title={t(item.label.toLowerCase().replace(' ', '_')) || item.label}
               className="text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-primary transition-colors flex items-center gap-2"
             >
               <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
-              {item.label}
+              {t(item.label.toLowerCase().replace(' ', '_')) || item.label}
             </Link>
           ))}
         </nav>
@@ -119,7 +121,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
               exit={{ opacity: 0, scale: 0.9, y: 10 }}
               className="absolute -bottom-12 right-0 bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-3 py-1.5 rounded-lg text-[10px] font-bold whitespace-nowrap shadow-xl z-50"
             >
-              Theme switched to {theme === 'light' ? 'dark' : 'light'} mode
+              {theme === 'light' ? t('theme_dark') : t('theme_light')}
             </motion.div>
           )}
         </AnimatePresence>
@@ -202,20 +204,20 @@ export function Navbar({ onMenuClick }: NavbarProps) {
                   </div>
                 </div>
                 <div className="p-2">
-                  <Link 
+                    <Link 
                     href="/profile" 
                     onClick={() => setShowProfileMenu(false)}
                     className="flex items-center gap-3 px-3 py-2 text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-surface-hover-dark rounded-xl transition-colors"
                   >
                     <span className="material-symbols-outlined text-[20px]">person</span>
-                    My Profile
+                    {t('my_profile')}
                   </Link>
                   <button 
                     onClick={handleLogout}
                     className="w-full flex items-center gap-3 px-3 py-2 text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-colors"
                   >
                     <span className="material-symbols-outlined text-[20px]">logout</span>
-                    Logout
+                    {t('logout')}
                   </button>
                 </div>
               </motion.div>

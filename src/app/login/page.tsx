@@ -24,6 +24,15 @@ export default function LoginPage() {
     setError(null);
     setSuccess(null);
     
+    // Security: Clear stale data from previous sessions before starting new auth
+    if (typeof window !== 'undefined') {
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('agritech_') || key.startsWith('shipments_')) {
+          localStorage.removeItem(key);
+        }
+      });
+    }
+
     if (isLogin) {
       const { error: loginError } = await login(email, password);
       if (loginError) {

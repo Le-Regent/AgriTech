@@ -304,6 +304,24 @@ export const supabaseService = {
   },
 
   // Diagnoses
+  async getShipments(userId: string, role: 'farmer' | 'buyer' = 'buyer') {
+    const { data: orders, error } = await supabase
+      .from('orders')
+      .select(`
+        id, buyer_id, status, shipping_address, created_at,
+        order_items!inner(
+          id, product_id,
+          products!inner(farmer_id, name)
+        )
+      `)
+      .eq(role === 'buyer' ? 'buyer_id' : 'order_items.products.farmer_id', userId)
+      .in('status', ['processing', 'shipped', 'delivered'])
+      .order('created_at', { ascending: false });
+
+    if (error) throw new Error(error.message);
+    return orders;
+  },
+
   async getDiagnoses(farmerId: string) {
     const { data, error } = await supabase
       .from('diagnoses')

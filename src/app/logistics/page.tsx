@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import ProtectedRoute from '@/components/layout/ProtectedRoute';
 import { useUser } from '@/context/UserContext';
 import { useOffline } from '@/context/OfflineContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { supabaseService } from '@/services/supabaseService';
 import ResponsiveImage from '@/components/ui/ResponsiveImage';
 import { format } from 'date-fns';
@@ -17,6 +18,7 @@ const TRACKING_STEPS = [
 
 function LogisticsContent() {
   const { user } = useUser();
+  const { t } = useLanguage();
   const { isOnline, saveToCache, getFromCache } = useOffline();
   const [shipments, setShipments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -36,10 +38,7 @@ function LogisticsContent() {
 
     try {
       if (isOnline) {
-        const orders = await supabaseService.getOrders(user.id, user.role === 'farmer' ? 'farmer' : 'buyer');
-        const shipmentsData = orders.filter((o: any) => 
-          ['processing', 'shipped', 'delivered'].includes(o.status.toLowerCase())
-        );
+        const shipmentsData = await supabaseService.getShipments(user.id, user.role === 'farmer' ? 'farmer' : 'buyer');
         setShipments(shipmentsData);
         saveToCache(cacheKey, shipmentsData);
       }
@@ -93,9 +92,9 @@ function LogisticsContent() {
         <div className="space-y-1">
           <h2 className="text-3xl font-black tracking-tight dark:text-white flex items-center gap-3">
             <span className="material-symbols-outlined text-primary text-3xl">local_shipping</span>
-            Logistics & Tracking
+            {t('logistics')}
           </h2>
-          <p className="text-slate-500 dark:text-slate-400 font-bold text-xs uppercase tracking-widest">Real-time supply chain monitoring</p>
+          <p className="text-slate-500 dark:text-slate-400 font-bold text-xs uppercase tracking-widest">Real-time supply chain monitoring 🇨🇲</p>
         </div>
         
         <div className="flex bg-slate-50 dark:bg-slate-800 p-1.5 rounded-2xl border border-slate-100 dark:border-slate-700">

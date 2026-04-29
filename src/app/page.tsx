@@ -516,7 +516,7 @@ function DashboardContent() {
     >
       <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl sm:text-3xl font-black tracking-tight dark:text-white">Farm Overview 🇨🇲</h2>
+          <h2 className="text-2xl sm:text-3xl font-black tracking-tight dark:text-white">{t('farm_overview')} 🇨🇲</h2>
           <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400">Welcome back, {user?.full_name}. Local time: {new Date().toLocaleTimeString('en-CM')}</p>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
@@ -525,7 +525,7 @@ function DashboardContent() {
             <input 
               id="dashboard-search-input"
               type="text" 
-              placeholder="Search marketplace..."
+              placeholder={t('search')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-12 pr-4 py-2 bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-primary/20 dark:text-white transition-all shadow-sm"

@@ -187,13 +187,18 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(async () => {
     setLoading(true);
     try {
-      // Clear user state immediately for better UX
+      // Clear all agritech related local storage to prevent session leakage
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('agritech_') || key.startsWith('shipments_') || key.startsWith('last_insight_')) {
+          localStorage.removeItem(key);
+        }
+      });
+      
       currentUserIdRef.current = null;
       setUser(null);
       await supabase.auth.signOut();
     } catch (error) {
       console.error('Error signing out:', error);
-      // Even if signOut fails, we want to clear the local user state
       setUser(null);
     } finally {
       setLoading(false);
