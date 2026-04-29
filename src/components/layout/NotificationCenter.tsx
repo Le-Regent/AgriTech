@@ -5,11 +5,13 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'motion/react';
 import { supabaseService } from '@/services/supabaseService';
 import { useUser } from '@/context/UserContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { AppNotification, NotificationCategory } from '@/types';
 import { format } from 'date-fns';
 
 export function NotificationCenter() {
   const { user } = useUser();
+  const { t } = useLanguage();
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
@@ -87,7 +89,10 @@ export function NotificationCenter() {
     switch (category) {
       case 'primary': return 'notifications_active';
       case 'proposition': return 'local_mall';
-      case 'insight': return 'analytics';
+      case 'market': return 'trending_up';
+      case 'climate': return 'partly_cloudy_day';
+      case 'order': return 'package_2';
+      case 'system': return 'settings';
       default: return 'info';
     }
   };
@@ -96,7 +101,10 @@ export function NotificationCenter() {
     switch (category) {
       case 'primary': return 'text-red-500 bg-red-50 dark:bg-red-500/10';
       case 'proposition': return 'text-primary bg-primary/10';
-      case 'insight': return 'text-blue-500 bg-blue-50 dark:bg-blue-500/10';
+      case 'market': return 'text-blue-500 bg-blue-50 dark:bg-blue-500/10';
+      case 'climate': return 'text-amber-500 bg-amber-50 dark:bg-amber-500/10';
+      case 'order': return 'text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10';
+      case 'system': return 'text-slate-500 bg-slate-50 dark:bg-slate-800';
       default: return 'text-slate-500 bg-slate-50';
     }
   };
@@ -129,30 +137,30 @@ export function NotificationCenter() {
             {/* Header */}
             <div className="p-6 bg-slate-50/50 dark:bg-slate-800/30 border-b border-slate-100 dark:border-border-dark">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-black dark:text-white uppercase tracking-tight">Activity Center</h3>
+                <h3 className="text-lg font-black dark:text-white uppercase tracking-tight">{t('activity_center')}</h3>
                 {unreadCount > 0 && (
                   <button 
                     onClick={markAllAsRead}
                     className="text-[10px] font-black uppercase tracking-widest text-primary hover:underline"
                   >
-                    Mark all read
+                    {t('mark_all_read')}
                   </button>
                 )}
               </div>
 
               {/* Tabs */}
-              <div className="flex bg-white dark:bg-slate-900 p-1 rounded-2xl border border-slate-100 dark:border-border-dark">
-                {(['primary', 'proposition', 'insight', 'all'] as const).map((tab) => (
+              <div className="flex bg-white dark:bg-slate-900 p-1 rounded-2xl border border-slate-100 dark:border-border-dark overflow-x-auto no-scrollbar">
+                {(['primary', 'proposition', 'market', 'climate', 'all'] as const).map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
-                    className={`flex-1 py-2 px-1 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
+                    className={`flex-none py-2 px-4 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
                       activeTab === tab 
                         ? 'bg-slate-900 text-white shadow-lg' 
                         : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'
                     }`}
                   >
-                    {tab}
+                    {t(tab)}
                   </button>
                 ))}
               </div>
@@ -163,7 +171,7 @@ export function NotificationCenter() {
               {loading && notifications.length === 0 ? (
                 <div className="p-12 text-center space-y-4">
                   <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Loading Alerts...</p>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('loading_alerts')}</p>
                 </div>
               ) : displayedNotifications.length === 0 ? (
                 <div className="p-12 text-center space-y-4">
@@ -171,8 +179,8 @@ export function NotificationCenter() {
                     <span className="material-symbols-outlined text-3xl text-slate-300">notifications_off</span>
                   </div>
                   <div className="space-y-1">
-                    <p className="text-sm font-black dark:text-white">All caught up!</p>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">No {activeTab} alerts found</p>
+                    <p className="text-sm font-black dark:text-white">{t('all_caught_up')}</p>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t('no_alerts')} ({t(activeTab)})</p>
                   </div>
                 </div>
               ) : (
@@ -214,7 +222,7 @@ export function NotificationCenter() {
                                   }}
                                   className="text-[9px] font-black uppercase tracking-[0.1em] text-primary hover:underline"
                                 >
-                                  View Details
+                                  {t('view_details')}
                                 </Link>
                               )}
                               {!n.is_read && (
@@ -222,7 +230,7 @@ export function NotificationCenter() {
                                   onClick={() => markAsRead(n.id)}
                                   className="text-[9px] font-black uppercase tracking-[0.1em] text-slate-400 hover:text-slate-600"
                                 >
-                                  Mark Read
+                                  {t('mark_all_read').split(' ')[0]} {/* Simple "Mark" or "Marquer" */}
                                 </button>
                               )}
                             </div>
@@ -244,7 +252,7 @@ export function NotificationCenter() {
                   }}
                   className="text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors"
                 >
-                  {activeTab === 'all' ? 'Scroll to see more' : 'View background notifications'}
+                  {activeTab === 'all' ? t('scroll_more') : t('view_background')}
                 </button>
               </div>
             )}

@@ -18,6 +18,7 @@ import { toast } from 'sonner';
 import ProductModal from '@/components/features/marketplace/ProductModal';
 import ProductCard from '@/components/features/marketplace/ProductCard';
 import { useUser } from '@/context/UserContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 type SortOption = 'name-asc' | 'price-low' | 'price-high';
 
@@ -30,6 +31,7 @@ interface FilterState {
 
 function MarketplaceContent() {
   const { user } = useUser();
+  const { t } = useLanguage();
   const { isOnline, saveToCache, getFromCache } = useOffline();
   const { addToCart } = useCart();
   const searchParams = useSearchParams();
@@ -128,32 +130,32 @@ function MarketplaceContent() {
   const tourSteps: Step[] = [
     {
       target: '#marketplace-header',
-      content: 'Welcome to the Marketplace! Here you can find fresh produce from verified global farms.',
+      content: t('marketplace_explorer_desc'),
       placement: 'bottom',
     },
     {
       target: '#marketplace-filters-btn',
-      content: 'Use filters to narrow down products by origin, certifications, and harvest season.',
+      content: t('filters'),
       placement: 'bottom',
     },
     {
       target: '#marketplace-sort-btn',
-      content: 'Sort products by name or price to find exactly what you need.',
+      content: t('sort'),
       placement: 'bottom',
     },
     {
       target: '#marketplace-category-tabs',
-      content: 'Quickly browse through different produce categories.',
+      content: t('marketplace_overview'),
       placement: 'bottom',
     },
     {
       target: '.product-card-first',
-      content: 'Click on a product to see more details, or use the AI Image button to generate a visual if it\'s missing!',
+      content: t('details'),
       placement: 'top',
     },
     {
       target: '.compare-btn-first',
-      content: 'Select multiple products to compare them side-by-side.',
+      content: t('compare'),
       placement: 'top',
     }
   ];
@@ -322,8 +324,8 @@ function MarketplaceContent() {
       />
       <motion.div variants={itemVariants} id="marketplace-header" className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl sm:text-3xl font-black tracking-tight dark:text-white">Marketplace Explorer</h2>
-          <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400">Discover verified produce directly from global farms.</p>
+          <h2 className="text-2xl sm:text-3xl font-black tracking-tight dark:text-white">{t('marketplace_explorer')}</h2>
+          <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400">{t('marketplace_explorer_desc')}</p>
         </div>
         <div className="flex flex-col sm:flex-row sm:items-center gap-4 flex-1">
           {user?.role === 'farmer' && (
@@ -332,14 +334,14 @@ function MarketplaceContent() {
               className="bg-primary text-white px-6 py-3 rounded-2xl font-black text-sm shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all flex items-center justify-center gap-2"
             >
               <span className="material-symbols-outlined">add_circle</span>
-              Sell Your Produce
+              {t('sell_produce')}
             </button>
           )}
           <div className="relative flex-1">
             <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">search</span>
             <input
               type="text"
-              placeholder="Search products by name or description..."
+              placeholder={t('search_products_placeholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-12 pr-4 py-3 bg-white dark:bg-muted-dark border border-slate-200 dark:border-border-dark rounded-2xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-primary/20 dark:text-white transition-all transition-colors"
@@ -352,7 +354,7 @@ function MarketplaceContent() {
               title="Replay Onboarding Tour"
             >
               <span className="material-symbols-outlined text-[18px] sm:text-[20px]">help</span>
-              Tour
+              {t('tour')}
             </button>
             {selectedProducts.length > 0 && (
               <button 
@@ -361,7 +363,7 @@ function MarketplaceContent() {
                 className="flex-1 sm:flex-none bg-indigo-600 text-white px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200 dark:shadow-none"
               >
                 <span className="material-symbols-outlined text-[18px] sm:text-[20px]">compare_arrows</span>
-                Compare ({selectedProducts.length})
+                {t('compare')} ({selectedProducts.length})
               </button>
             )}
             <button 
@@ -370,31 +372,31 @@ function MarketplaceContent() {
               className={`flex-1 sm:flex-none border px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-colors ${showFilters ? 'bg-primary text-white border-primary' : 'bg-white dark:bg-muted-dark border-slate-200 dark:border-border-dark dark:text-white hover:bg-slate-50 dark:hover:bg-surface-hover-dark'}`}
             >
               <span className="material-symbols-outlined text-[18px] sm:text-[20px]">filter_list</span>
-              Filters
+              {t('filters')}
             </button>
             <div id="marketplace-sort-btn" className="relative group flex-1 sm:flex-none">
               <button className="w-full bg-white dark:bg-muted-dark border border-slate-200 dark:border-border-dark px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 hover:bg-slate-50 dark:hover:bg-surface-hover-dark dark:text-white transition-colors">
                 <span className="material-symbols-outlined text-[18px] sm:text-[20px]">sort</span>
-                <span className="truncate">Sort: {sortBy === 'name-asc' ? 'A-Z' : sortBy === 'price-low' ? 'Low-High' : 'High-Low'}</span>
+                <span className="truncate">{t('sort')}: {sortBy === 'name-asc' ? 'A-Z' : sortBy === 'price-low' ? 'Low-High' : 'High-Low'}</span>
               </button>
               <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-muted-dark border border-slate-100 dark:border-border-dark rounded-2xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10 p-2 space-y-1">
                 <button 
                   onClick={() => setSortBy('name-asc')}
                   className={`w-full text-left px-4 py-2 rounded-xl text-[10px] sm:text-xs font-bold transition-colors ${sortBy === 'name-asc' ? 'bg-primary text-white' : 'hover:bg-slate-50 dark:hover:bg-surface-hover-dark text-slate-600 dark:text-slate-300'}`}
                 >
-                  Name (A-Z)
+                  {t('sort_az')}
                 </button>
                 <button 
                   onClick={() => setSortBy('price-low')}
                   className={`w-full text-left px-4 py-2 rounded-xl text-[10px] sm:text-xs font-bold transition-colors ${sortBy === 'price-low' ? 'bg-primary text-white' : 'hover:bg-slate-50 dark:hover:bg-surface-hover-dark text-slate-600 dark:text-slate-300'}`}
                 >
-                  Price: Low to High
+                  {t('sort_price_low')}
                 </button>
                 <button 
                   onClick={() => setSortBy('price-high')}
                   className={`w-full text-left px-4 py-2 rounded-xl text-[10px] sm:text-xs font-bold transition-colors ${sortBy === 'price-high' ? 'bg-primary text-white' : 'hover:bg-slate-50 dark:hover:bg-surface-hover-dark text-slate-600 dark:text-slate-300'}`}
                 >
-                  Price: High to Low
+                  {t('sort_price_high')}
                 </button>
               </div>
             </div>
@@ -414,7 +416,7 @@ function MarketplaceContent() {
               onClick={() => toggleFilterCollapse('origin')}
               className="flex items-center justify-between w-full text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 hover:text-primary transition-colors"
             >
-              Origin
+              {t('origin')}
               <span className={`material-symbols-outlined text-[18px] transition-transform ${collapsedFilters.includes('origin') ? 'rotate-180' : ''}`}>expand_more</span>
             </button>
             {!collapsedFilters.includes('origin') && (
@@ -425,7 +427,7 @@ function MarketplaceContent() {
                     onClick={() => setFilters({ ...filters, origin: country })}
                     className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${filters.origin === country ? 'bg-primary text-white' : 'bg-slate-50 dark:bg-muted-dark text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-surface-hover-dark'}`}
                   >
-                    {country}
+                    {country === 'All' ? t('all') : country}
                   </button>
                 ))}
               </div>
@@ -436,7 +438,7 @@ function MarketplaceContent() {
               onClick={() => toggleFilterCollapse('certifications')}
               className="flex items-center justify-between w-full text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 hover:text-primary transition-colors"
             >
-              Certifications
+              {t('certifications')}
               <span className={`material-symbols-outlined text-[18px] transition-transform ${collapsedFilters.includes('certifications') ? 'rotate-180' : ''}`}>expand_more</span>
             </button>
             {!collapsedFilters.includes('certifications') && (
@@ -458,7 +460,7 @@ function MarketplaceContent() {
               onClick={() => toggleFilterCollapse('season')}
               className="flex items-center justify-between w-full text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 hover:text-primary transition-colors"
             >
-              Harvest Season
+              {t('harvest_season')}
               <span className={`material-symbols-outlined text-[18px] transition-transform ${collapsedFilters.includes('season') ? 'rotate-180' : ''}`}>expand_more</span>
             </button>
             {!collapsedFilters.includes('season') && (
@@ -469,7 +471,7 @@ function MarketplaceContent() {
                     onClick={() => setFilters({ ...filters, season: season })}
                     className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${filters.season === season ? 'bg-primary text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
                   >
-                    {season}
+                    {season === 'All' ? t('all') : season}
                   </button>
                 ))}
               </div>
@@ -481,7 +483,7 @@ function MarketplaceContent() {
       {recentlyViewed.length > 0 && (
         <motion.div variants={itemVariants} className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Recently Viewed</h3>
+            <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">{t('recently_viewed')}</h3>
             <button 
               onClick={() => {
                 localStorage.removeItem('recently_viewed');
@@ -489,7 +491,7 @@ function MarketplaceContent() {
               }}
               className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-red-500 transition-colors"
             >
-              Clear
+              {t('clear')}
             </button>
           </div>
           <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
@@ -588,7 +590,7 @@ function MarketplaceContent() {
                       className="w-full bg-primary text-white py-3 rounded-xl font-black text-xs shadow-xl shadow-primary/20 flex items-center justify-center gap-2 hover:scale-105 active:scale-95 transition-all"
                     >
                       <span className="material-symbols-outlined text-[18px]">shopping_cart</span>
-                      ADD TO CART
+                      {t('add_to_cart')}
                     </button>
                   </div>
                 </ProductCard>
@@ -608,8 +610,8 @@ function MarketplaceContent() {
           <div className="bg-white dark:bg-slate-900 w-full max-w-6xl max-h-[90vh] rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col border border-slate-100 dark:border-slate-800">
             <div className="p-6 sm:p-8 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
               <div>
-                <h3 className="text-2xl font-black dark:text-white">Product Comparison</h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400">Comparing {selectedProducts.length} items side-by-side</p>
+                <h3 className="text-2xl font-black dark:text-white">{t('product_comparison')}</h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Comparing {selectedProducts.length} {t('items')} side-by-side</p>
               </div>
               <button 
                 onClick={() => setShowComparison(false)}
@@ -622,7 +624,7 @@ function MarketplaceContent() {
               <table className="w-full border-collapse">
                 <thead>
                   <tr>
-                    <th className="p-4 text-left text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 border-b border-slate-100 dark:border-slate-800">Feature</th>
+                    <th className="p-4 text-left text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 border-b border-slate-100 dark:border-slate-800">{t('feature')}</th>
                     {allProducts.filter(p => selectedProducts.includes(p.id)).map(p => (
                       <th key={p.id} className="p-4 text-left border-b border-slate-100 dark:border-slate-800 min-w-[200px]">
                         <div className="flex items-center gap-4">
@@ -642,12 +644,12 @@ function MarketplaceContent() {
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                   {[
-                    { label: 'Price', key: 'price', format: (v: any, p: any) => `${v.toLocaleString()} CFA/${p.unit}` },
-                    { label: 'Location', key: 'location' },
-                    { label: 'Health Status', key: 'health_status' },
-                    { label: 'Certifications', key: 'certifications', format: (v: any) => v.length > 0 ? v.join(', ') : 'None' },
-                    { label: 'Harvest Season', key: 'harvest_season' },
-                    { label: 'Category', key: 'category' },
+                    { label: t('price'), key: 'price', format: (v: any, p: any) => `${v.toLocaleString()} CFA/${p.unit}` },
+                    { label: t('location'), key: 'location' },
+                    { label: t('health_status'), key: 'health_status' },
+                    { label: t('certifications'), key: 'certifications', format: (v: any) => v.length > 0 ? v.join(', ') : 'None' },
+                    { label: t('harvest_season'), key: 'harvest_season' },
+                    { label: t('marketplace_title'), key: 'category' },
                   ].map((row, i) => (
                     <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                       <td className="p-4 text-sm font-bold text-slate-500 dark:text-slate-400">{row.label}</td>
@@ -666,13 +668,13 @@ function MarketplaceContent() {
                 onClick={() => setSelectedProducts([])}
                 className="px-6 py-3 rounded-2xl text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
                 >
-                Clear Selection
+                {t('clear')}
               </button>
               <button 
                 onClick={() => setShowComparison(false)}
                 className="bg-primary text-white px-8 py-3 rounded-2xl text-sm font-bold hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
               >
-                Close Comparison
+                {t('close_menu')}
               </button>
             </div>
           </div>

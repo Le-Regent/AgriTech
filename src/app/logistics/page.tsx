@@ -7,6 +7,7 @@ import { useUser } from '@/context/UserContext';
 import { useOffline } from '@/context/OfflineContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { supabaseService } from '@/services/supabaseService';
+import { supabase } from '@/lib/supabase';
 import ResponsiveImage from '@/components/ui/ResponsiveImage';
 import { format } from 'date-fns';
 
@@ -51,7 +52,25 @@ function LogisticsContent() {
 
   useEffect(() => {
     fetchShipments();
-  }, [fetchShipments]);
+
+    // Real-time listener for orders
+    if (user?.id) {
+      const channel = supabase
+        .channel(`logistics-${user.id}`)
+        .on('postgres_changes', { 
+          event: '*', 
+          schema: 'public', 
+          table: 'orders' 
+        }, () => {
+          fetchShipments(false);
+        })
+        .subscribe();
+      
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [fetchShipments, user?.id]);
 
   const filteredShipments = useMemo(() => {
     if (filter === 'all') return shipments;
@@ -108,7 +127,7 @@ function LogisticsContent() {
                   : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'
               }`}
             >
-              {f}
+              {t(f)}
             </button>
           ))}
         </div>
@@ -165,7 +184,7 @@ function LogisticsContent() {
                     </div>
                     
                     <div className="text-right space-y-1">
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Destination</p>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{t('destination')}</p>
                       <p className="text-xs font-bold text-slate-500 dark:text-slate-400 truncate max-w-[200px]">
                         {shipment.shipping_address || 'Not specified'}
                       </p>
@@ -185,7 +204,7 @@ function LogisticsContent() {
                       transition={{ duration: 1.5, ease: "circOut" }}
                     />
                     
-                    <div className="flex justify-between items-center relative gap-4">
+                      <div className="flex justify-between items-center relative gap-4">
                       {TRACKING_STEPS.map((step, i) => {
                         const isActive = 
                           (i === 0) || 
@@ -207,7 +226,7 @@ function LogisticsContent() {
                               <span className={`text-[10px] font-black uppercase tracking-widest block ${
                                 isActive ? 'text-slate-900 dark:text-white' : 'text-slate-400'
                               }`}>
-                                {step.label}
+                                {t(step.status)}
                               </span>
                             </div>
                           </div>
@@ -218,7 +237,7 @@ function LogisticsContent() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8 pt-8 border-t border-slate-50 dark:border-slate-800/50">
                     <div className="space-y-1">
-                      <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Courier</p>
+                      <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{t('courier')}</p>
                       <div className="flex items-center gap-2">
                         <div className="w-6 h-6 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center">
                           <span className="material-symbols-outlined text-sm text-primary">local_shipping</span>
@@ -227,12 +246,12 @@ function LogisticsContent() {
                       </div>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Est. Arrival</p>
-                      <p className="font-bold text-xs dark:text-white font-mono">{shipment.status === 'delivered' ? 'Completed' : '2-3 Working Days'}</p>
+                      <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{t('est_arrival')}</p>
+                      <p className="font-bold text-xs dark:text-white font-mono">{shipment.status === 'delivered' ? t('completed') : '2-3 Working Days'}</p>
                     </div>
                     <div className="flex items-center justify-end">
                       <button className="bg-primary/5 hover:bg-primary/10 text-primary px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
-                        Details
+                        {t('details')}
                       </button>
                     </div>
                   </div>
@@ -249,39 +268,39 @@ function LogisticsContent() {
             <div className="absolute -right-20 -top-20 w-64 h-64 bg-primary/20 rounded-full blur-[80px] pointer-events-none group-hover:bg-primary/30 transition-colors"></div>
             <div className="relative z-10 space-y-6">
               <div className="flex items-center justify-between">
-                <h3 className="text-xl font-black tracking-tight">Active Tracking</h3>
+                <h3 className="text-xl font-black tracking-tight">{t('live_tracking')}</h3>
                 <span className="bg-primary/20 text-primary-light px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest animate-pulse">Live</span>
               </div>
               
-              <div className="aspect-square bg-white/5 rounded-[2rem] border border-white/10 flex flex-col items-center justify-center gap-4 relative group-hover:scale-[1.02] transition-transform duration-500 overflow-hidden">
-                <div className="absolute inset-0 bg-[url('https://picsum.photos/seed/map/800/800')] bg-cover bg-center opacity-30 group-hover:scale-110 transition-transform duration-[10s]" />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
+              <div className="aspect-square bg-slate-900 rounded-[2rem] border border-white/10 flex flex-col items-center justify-center gap-4 relative group-hover:scale-[1.02] transition-transform duration-500 overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 to-teal-500/20" />
+                <div className="absolute inset-0 bg-[grid-white-5] [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]" />
                 <span className="material-symbols-outlined text-6xl text-primary drop-shadow-lg relative z-10">my_location</span>
-                <p className="relative z-10 text-[10px] font-black tracking-[0.2em] uppercase text-white/50 font-mono">Simulating GPS...</p>
+                <p className="relative z-10 text-[10px] font-black tracking-[0.2em] uppercase text-white/50 font-mono">GPS ACTIVE: {user?.location_name || 'Cameroon'}</p>
               </div>
 
               <button className="w-full bg-primary text-white py-4 rounded-2xl font-black text-sm hover:translate-y-[-2px] hover:shadow-2xl hover:shadow-primary/30 transition-all shadow-xl shadow-primary/10 uppercase tracking-widest">
-                Explore Fleet Map
+                {t('explore_map')}
               </button>
             </div>
           </div>
 
           {/* Quick Stats Card */}
           <div className="bg-white dark:bg-surface-dark p-8 rounded-[3rem] border border-slate-100 dark:border-border-dark shadow-sm space-y-8 transition-colors">
-            <h3 className="text-xl font-black tracking-tight dark:text-white">Delivery Stats</h3>
+            <h3 className="text-xl font-black tracking-tight dark:text-white">{t('delivery_stats')}</h3>
             
             <div className="space-y-6">
               {[
-                { label: 'On-Time Rate', value: '98.5%', color: 'text-emerald-500', icon: 'timer' },
-                { label: 'Transit Time', value: '1.4 Days', color: 'text-primary', icon: 'speed' },
-                { label: 'Efficiency', value: 'High', color: 'text-sky-500', icon: 'trending_up' },
+                { label: 'on_time_rate', value: '98.5%', color: 'text-emerald-500', icon: 'timer' },
+                { label: 'transit_time', value: '1.4 Days', color: 'text-primary', icon: 'speed' },
+                { label: 'efficiency', value: 'High', color: 'text-sky-500', icon: 'trending_up' },
               ].map((stat, i) => (
                 <div key={i} className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-slate-50 dark:bg-slate-800 rounded-xl flex items-center justify-center text-slate-400">
                       <span className="material-symbols-outlined text-xl">{stat.icon}</span>
                     </div>
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{stat.label}</span>
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t(stat.label)}</span>
                   </div>
                   <span className={`text-sm font-black ${stat.color} font-mono uppercase`}>{stat.value}</span>
                 </div>
@@ -290,8 +309,8 @@ function LogisticsContent() {
 
             <div className="pt-6 border-t border-slate-50 dark:border-slate-800/50">
               <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">
-                <span>Monthly Summary</span>
-                <span className="font-mono">{stats.total} items</span>
+                <span>{t('monthly_summary')}</span>
+                <span className="font-mono">{stats.total} {t('items')}</span>
               </div>
               <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden flex">
                 <div className="h-full bg-primary" style={{ width: `${stats.total ? (stats.active / stats.total) * 100 : 0}%` }} />
@@ -300,11 +319,11 @@ function LogisticsContent() {
               <div className="flex gap-4 mt-3">
                 <div className="flex items-center gap-1.5">
                   <div className="w-2 h-2 rounded-full bg-primary" />
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Active</span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t('active')}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Completed</span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t('completed')}</span>
                 </div>
               </div>
             </div>

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { SIDEBAR_NAV, MARKETPLACE_NAV } from '@/constants';
 import { useUser } from '@/context/UserContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface SidebarProps {
   onMobileClose?: () => void;
@@ -10,28 +11,28 @@ interface SidebarProps {
 export function Sidebar({ onMobileClose }: SidebarProps) {
   const pathname = usePathname();
   const { user } = useUser();
+  const { t } = useLanguage();
 
-  const renderNavItems = (items: typeof SIDEBAR_NAV, title?: string) => {
+  const renderNavItems = (items: typeof SIDEBAR_NAV, titleKey: string) => {
     const filteredItems = items.filter(item => !item.roles || (user && item.roles.includes(user.role)));
     
     if (filteredItems.length === 0) return null;
 
     return (
       <div className="space-y-1">
-        {title && (
-          <p className="px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">
-            {title}
-          </p>
-        )}
+        <p className="px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">
+          {t(titleKey)}
+        </p>
         {filteredItems.map((item) => {
           const isActive = pathname === item.path;
+          const labelKey = item.label.toLowerCase().replace(/\s+/g, '_');
           return (
             <Link
               key={item.path}
               href={item.path}
               id={`${item.label.toLowerCase().replace(/\s+/g, '-')}-nav`}
               onClick={onMobileClose}
-              title={item.label}
+              title={t(labelKey) || item.label}
               className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
                 isActive
                   ? 'bg-primary/10 text-primary font-semibold'
@@ -43,7 +44,7 @@ export function Sidebar({ onMobileClose }: SidebarProps) {
                   {item.icon}
                 </span>
               </div>
-              <span className="text-sm">{item.label}</span>
+              <span className="text-sm">{t(labelKey) || item.label}</span>
             </Link>
           );
         })}
@@ -64,7 +65,7 @@ export function Sidebar({ onMobileClose }: SidebarProps) {
           <button 
             onClick={onMobileClose}
             className="lg:hidden w-10 h-10 flex items-center justify-center text-slate-400 hover:text-slate-900 dark:hover:text-white"
-            title="Close Menu"
+            title={t('close_menu')}
           >
             <span className="material-symbols-outlined">close</span>
           </button>
@@ -72,16 +73,16 @@ export function Sidebar({ onMobileClose }: SidebarProps) {
       </div>
 
       <nav className="flex-1 px-4 py-4 space-y-6 overflow-y-auto">
-        {renderNavItems(SIDEBAR_NAV, 'Main Menu')}
-        {renderNavItems(MARKETPLACE_NAV, 'Marketplace')}
+        {renderNavItems(SIDEBAR_NAV, 'main_menu')}
+        {renderNavItems(MARKETPLACE_NAV, 'marketplace_title')}
       </nav>
 
       <div className="p-4 border-t border-slate-100 dark:border-border-dark">
         <div className="bg-slate-50 dark:bg-muted-dark rounded-2xl p-4 transition-colors">
-          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Pro Plan</p>
-          <p className="text-sm text-slate-600 dark:text-slate-300 mb-3">Upgrade for advanced AI insights and global shipping.</p>
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">{t('pro_plan')}</p>
+          <p className="text-sm text-slate-600 dark:text-slate-300 mb-3">{t('upgrade_msg')}</p>
           <button className="w-full bg-primary text-white py-2 rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors">
-            Upgrade Now
+            {t('upgrade_now')}
           </button>
         </div>
       </div>

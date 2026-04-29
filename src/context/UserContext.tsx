@@ -8,6 +8,7 @@ interface UserContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<{ error: string | null }>;
   signUp: (email: string, password: string, fullName: string, role: 'farmer' | 'buyer') => Promise<{ error: string | null }>;
+  signInWithGoogle: () => Promise<{ error: string | null }>;
   resendConfirmation: (email: string) => Promise<{ error: string | null }>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: string | null }>;
@@ -144,6 +145,24 @@ export function UserProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const signInWithGoogle = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/`,
+        }
+      });
+      if (error) return { error: error.message };
+      return { error: null };
+    } catch (error: any) {
+      return { error: error.message || 'An unexpected error occurred' };
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   const signUp = useCallback(async (email: string, password: string, fullName: string, role: 'farmer' | 'buyer') => {
     setLoading(true);
     try {
@@ -262,6 +281,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     user,
     login,
     signUp,
+    signInWithGoogle,
     resendConfirmation,
     logout,
     resetPassword,

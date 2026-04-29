@@ -8,24 +8,35 @@ import ProtectedRoute from '@/components/layout/ProtectedRoute';
 import { getWeatherData, getCurrentPosition, WeatherData } from '@/lib/weatherService';
 import { supabaseService } from '@/services/supabaseService';
 import { useUser } from '@/context/UserContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { toast } from 'sonner';
-
-const CROP_TYPES = [
-  'Tomato', 'Potato', 'Corn', 'Wheat', 'Rice', 'Soybean', 'Apple', 'Grape', 'Strawberry', 'Other'
-];
-
-const ANALYSIS_STEPS = [
-  "Uploading leaf image...",
-  "Analyzing symptoms...",
-  "Identifying disease patterns...",
-  "Consulting agricultural database...",
-  "Generating treatment plan...",
-  "Finalizing report..."
-];
 
 function DiagnosisContent() {
   const router = useRouter();
   const { user } = useUser();
+  const { t } = useLanguage();
+
+  const CROP_TYPES = [
+    { id: 'Tomato', label: t('tomato') },
+    { id: 'Potato', label: t('potato') },
+    { id: 'Corn', label: t('corn') },
+    { id: 'Wheat', label: t('wheat') },
+    { id: 'Rice', label: t('rice') },
+    { id: 'Soybean', label: t('soybean') },
+    { id: 'Apple', label: t('apple') },
+    { id: 'Grape', label: t('grape') },
+    { id: 'Strawberry', label: t('strawberry') },
+    { id: 'Other', label: t('other') }
+  ];
+
+  const ANALYSIS_STEPS = [
+    t('step_uploading'),
+    t('step_analyzing'),
+    t('step_patterns'),
+    t('step_database'),
+    t('step_treatment'),
+    t('step_finalizing')
+  ];
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedCrop, setSelectedCrop] = useState<string>('');
@@ -316,21 +327,21 @@ function DiagnosisContent() {
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <div className="text-center space-y-2">
-        <h2 className="text-3xl font-black tracking-tight dark:text-white">AI Plant Diagnosis</h2>
-        <p className="text-slate-500 dark:text-slate-400">Upload a photo of the affected area for a detailed AI health analysis.</p>
+        <h2 className="text-3xl font-black tracking-tight dark:text-white">{t('diagnosis_title')}</h2>
+        <p className="text-slate-500 dark:text-slate-400">{t('diagnosis_subtitle')}</p>
       </div>
 
       <div className="max-w-md mx-auto mb-8 space-y-6">
         <div className="space-y-2">
-          <label className="block text-sm font-bold mb-2 dark:text-white">Select Crop Type</label>
+          <label className="block text-sm font-bold mb-2 dark:text-white">{t('select_crop')}</label>
           <select 
             value={selectedCrop}
             onChange={(e) => setSelectedCrop(e.target.value)}
             className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl font-bold dark:text-white focus:ring-2 focus:ring-primary outline-none"
           >
-            <option value="">Choose a crop...</option>
+            <option value="">{t('all')}...</option>
             {CROP_TYPES.map(crop => (
-              <option key={crop} value={crop}>{crop}</option>
+              <option key={crop.id} value={crop.id}>{crop.label}</option>
             ))}
           </select>
         </div>
@@ -412,14 +423,14 @@ function DiagnosisContent() {
                       className="bg-white/10 backdrop-blur text-white px-6 py-3 rounded-2xl font-bold border border-white/20 hover:bg-white/20 transition-all flex items-center gap-2"
                     >
                       <span className="material-symbols-outlined">upload_file</span>
-                      Upload
+                      {t('upload_image')}
                     </button>
                     <button 
                       onClick={startCamera}
                       className="bg-primary text-white px-8 py-4 rounded-2xl font-black text-lg shadow-xl shadow-primary/40 hover:scale-105 transition-all flex items-center gap-3"
                     >
                       <span className="material-symbols-outlined">photo_camera</span>
-                      Take Photo
+                      {t('take_photo')}
                     </button>
                   </div>
                 </div>
@@ -440,7 +451,7 @@ function DiagnosisContent() {
             </div>
             <div className="space-y-2">
               <p className="text-white font-bold text-xl animate-pulse">{ANALYSIS_STEPS[analysisStep]}</p>
-              <p className="text-white/60 text-sm">Please stay on this page while our AI expert analyzes your crop&apos;s health.</p>
+              <p className="text-white/60 text-sm">{t('analyzing')}</p>
             </div>
             <div className="flex justify-center gap-1">
               {ANALYSIS_STEPS.map((_, i) => (
@@ -473,7 +484,7 @@ function DiagnosisContent() {
           className="w-full max-w-md bg-primary text-white py-5 rounded-[2rem] font-black text-xl shadow-2xl shadow-primary/30 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed flex items-center justify-center gap-4"
         >
           <span className="material-symbols-outlined text-3xl">biotech</span>
-          {isAnalyzing ? 'Analyzing...' : 'Start Diagnosis'}
+          {isAnalyzing ? t('analyzing') : t('start_analysis')}
         </button>
       </div>
 

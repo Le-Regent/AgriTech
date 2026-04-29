@@ -115,7 +115,7 @@ export interface Payment {
   created_at: string;
 }
 
-export type NotificationCategory = 'primary' | 'proposition' | 'insight';
+export type NotificationCategory = 'primary' | 'proposition' | 'market' | 'climate' | 'system' | 'order';
 
 export interface AppNotification {
   id: string;

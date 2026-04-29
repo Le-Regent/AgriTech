@@ -259,19 +259,19 @@ function DashboardContent() {
   const stats = useMemo(() => {
     if (isFarmer) {
       return [
-        { label: 'Crop Health', value: diagnoses.length > 0 ? (diagnoses.filter(d => d.result_label === 'healthy' || d.status === 'healthy').length / diagnoses.length * 100).toFixed(0) + '%' : '--', icon: 'potted_plant', color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-500/10' },
-        { label: 'Total Inventory', value: myProducts.reduce((sum, p) => sum + p.stock_quantity, 0).toLocaleString(), icon: 'inventory_2', color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-500/10' },
-        { label: 'Pending Orders', value: sellerOrders.filter(o => o.status === 'pending').length.toString(), icon: 'shopping_cart', color: 'text-orange-500', bg: 'bg-orange-50 dark:bg-orange-500/10' },
-        { label: 'Total Revenue', value: sellerOrders.filter(o => o.status === 'delivered').reduce((sum, o) => sum + o.total_amount, 0).toLocaleString() + ' CFA', icon: 'payments', color: 'text-primary', bg: 'bg-primary/10' }
+        { label: t('crop_health'), value: diagnoses.length > 0 ? (diagnoses.filter(d => d.result_label === 'healthy' || d.status === 'healthy').length / diagnoses.length * 100).toFixed(0) + '%' : '--', icon: 'potted_plant', color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-500/10' },
+        { label: t('total_inventory'), value: myProducts.reduce((sum, p) => sum + p.stock_quantity, 0).toLocaleString(), icon: 'inventory_2', color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-500/10' },
+        { label: t('pending_orders'), value: sellerOrders.filter(o => o.status === 'pending').length.toString(), icon: 'shopping_cart', color: 'text-orange-500', bg: 'bg-orange-50 dark:bg-orange-500/10' },
+        { label: t('total_revenue'), value: sellerOrders.filter(o => o.status === 'delivered').reduce((sum, o) => sum + o.total_amount, 0).toLocaleString() + ' CFA', icon: 'payments', color: 'text-primary', bg: 'bg-primary/10' }
       ];
     }
     return [
-      { label: 'Active Orders', value: sellerOrders.filter(o => o.status !== 'delivered' && o.status !== 'cancelled').length.toString(), icon: 'shopping_bag', color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-500/10' },
-      { label: 'Notifications', value: notifications.filter(n => !n.is_read).length.toString(), icon: 'notifications', color: 'text-orange-500', bg: 'bg-orange-50 dark:bg-orange-500/10' },
-      { label: 'Total Spent', value: sellerOrders.reduce((sum, o) => sum + (o.total_amount || 0), 0).toLocaleString() + ' CFA', icon: 'payments', color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-500/10' },
-      { label: 'Purchase History', value: sellerOrders.length.toString(), icon: 'history', color: 'text-purple-500', bg: 'bg-purple-50 dark:bg-purple-500/10' }
+      { label: t('active_orders'), value: sellerOrders.filter(o => o.status !== 'delivered' && o.status !== 'cancelled').length.toString(), icon: 'shopping_bag', color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-500/10' },
+      { label: t('notifications'), value: notifications.filter(n => !n.is_read).length.toString(), icon: 'notifications', color: 'text-orange-500', bg: 'bg-orange-50 dark:bg-orange-500/10' },
+      { label: t('total_spent'), value: sellerOrders.reduce((sum, o) => sum + (o.total_amount || 0), 0).toLocaleString() + ' CFA', icon: 'payments', color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-500/10' },
+      { label: t('purchase_history'), value: sellerOrders.length.toString(), icon: 'history', color: 'text-purple-500', bg: 'bg-purple-50 dark:bg-purple-500/10' }
     ];
-  }, [isFarmer, diagnoses, myProducts, sellerOrders, notifications]);
+  }, [isFarmer, diagnoses, myProducts, sellerOrders, notifications, t]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -315,17 +315,17 @@ function DashboardContent() {
       >
         <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 className="text-2xl sm:text-4xl font-black tracking-tight dark:text-white">Marketplace Overview</h2>
+            <h2 className="text-2xl sm:text-4xl font-black tracking-tight dark:text-white">{t('marketplace_overview')}</h2>
             <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400">Fresh produce from Cameroon&apos;s finest farms, delivered to you.</p>
           </div>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <form onSubmit={handleSearch} className="relative group min-w-[280px]">
               <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">search</span>
-              <input type="text" placeholder="Search marketplace..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
+              <input type="text" placeholder={t('search')} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-12 pr-4 py-2.5 bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark rounded-xl text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all outline-none dark:text-white" />
             </form>
             <Link href="/marketplace" className="bg-primary text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-primary/90 transition-all shadow-lg shadow-primary/20">
-              <span className="material-symbols-outlined text-[20px]">storefront</span> Browse
+              <span className="material-symbols-outlined text-[20px]">storefront</span> {t('browse')}
             </Link>
           </div>
         </motion.div>
@@ -348,9 +348,9 @@ function DashboardContent() {
             <section className="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm">
               <div className="flex items-center justify-between mb-8">
                 <h3 className="text-xl font-bold dark:text-white flex items-center gap-2">
-                  <span className="material-symbols-outlined text-primary">local_fire_department</span> Featured Products
+                  <span className="material-symbols-outlined text-primary">local_fire_department</span> {t('featured_products')}
                 </h3>
-                <Link href="/marketplace" className="text-primary text-sm font-bold hover:underline">View All</Link>
+                <Link href="/marketplace" className="text-primary text-sm font-bold hover:underline">{t('view_all')}</Link>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {featuredProducts.length > 0 ? featuredProducts.map((product) => (
@@ -377,7 +377,7 @@ function DashboardContent() {
 
             <section className="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm">
               <h3 className="text-xl font-bold mb-8 dark:text-white flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary">order_play</span> Recent Orders
+                <span className="material-symbols-outlined text-primary">order_play</span> {t('recent_orders')}
               </h3>
               <div className="space-y-4">
                 {sellerOrders.length > 0 ? sellerOrders.slice(0, 5).map((order) => (
@@ -423,9 +423,9 @@ function DashboardContent() {
               </h3>
               
               <div className="space-y-4 relative z-10">
-                {notifications.filter(n => n.category === 'insight' || n.category === 'proposition').length > 0 ? (
+                {notifications.filter(n => n.category === 'market' || n.category === 'climate' || n.category === 'proposition').length > 0 ? (
                   notifications
-                    .filter(n => n.category === 'insight' || n.category === 'proposition')
+                    .filter(n => n.category === 'market' || n.category === 'climate' || n.category === 'proposition')
                     .slice(0, 3)
                     .map((item, i) => (
                       <div key={i} className="bg-white/10 p-4 rounded-xl border border-white/10 backdrop-blur-sm space-y-1">
@@ -452,24 +452,24 @@ function DashboardContent() {
               </div>
               
               <Link href={isFarmer ? "/insights" : "/marketplace"} className="mt-8 w-full bg-white text-slate-900 text-[10px] font-black uppercase tracking-widest py-3 rounded-xl transition-all flex items-center justify-center gap-2 relative z-10">
-                Learn More <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                {t('view_details')} <span className="material-symbols-outlined text-sm">arrow_forward</span>
               </Link>
             </div>
 
             <section className="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm">
               <h3 className="text-xl font-bold mb-6 dark:text-white flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary">electric_bolt</span> Quick Actions
+                <span className="material-symbols-outlined text-primary">electric_bolt</span> {t('quick_actions')}
               </h3>
               <div className="grid grid-cols-2 gap-4">
                 {[
-                  { label: 'Reorder', icon: 'reorder', path: '/orders', color: 'bg-blue-50 text-blue-500' },
-                  { label: 'Support', icon: 'support_agent', path: '/support', color: 'bg-orange-50 text-orange-500' },
-                  { label: 'Notifications', icon: 'notifications', path: '/notifications', color: 'bg-purple-50 text-purple-500' },
-                  { label: 'Settings', icon: 'settings', path: '/settings', color: 'bg-slate-100 text-slate-600' },
+                  { label: 'reorder', icon: 'reorder', path: '/orders', color: 'bg-blue-50 text-blue-500' },
+                  { label: 'support', icon: 'support_agent', path: '/support', color: 'bg-orange-50 text-orange-500' },
+                  { label: 'notifications', icon: 'notifications', path: '/notifications', color: 'bg-purple-50 text-purple-500' },
+                  { label: 'settings', icon: 'settings', path: '/settings', color: 'bg-slate-100 text-slate-600' },
                 ].map((action, i) => (
                   <Link key={i} href={action.path} className="flex flex-col items-center gap-3 p-5 bg-slate-50 dark:bg-slate-800 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-all border border-transparent hover:scale-105 active:scale-95 duration-200 group">
                     <span className={`material-symbols-outlined ${action.color} group-hover:scale-110 transition-transform`}>{action.icon}</span>
-                    <span className="text-[10px] font-black uppercase tracking-widest dark:text-slate-300">{action.label}</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest dark:text-slate-300">{t(action.label)}</span>
                   </Link>
                 ))}
               </div>
@@ -555,7 +555,7 @@ function DashboardContent() {
           </div>
           <Link id="new-diagnosis-btn" href="/diagnosis" className="bg-primary text-white px-6 py-2 rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-primary/90 transition-all shadow-lg shadow-primary/20">
             <span className="material-symbols-outlined text-[20px]">add_a_photo</span>
-            New Diagnosis
+            {t('diagnose')}
           </Link>
         </div>
       </motion.div>
@@ -649,10 +649,10 @@ function DashboardContent() {
         <motion.div variants={itemVariants} className="lg:col-span-2 space-y-6 sm:space-y-8">
           <div className="bg-white dark:bg-surface-dark p-6 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] border border-slate-100 dark:border-border-dark shadow-sm transition-all">
             <div className="flex items-center justify-between mb-6 sm:mb-8">
-              <h3 className="text-lg sm:text-xl font-bold dark:text-white">Field Status Map</h3>
+              <h3 className="text-lg sm:text-xl font-bold dark:text-white">{t('field_status_map')}</h3>
               <div className="flex gap-2">
-                <button className="px-2 sm:px-3 py-1 bg-slate-100 dark:bg-muted-dark rounded-lg text-[10px] sm:text-xs font-bold dark:text-slate-300">Satellite</button>
-                <button className="px-2 sm:px-3 py-1 text-[10px] sm:text-xs font-bold text-slate-400 dark:text-slate-500">Heatmap</button>
+                <button className="px-2 sm:px-3 py-1 bg-slate-100 dark:bg-muted-dark rounded-lg text-[10px] sm:text-xs font-bold dark:text-slate-300">{t('satellite')}</button>
+                <button className="px-2 sm:px-3 py-1 text-[10px] sm:text-xs font-bold text-slate-400 dark:text-slate-500">{t('heatmap')}</button>
               </div>
             </div>
             <div className="aspect-video bg-slate-100 dark:bg-muted-dark rounded-xl sm:rounded-2xl overflow-hidden relative group">
@@ -666,7 +666,7 @@ function DashboardContent() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
               <div className="absolute top-3 left-3 sm:top-4 sm:left-4 bg-white/90 dark:bg-surface-dark/90 backdrop-blur px-2 sm:px-3 py-1 sm:py-2 rounded-lg sm:rounded-xl shadow-sm flex items-center gap-1.5 sm:gap-2">
                 <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-[10px] sm:text-xs font-bold dark:text-white">Live Monitoring Active</span>
+                <span className="text-[10px] sm:text-xs font-bold dark:text-white">{t('live_monitoring')}</span>
               </div>
               <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 flex gap-2">
                 <button className="w-8 h-8 sm:w-10 sm:h-10 bg-white dark:bg-surface-dark rounded-lg sm:rounded-xl shadow-lg flex items-center justify-center hover:bg-slate-50 dark:hover:bg-surface-hover-dark transition-colors">
@@ -681,7 +681,7 @@ function DashboardContent() {
 
           <div className="bg-white dark:bg-surface-dark p-6 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] border border-slate-100 dark:border-border-dark shadow-sm transition-all">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg sm:text-xl font-bold dark:text-white">Orders to Process</h3>
+              <h3 className="text-lg sm:text-xl font-bold dark:text-white">{t('orders_to_process')}</h3>
               <span className="bg-primary/10 text-primary text-[10px] font-black px-2 py-1 rounded-lg">
                 {sellerOrders.filter(o => o.status === 'pending' || o.status === 'processing').length} NEW
               </span>
@@ -735,7 +735,7 @@ function DashboardContent() {
                             }}
                             className="flex-1 bg-primary text-white py-2 rounded-xl text-[10px] font-black uppercase tracking-wider hover:bg-primary/90 transition-all"
                           >
-                            Accept Order
+                            {t('accept_order')}
                           </button>
                         )}
                         {order.status === 'processing' && (
@@ -756,11 +756,11 @@ function DashboardContent() {
                             }}
                             className="flex-1 bg-indigo-500 text-white py-2 rounded-xl text-[10px] font-black uppercase tracking-wider hover:bg-indigo-600 transition-all"
                           >
-                            Mark as Shipped
+                            {t('mark_shipped')}
                           </button>
                         )}
                       <button className="px-3 bg-slate-200 dark:bg-muted-dark text-slate-700 dark:text-slate-200 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider hover:bg-slate-300 dark:hover:bg-surface-hover-dark transition-all">
-                        Details
+                        {t('details_btn')}
                       </button>
                     </div>
                   </div>
@@ -776,17 +776,17 @@ function DashboardContent() {
           <div className="bg-white dark:bg-surface-dark p-6 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] border border-slate-100 dark:border-border-dark shadow-sm transition-all">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
-                <h3 className="text-lg sm:text-xl font-bold dark:text-white">Past Crop Diagnoses</h3>
+                <h3 className="text-lg sm:text-xl font-bold dark:text-white">{t('past_diagnoses')}</h3>
                 <span className="bg-primary/10 text-primary text-[10px] font-black px-2 py-0.5 rounded-md">
                   {diagnoses.length} 
                 </span>
               </div>
               <div className="flex gap-4">
                 <Link href="/history?tab=diagnoses" className="text-slate-400 hover:text-primary text-xs font-black uppercase tracking-widest transition-colors flex items-center gap-1">
-                  View All
+                  {t('view_all')}
                   <span className="material-symbols-outlined text-xs">arrow_forward</span>
                 </Link>
-                <Link href="/diagnosis" className="text-primary text-xs font-black uppercase tracking-widest border-b-2 border-primary/20 hover:border-primary transition-all">New Scan</Link>
+                <Link href="/diagnosis" className="text-primary text-xs font-black uppercase tracking-widest border-b-2 border-primary/20 hover:border-primary transition-all">{t('new_scan')}</Link>
               </div>
             </div>
             <div className="space-y-4">
@@ -838,13 +838,13 @@ function DashboardContent() {
           <div className="bg-white dark:bg-surface-dark p-6 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] border border-slate-100 dark:border-border-dark shadow-sm transition-all">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
-                <h3 className="text-lg sm:text-xl font-bold dark:text-white">My Inventory</h3>
+                <h3 className="text-lg sm:text-xl font-bold dark:text-white">{t('my_inventory')}</h3>
                 <span className="bg-green-100 text-green-700 text-[10px] font-black px-2 py-0.5 rounded-md">
                   {myProducts.length} 
                 </span>
               </div>
               <Link href="/listings" className="text-slate-400 hover:text-primary text-xs font-black uppercase tracking-widest transition-colors flex items-center gap-1">
-                Manage All
+                {t('manage_all')}
                 <span className="material-symbols-outlined text-xs">arrow_forward</span>
               </Link>
             </div>
@@ -886,7 +886,7 @@ function DashboardContent() {
           </div>
 
           <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-all">
-            <h3 className="text-lg sm:text-xl font-bold mb-6 dark:text-white">Recent Activity</h3>
+            <h3 className="text-lg sm:text-xl font-bold mb-6 dark:text-white">{t('recent_activity')}</h3>
             <div className="space-y-6">
               {recentActivities.map((item, i) => (
                 <div key={i} className="flex gap-3 sm:gap-4">
@@ -909,7 +909,7 @@ function DashboardContent() {
         <motion.div variants={itemVariants} className="space-y-6 sm:space-y-8">
           <div className="bg-background-dark text-white p-6 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] shadow-xl relative overflow-hidden">
             <div className="absolute -right-10 -top-10 w-40 h-40 bg-primary/20 rounded-full blur-3xl"></div>
-            <h3 className="text-lg sm:text-xl font-bold mb-6 relative z-10">Weather Forecast</h3>
+            <h3 className="text-lg sm:text-xl font-bold mb-6 relative z-10">{t('weather_forecast')}</h3>
             {weatherLoading ? (
               <div className="animate-pulse space-y-4 relative z-10">
                 <div className="h-10 w-24 bg-white/10 rounded-lg"></div>
@@ -940,14 +940,14 @@ function DashboardContent() {
                   <div className="flex items-center gap-2 bg-white/5 p-3 rounded-xl">
                     <span className="material-symbols-outlined text-blue-400">water_drop</span>
                     <div>
-                      <p className="text-[10px] text-slate-500 font-bold uppercase">Humidity</p>
+                      <p className="text-[10px] text-slate-500 font-bold uppercase">{t('humidity')}</p>
                       <p className="text-sm font-black">{weather.humidity}%</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 bg-white/5 p-3 rounded-xl">
                     <span className="material-symbols-outlined text-emerald-400">air</span>
                     <div>
-                      <p className="text-[10px] text-slate-500 font-bold uppercase">Wind</p>
+                      <p className="text-[10px] text-slate-500 font-bold uppercase">{t('wind')}</p>
                       <p className="text-sm font-black">{weather.windSpeed} m/s</p>
                     </div>
                   </div>
@@ -956,7 +956,7 @@ function DashboardContent() {
                 {forecast && (
                   <div className="space-y-6 relative z-10">
                     <div>
-                      <p className="text-[10px] text-slate-500 font-bold uppercase mb-3">Hourly Temp (°C)</p>
+                      <p className="text-[10px] text-slate-500 font-bold uppercase mb-3">{t('hourly_temp')} (°C)</p>
                       <div className="h-32 w-full">
                         <ResponsiveContainer width="100%" height="100%">
                           <AreaChart data={forecast.hourly}>
@@ -976,7 +976,7 @@ function DashboardContent() {
                       </div>
                     </div>
                     <div>
-                      <p className="text-[10px] text-slate-500 font-bold uppercase mb-3">Daily Precipitation (mm)</p>
+                      <p className="text-[10px] text-slate-500 font-bold uppercase mb-3">{t('precip')} (mm)</p>
                       <div className="h-32 w-full">
                         <ResponsiveContainer width="100%" height="100%">
                           <BarChart data={forecast.daily}>
@@ -998,7 +998,7 @@ function DashboardContent() {
           </div>
 
           <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-all">
-            <h3 className="text-lg sm:text-xl font-bold mb-6 dark:text-white">Active Product Categories</h3>
+            <h3 className="text-lg sm:text-xl font-bold mb-6 dark:text-white">{t('active_categories')}</h3>
             <div className="space-y-4">
               {myProducts.length > 0 ? Array.from(new Set(myProducts.map(p => p.category))).slice(0, 3).map((cat, i) => (
                 <div key={i}>

@@ -9,7 +9,7 @@ import { useLanguage } from '@/context/LanguageContext';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, signUp, resendConfirmation, loading } = useUser();
+  const { login, signUp, signInWithGoogle, resendConfirmation, loading } = useUser();
   const { t, language, setLanguage } = useLanguage();
   const [isLogin, setIsLogin] = useState(true);
   const [role, setRole] = useState<'farmer' | 'buyer'>('farmer');
@@ -102,10 +102,14 @@ export default function LoginPage() {
               </div>
             </div>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tighter leading-none mb-4 sm:mb-6">
-              Empowering the <span className="text-primary italic">Next Generation</span> of Cameroonian Farmers 🇨🇲.
+              {language === 'en' ? (
+                <>Empowering the <span className="text-primary italic">Next Generation</span> of Cameroonian Farmers 🇨🇲.</>
+              ) : (
+                <>Autonomiser la <span className="text-primary italic">nouvelle génération</span> d&apos;agriculteurs camerounais 🇨🇲.</>
+              )}
             </h2>
             <p className="text-slate-400 text-base sm:text-lg leading-relaxed">
-              Connect directly with buyers, track logistics via MoMo, and use AI to secure your harvest across all 10 regions.
+              {t('hero_desc')}
             </p>
           </div>
 
@@ -133,7 +137,7 @@ export default function LoginPage() {
             <div className="space-y-2">
               <h3 className="text-2xl sm:text-3xl font-black tracking-tight dark:text-white">{isLogin ? t('welcome_back') : t('create_account')}</h3>
               <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400 transition-colors">
-                {isLogin ? "Don't have an account?" : "Already have an account?"}{' '}
+                {isLogin ? t('no_account') : t('have_account')}{' '}
                 <button 
                   onClick={() => {
                     setIsLogin(!isLogin);
@@ -198,7 +202,7 @@ export default function LoginPage() {
 
               {!isLogin && (
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Full Name</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{t('full_name')}</label>
                   <input
                     type="text"
                     required
@@ -254,20 +258,23 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 sm:gap-4">
-              <button className="flex items-center justify-center gap-2 py-2 sm:py-3 border border-slate-100 dark:border-slate-800 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+            <div className="grid grid-cols-1 gap-3 sm:gap-4">
+              <button 
+                onClick={async () => {
+                  setError(null);
+                  const { error } = await signInWithGoogle();
+                  if (error) setError(error);
+                }}
+                className="flex items-center justify-center gap-3 py-3 sm:py-4 border border-slate-100 dark:border-slate-800 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all active:scale-[0.98]"
+              >
                 <ResponsiveImage 
                   src="https://www.google.com/favicon.ico" 
                   alt="Google logo" 
-                  className="w-4 h-4" 
+                  className="w-5 h-5" 
                   baseWidth={16}
                   baseHeight={16}
                 />
-                <span className="text-xs sm:text-sm font-bold dark:text-white transition-colors">Google</span>
-              </button>
-              <button className="flex items-center justify-center gap-2 py-2 sm:py-3 border border-primary/20 bg-primary/5 rounded-2xl hover:bg-primary/10 transition-colors group">
-                <span className="material-symbols-outlined text-sm text-primary group-hover:scale-110 transition-transform">call</span>
-                <span className="text-xs sm:text-sm font-bold text-primary transition-colors">Phone</span>
+                <span className="text-sm font-black uppercase tracking-widest dark:text-white transition-colors">Continue with Google</span>
               </button>
             </div>
           </div>
