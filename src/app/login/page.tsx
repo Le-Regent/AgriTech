@@ -139,30 +139,32 @@ export default function LoginPage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-2 p-1 bg-white/5 border border-white/10 rounded-2xl">
-              <button
-                type="button"
-                onClick={() => setUserType('farmer')}
-                className={`py-2 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                  user_type === 'farmer' 
-                    ? 'bg-primary text-white shadow-lg' 
-                    : 'text-slate-500 hover:text-white'
-                }`}
-              >
-                Farmer
-              </button>
-              <button
-                type="button"
-                onClick={() => setUserType('buyer')}
-                className={`py-2 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                  user_type === 'buyer' 
-                    ? 'bg-primary text-white shadow-lg' 
-                    : 'text-slate-500 hover:text-white'
-                }`}
-              >
-                Buyer
-              </button>
-            </div>
+            {!isLogin && (
+              <div className="grid grid-cols-2 gap-2 p-1 bg-white/5 border border-white/10 rounded-2xl">
+                <button
+                  type="button"
+                  onClick={() => setUserType('farmer')}
+                  className={`py-2 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                    user_type === 'farmer' 
+                      ? 'bg-primary text-white shadow-lg' 
+                      : 'text-slate-500 hover:text-white'
+                  }`}
+                >
+                  Farmer
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setUserType('buyer')}
+                  className={`py-2 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                    user_type === 'buyer' 
+                      ? 'bg-primary text-white shadow-lg' 
+                      : 'text-slate-500 hover:text-white'
+                  }`}
+                >
+                  Buyer
+                </button>
+              </div>
+            )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
               {error && (

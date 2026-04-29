@@ -51,7 +51,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         id: sessionUser.id,
         full_name: metadata?.full_name || 'User',
         email: sessionUser.email || '',
-        user_type: (metadata?.user_type as 'farmer' | 'buyer') || 'farmer',
+        user_type: metadata?.user_type as 'farmer' | 'buyer' | null,
         is_admin: metadata?.is_admin || false,
         avatar_url: metadata?.avatar_url,
       };
@@ -233,11 +233,12 @@ export function UserProvider({ children }: { children: ReactNode }) {
       await profileService.updateProfile(user.id, updates);
       
       // 2. Sync with Auth Metadata if critical fields changed
-      if (updates.full_name || updates.avatar_url) {
+      if (updates.full_name || updates.avatar_url || updates.user_type) {
         const { error: authError } = await supabase.auth.updateUser({
           data: { 
             full_name: updates.full_name || user.full_name,
-            avatar_url: updates.avatar_url || user.avatar_url 
+            avatar_url: updates.avatar_url || user.avatar_url,
+            user_type: updates.user_type || user.user_type
           }
         });
         if (authError) console.warn('Auth metadata sync failed:', authError.message);

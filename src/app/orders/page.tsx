@@ -44,8 +44,10 @@ function OrdersContent() {
         return;
       }
 
+      if (!user || !user.user_type) return;
+      
       try {
-        const data = await supabaseService.getOrders(user.id, user.user_type);
+        const data = await supabaseService.getOrders(user.id, user.user_type as 'farmer' | 'buyer');
         const ordersData = data || [];
         setOrders(ordersData);
         saveToCache(cacheKey, ordersData);

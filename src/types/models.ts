@@ -2,7 +2,7 @@ export interface User {
   id: string;
   full_name: string;
   email: string;
-  user_type: 'farmer' | 'buyer';
+  user_type?: 'farmer' | 'buyer' | null;
   avatar_url?: string;
   last_active_at?: string;
   is_verified?: boolean;
