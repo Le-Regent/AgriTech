@@ -328,7 +328,7 @@ function MarketplaceContent() {
           <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400">{t('marketplace_explorer_desc')}</p>
         </div>
         <div className="flex flex-col sm:flex-row sm:items-center gap-4 flex-1">
-          {user?.role === 'farmer' && (
+          {user?.user_type === 'farmer' && (
             <button 
               onClick={() => setIsAddModalOpen(true)}
               className="bg-primary text-white px-6 py-3 rounded-2xl font-black text-sm shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all flex items-center justify-center gap-2"

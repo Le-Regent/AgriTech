@@ -26,7 +26,7 @@ export default function HistoryContent() {
   const { user } = useUser();
   const searchParams = useSearchParams();
   const initialTab = searchParams.get('tab') as 'transactions' | 'diagnoses' | 'trends';
-  const isFarmer = user?.role === 'farmer';
+  const isFarmer = user?.user_type === 'farmer';
   
   const [activeTab, setActiveTab] = useState<'transactions' | 'diagnoses' | 'trends'>(initialTab || 'transactions');
   const [history, setHistory] = useState<any[]>([]);

@@ -52,6 +52,18 @@ A unified search experience has been implemented to connect the Dashboard direct
 
 ---
 
+## 4. Database Optimization & Documentation
+A comprehensive audit and documentation of the data layer was performed.
+
+### Key Milestones:
+- **`DATABASE_GUIDE.md`**: Created a high-level architectural guide explaining table structures, RLS policies, and data flow patterns.
+- **`supabase-schema.sql`**: Synchronized the SQL schema with the application's current state:
+  - Added `initial_stock_quantity` to the `products` table for better depletion tracking.
+  - Added `category` to the `notifications` table to support segmented notification centers (Market, Climate, Primary).
+  - Verified RLS policies for many-to-many relationships in Order Management.
+
+---
+
 ## Next Steps
 - Implement Order Management for buyers.
 - Enhance the AI Diagnosis feature with more detailed reports.

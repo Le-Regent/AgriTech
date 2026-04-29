@@ -8,7 +8,7 @@ export function BottomNav() {
   const pathname = usePathname();
   const { user } = useUser();
 
-  const filteredNav = MARKETPLACE_NAV.filter(item => !item.roles || (user && item.roles.includes(user.role)));
+  const filteredNav = MARKETPLACE_NAV.filter(item => !item.roles || (user && item.roles.includes(user.user_type || '')));
 
   return (
     <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 px-4 py-2 flex items-center justify-around z-40 pb-safe shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">

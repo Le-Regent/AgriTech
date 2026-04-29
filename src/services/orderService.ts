@@ -21,7 +21,7 @@ export const orderService = {
     return orderData;
   },
 
-  async getOrders(userId: string, role: 'farmer' | 'buyer' = 'buyer') {
+  async getOrders(userId: string, user_type: 'farmer' | 'buyer' = 'buyer') {
     let query = supabase.from('orders').select(`
       *,
       order_items (
@@ -30,7 +30,7 @@ export const orderService = {
       )
     `);
     
-    if (role === 'buyer') {
+    if (user_type === 'buyer') {
       query = query.eq('buyer_id', userId);
     } else {
       query = query.eq('order_items.products.farmer_id', userId);

@@ -2,8 +2,9 @@ export interface User {
   id: string;
   full_name: string;
   email: string;
-  role: 'farmer' | 'buyer';
+  user_type: 'farmer' | 'buyer';
   avatar_url?: string;
+  last_active_at?: string;
   is_verified?: boolean;
   is_admin?: boolean;
   location_name?: string;

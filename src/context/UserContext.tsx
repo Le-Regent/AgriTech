@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 interface UserContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<{ error: string | null }>;
-  signUp: (email: string, password: string, fullName: string, role: 'farmer' | 'buyer') => Promise<{ error: string | null }>;
+  signUp: (email: string, password: string, fullName: string, user_type: 'farmer' | 'buyer') => Promise<{ error: string | null }>;
   signInWithGoogle: () => Promise<{ error: string | null }>;
   resendConfirmation: (email: string) => Promise<{ error: string | null }>;
   logout: () => Promise<void>;
@@ -51,7 +51,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
         id: sessionUser.id,
         full_name: metadata?.full_name || 'User',
         email: sessionUser.email || '',
-        role: (metadata?.role as 'farmer' | 'buyer') || 'farmer',
+        user_type: (metadata?.user_type as 'farmer' | 'buyer') || 'farmer',
+        is_admin: metadata?.is_admin || false,
         avatar_url: metadata?.avatar_url,
       };
       
@@ -74,12 +75,12 @@ export function UserProvider({ children }: { children: ReactNode }) {
       } catch (error: any) {
         if (error.code === 'PGRST116') { // Not found
           console.warn('Profile not found, attempting to create from metadata');
-          if (metadata?.full_name && metadata?.role) {
+          if (metadata?.full_name && metadata?.user_type) {
             const newProfile = {
               id: sessionUser.id,
               full_name: metadata.full_name,
               email: sessionUser.email || '',
-              role: metadata.role as 'farmer' | 'buyer',
+              user_type: metadata.user_type as 'farmer' | 'buyer',
             };
             try {
               await supabase.from('profiles').insert([newProfile]);
@@ -163,7 +164,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const signUp = useCallback(async (email: string, password: string, fullName: string, role: 'farmer' | 'buyer') => {
+  const signUp = useCallback(async (email: string, password: string, fullName: string, user_type: 'farmer' | 'buyer') => {
     setLoading(true);
     try {
       const { data, error } = await supabase.auth.signUp({
@@ -172,7 +173,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         options: {
           data: {
             full_name: fullName,
-            role: role,
+            user_type: user_type,
           }
         }
       });

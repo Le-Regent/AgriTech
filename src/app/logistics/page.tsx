@@ -29,7 +29,7 @@ function LogisticsContent() {
   const fetchShipments = useCallback(async (showLoading = true) => {
     if (!user) return;
     
-    const cacheKey = `shipments_${user.id}_${user.role}`;
+    const cacheKey = `shipments_${user.id}_${user.user_type}`;
     const cached = await getFromCache(cacheKey);
     if (cached) {
       setShipments(cached);
@@ -40,7 +40,7 @@ function LogisticsContent() {
 
     try {
       if (isOnline) {
-        const shipmentsData = await supabaseService.getShipments(user.id, user.role === 'farmer' ? 'farmer' : 'buyer');
+        const shipmentsData = await supabaseService.getShipments(user.id, user.user_type === 'farmer' ? 'farmer' : 'buyer');
         setShipments(shipmentsData);
         saveToCache(cacheKey, shipmentsData);
       }

@@ -1,6 +1,6 @@
 {
-  "name": "E-Agro: Integrated Agri-Tech Ecosystem",
-  "description": "An integrated web application for Agritech: Connecting AI-powered diagnosis, real-time digital advisory, and secure market linkages for smallholder farmers in Cameroon.",
+  "name": "Sustainable AgriTech Ecosystem",
+  "description": "A comprehensive agricultural ecosystem featuring a farmer marketplace, AI crop diagnosis, real-time sensor monitoring, and a powerful Admin Command Center for system-wide transparency.",
   "requestFramePermissions": [
     "camera",
     "geolocation"

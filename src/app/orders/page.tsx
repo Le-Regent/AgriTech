@@ -45,7 +45,7 @@ function OrdersContent() {
       }
 
       try {
-        const data = await supabaseService.getOrders(user.id, user.role);
+        const data = await supabaseService.getOrders(user.id, user.user_type);
         const ordersData = data || [];
         setOrders(ordersData);
         saveToCache(cacheKey, ordersData);
@@ -65,7 +65,7 @@ function OrdersContent() {
     fetchOrders();
   }, [user, isOnline, getFromCache, saveToCache]);
 
-  const isFarmer = user?.role === 'farmer';
+  const isFarmer = user?.user_type === 'farmer';
 
   const getStatusStep = (status: string) => {
     const steps = ['pending', 'processing', 'shipped', 'delivered'];

@@ -52,7 +52,7 @@ function DashboardContent() {
   const [weatherLoading, setWeatherLoading] = useState(true);
   const [dataLoading, setDataLoading] = useState(true);
   const dateInputRef = useRef<HTMLInputElement>(null);
-  const isFarmer = user?.role === 'farmer';
+  const isFarmer = user?.user_type === 'farmer';
   const hasLoadedFromCache = useRef(false);
 
   const containerVariants = {
@@ -237,7 +237,7 @@ function DashboardContent() {
     if (user?.id) {
       fetchData();
     }
-  }, [isFarmer, user?.id, user?.role, saveToCache, isOnline]);
+  }, [isFarmer, user?.id, user?.user_type, saveToCache, isOnline]);
 
   useEffect(() => {
     if (!user?.id) return;

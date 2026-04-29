@@ -13,9 +13,10 @@ import { NotificationCenter } from './NotificationCenter';
 
 interface NavbarProps {
   onMenuClick?: () => void;
+  title?: string;
 }
 
-export function Navbar({ onMenuClick }: NavbarProps) {
+export function Navbar({ onMenuClick, title }: NavbarProps) {
   const { theme, toggleTheme } = useTheme();
   const { language, setLanguage } = useLanguage();
   const { totalItems } = useCart();
@@ -53,7 +54,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
     }
   };
 
-  const filteredNav = MARKETPLACE_NAV.filter(item => !item.roles || (user && item.roles.includes(user.role)));
+  const filteredNav = MARKETPLACE_NAV.filter(item => !item.roles || (user && item.roles.includes(user.user_type || '')));
 
   const pathname = usePathname();
   const isDashboard = pathname === '/';
@@ -72,7 +73,11 @@ export function Navbar({ onMenuClick }: NavbarProps) {
           </button>
         )}
         
-        {!isDashboard && (
+        {title ? (
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white hidden sm:block whitespace-nowrap">
+            {title}
+          </h2>
+        ) : !isDashboard && (
           <div className="relative flex-1 max-w-[140px] xs:max-w-[180px] sm:max-w-sm md:max-w-md lg:max-w-lg transition-all duration-300">
             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px] sm:text-[20px]">search</span>
             <input
@@ -176,7 +181,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
                 {user?.full_name || 'Guest'}
               </p>
               <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 capitalize">
-                {user?.role || 'Guest'}
+                {user?.user_type || 'Guest'}
               </p>
             </div>
             <ResponsiveImage
@@ -200,7 +205,12 @@ export function Navbar({ onMenuClick }: NavbarProps) {
                   <p className="text-sm font-black dark:text-white">{user?.full_name}</p>
                   <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{user?.email}</p>
                   <div className="mt-2 inline-flex items-center px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest">
-                    {user?.role}
+                    {user?.user_type}
+                    {user?.is_admin && (
+                      <span className="ml-2 px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-700 text-[10px] uppercase font-bold tracking-wider">
+                        Admin
+                      </span>
+                    )}
                   </div>
                 </div>
                 <div className="p-2">

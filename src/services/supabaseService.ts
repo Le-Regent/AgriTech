@@ -188,8 +188,8 @@ export const supabaseService = {
     return orderData;
   },
 
-  async getOrders(userId: string, role: 'farmer' | 'buyer' = 'buyer') {
-    if (role === 'buyer') {
+  async getOrders(userId: string, user_type: 'farmer' | 'buyer' = 'buyer') {
+    if (user_type === 'buyer') {
       const { data, error } = await supabase
         .from('orders')
         .select(`
@@ -304,7 +304,7 @@ export const supabaseService = {
   },
 
   // Diagnoses
-  async getShipments(userId: string, role: 'farmer' | 'buyer' = 'buyer') {
+  async getShipments(userId: string, user_type: 'farmer' | 'buyer' = 'buyer') {
     const { data: orders, error } = await supabase
       .from('orders')
       .select(`
@@ -314,7 +314,7 @@ export const supabaseService = {
           products!inner(farmer_id, name)
         )
       `)
-      .eq(role === 'buyer' ? 'buyer_id' : 'order_items.products.farmer_id', userId)
+      .eq(user_type === 'buyer' ? 'buyer_id' : 'order_items.products.farmer_id', userId)
       .in('status', ['processing', 'shipped', 'delivered'])
       .order('created_at', { ascending: false });
 
@@ -527,13 +527,13 @@ export const supabaseService = {
    * Broadcasts a notification to multiple users.
    * Useful for market trends or new product propositions.
    */
-  async broadcastNotification(notification: Partial<AppNotification>, targetRole?: 'buyer' | 'farmer') {
+  async broadcastNotification(notification: Partial<AppNotification>, targetUserType?: 'buyer' | 'farmer') {
     // For a real app, you'd fetch user IDs based on preferences or roles
     // Here we'll simulate by getting a few relevant users to notify
     const { data: profiles } = await supabase
       .from('profiles')
       .select('id')
-      .eq(targetRole ? 'role' : 'id', targetRole || 'dummy') // Filter by role if provided
+      .eq(targetUserType ? 'user_type' : 'id', targetUserType || 'dummy') // Filter by user_type if provided
       .limit(20);
 
     if (profiles && profiles.length > 0) {
@@ -572,7 +572,52 @@ export const supabaseService = {
       user_id: userId,
       ...insight,
       type: 'insight',
-      link: '/insights'
+      link: '/insights',
+      created_at: new Date().toISOString()
     });
+  },
+
+  // Admin Methods
+  async getAllProfiles() {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) throw new Error(error.message);
+    return data;
+  },
+
+  async getAllOrders() {
+    const { data, error } = await supabase
+      .from('orders')
+      .select(`
+        *,
+        buyer:profiles!buyer_id(id, full_name, email, avatar_url),
+        order_items(
+          *,
+          products(id, name, farmer:profiles!farmer_id(id, full_name))
+        )
+      `)
+      .order('created_at', { ascending: false });
+    if (error) throw new Error(error.message);
+    return data;
+  },
+
+  async getAdminStats() {
+    const [usersCount, ordersCount, productsCount, totalRevenue] = await Promise.all([
+      supabase.from('profiles').select('id', { count: 'exact', head: true }),
+      supabase.from('orders').select('id', { count: 'exact', head: true }),
+      supabase.from('products').select('id', { count: 'exact', head: true }),
+      supabase.from('orders').select('total_amount').eq('status', 'delivered')
+    ]);
+
+    const revenue = totalRevenue.data?.reduce((acc, curr) => acc + (curr.total_amount || 0), 0) || 0;
+
+    return {
+      users: usersCount.count || 0,
+      orders: ordersCount.count || 0,
+      products: productsCount.count || 0,
+      revenue
+    };
   }
 };

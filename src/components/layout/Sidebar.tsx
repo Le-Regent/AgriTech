@@ -14,8 +14,20 @@ export function Sidebar({ onMobileClose }: SidebarProps) {
   const { t } = useLanguage();
 
   const renderNavItems = (items: typeof SIDEBAR_NAV, titleKey: string) => {
-    const filteredItems = items.filter(item => !item.roles || (user && item.roles.includes(user.role)));
+    let filteredItems = items.filter(item => !item.roles || (user && item.roles.includes(user.user_type || '')));
     
+    // Add Admin Command Center if user is admin
+    if (titleKey === 'main_menu' && user?.is_admin) {
+      filteredItems = [
+        ...filteredItems,
+        {
+          label: 'Admin Panel',
+          icon: 'admin_panel_settings',
+          path: '/admin',
+        }
+      ];
+    }
+
     if (filteredItems.length === 0) return null;
 
     return (

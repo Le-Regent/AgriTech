@@ -32,7 +32,7 @@ function ProfileContent() {
     website: ''
   });
 
-  const isFarmer = user?.role === 'farmer';
+  const isFarmer = user?.user_type === 'farmer';
 
   useEffect(() => {
     if (user) {
@@ -249,7 +249,7 @@ function ProfileContent() {
               <div className="relative inline-block mb-4 sm:mb-6">
                 <div className="relative">
                   <ResponsiveImage
-                    src={previewUrl || formData.avatar_url || `https://picsum.photos/seed/${user?.role || 'user'}/200/200`}
+                    src={previewUrl || formData.avatar_url || `https://picsum.photos/seed/${user?.user_type || 'user'}/200/200`}
                     alt={`Profile picture of ${formData.full_name}`}
                     className={`w-24 h-24 sm:w-32 sm:h-32 rounded-full border-4 border-primary/20 transition-all duration-300 ${isUploading ? 'opacity-50 grayscale-[0.5]' : 'opacity-100'}`}
                     baseWidth={200}
@@ -281,7 +281,7 @@ function ProfileContent() {
                 )}
               </div>
             <h3 className="text-lg sm:text-xl font-black dark:text-white">{user?.full_name}</h3>
-            <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm mb-4 sm:mb-6 capitalize">{user?.role} · Premium Member since 2024</p>
+            <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm mb-4 sm:mb-6 capitalize">{user?.user_type} · Premium Member since 2024</p>
             <div className="grid grid-cols-2 gap-3 sm:gap-4">
               {stats.map((stat, i) => (
                 <div key={i} className="bg-slate-50 dark:bg-slate-800 p-2 sm:p-3 rounded-xl sm:rounded-2xl transition-colors">

@@ -4,8 +4,9 @@ CREATE TABLE profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   full_name TEXT,
   email TEXT,
-  role TEXT CHECK (role IN ('farmer', 'buyer')),
+  user_type TEXT CHECK (user_type IN ('farmer', 'buyer')),
   avatar_url TEXT,
+  last_active_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()),
   is_verified BOOLEAN DEFAULT false,
   is_admin BOOLEAN DEFAULT false,
   plan TEXT DEFAULT 'standard',
@@ -29,6 +30,7 @@ CREATE TABLE products (
   unit TEXT NOT NULL,
   image_url TEXT,
   stock_quantity NUMERIC DEFAULT 0,
+  initial_stock_quantity NUMERIC,
   min_quantity NUMERIC DEFAULT 1,
   max_quantity NUMERIC,
   is_verified BOOLEAN DEFAULT false,
@@ -122,6 +124,7 @@ CREATE TABLE notifications (
   title TEXT NOT NULL,
   message TEXT NOT NULL,
   type TEXT CHECK (type IN ('order', 'system', 'message', 'stock')),
+  category TEXT DEFAULT 'primary',
   is_read BOOLEAN DEFAULT false,
   link TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
@@ -132,12 +135,12 @@ CREATE TABLE notifications (
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.profiles (id, full_name, email, role)
+  INSERT INTO public.profiles (id, full_name, email, user_type)
   VALUES (
     new.id,
     new.raw_user_meta_data->>'full_name',
     new.email,
-    new.raw_user_meta_data->>'role'
+    new.raw_user_meta_data->>'user_type'
   );
   RETURN new;
 END;

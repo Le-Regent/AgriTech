@@ -18,7 +18,7 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
     if (isAuthReady && !loading) {
       if (!user) {
         router.replace('/login');
-      } else if (allowedRoles && !allowedRoles.includes(user.role)) {
+      } else if (allowedRoles && !allowedRoles.includes(user.user_type || '')) {
         router.replace('/');
       }
     }
@@ -36,7 +36,7 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
     return null;
   }
 
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
+  if (allowedRoles && !allowedRoles.includes(user.user_type || '')) {
     return null;
   }
 

@@ -12,7 +12,7 @@ export default function LoginPage() {
   const { login, signUp, signInWithGoogle, resendConfirmation, loading } = useUser();
   const { t, language, setLanguage } = useLanguage();
   const [isLogin, setIsLogin] = useState(true);
-  const [role, setRole] = useState<'farmer' | 'buyer'>('farmer');
+  const [user_type, setUserType] = useState<'farmer' | 'buyer'>('farmer');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -47,7 +47,7 @@ export default function LoginPage() {
         router.push('/');
       }
     } else {
-      const { error: signUpError } = await signUp(email, password, name, role);
+      const { error: signUpError } = await signUp(email, password, name, user_type);
       if (signUpError) {
         setError(signUpError);
       } else {
@@ -178,9 +178,9 @@ export default function LoginPage() {
               <div className="grid grid-cols-2 gap-2 p-1 bg-slate-50 dark:bg-slate-800 rounded-2xl">
                 <button
                   type="button"
-                  onClick={() => setRole('farmer')}
+                  onClick={() => setUserType('farmer')}
                   className={`py-2 px-4 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
-                    role === 'farmer' 
+                    user_type === 'farmer' 
                       ? 'bg-white dark:bg-slate-700 text-primary shadow-sm' 
                       : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'
                   }`}
@@ -189,9 +189,9 @@ export default function LoginPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setRole('buyer')}
+                  onClick={() => setUserType('buyer')}
                   className={`py-2 px-4 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
-                    role === 'buyer' 
+                    user_type === 'buyer' 
                       ? 'bg-white dark:bg-slate-700 text-primary shadow-sm' 
                       : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'
                   }`}
