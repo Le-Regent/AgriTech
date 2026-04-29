@@ -16,8 +16,13 @@ export const profileService = {
   async updateProfile(userId: string, profile: Partial<User>) {
     const { data, error } = await supabase
       .from('profiles')
-      .update(profile)
-      .eq('id', userId);
+      .upsert({ 
+        id: userId, 
+        ...profile,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'id' })
+      .select()
+      .single();
     
     if (error) throw new Error(error.message);
     return data;

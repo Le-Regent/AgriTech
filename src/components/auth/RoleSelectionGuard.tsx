@@ -9,18 +9,26 @@ interface RoleSelectionGuardProps {
 }
 
 export function RoleSelectionGuard({ children }: RoleSelectionGuardProps) {
-  const { user, updateProfile, loading } = useUser();
+  const { user, updateProfile, loading, isAuthReady } = useUser();
   const [selectedRole, setSelectedRole] = useState<'farmer' | 'buyer' | null>(null);
 
   // Only show if user is logged in but has no user_type set
-  const needsRole = user && !user.user_type;
+  // We check isAuthReady to ensure we've at least tried to get the session metadata
+  const needsRole = isAuthReady && user && !user.user_type;
 
   const handleRoleSelect = async () => {
     if (!selectedRole) return;
-    await updateProfile({ user_type: selectedRole });
+    try {
+      const { error } = await updateProfile({ user_type: selectedRole });
+      if (error) {
+        console.error('Failed to set role:', error);
+      }
+    } catch (err) {
+      console.error('Error in RoleSelectionGuard:', err);
+    }
   };
 
-  if (!needsRole) {
+  if (!isAuthReady || !needsRole) {
     return <>{children}</>;
   }
 

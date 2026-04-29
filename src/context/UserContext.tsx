@@ -230,7 +230,13 @@ export function UserProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     try {
       // 1. Update the profiles table
-      await profileService.updateProfile(user.id, updates);
+      // Merge with existing user data to ensure we don't lose anything during upsert
+      await profileService.updateProfile(user.id, {
+        full_name: updates.full_name || user.full_name,
+        email: updates.email || user.email,
+        avatar_url: updates.avatar_url || user.avatar_url,
+        ...updates
+      });
       
       // 2. Sync with Auth Metadata if critical fields changed
       if (updates.full_name || updates.avatar_url || updates.user_type) {
