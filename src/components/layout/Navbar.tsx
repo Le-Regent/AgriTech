@@ -60,31 +60,29 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
   const isDashboard = pathname === '/';
 
   return (
-    <header className="h-20 bg-white dark:bg-background-dark border-b border-slate-200 dark:border-border-dark px-4 sm:px-8 flex items-center justify-between sticky top-0 z-10 transition-colors duration-300">
-      <div className="flex items-center gap-4 lg:gap-8 flex-1">
-        {onMenuClick && (
-          <button 
-            id="mobile-menu-trigger"
-            onClick={onMenuClick}
-            className="lg:hidden w-10 h-10 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-surface-hover-dark rounded-xl transition-colors"
-            title="Open Menu"
-          >
-            <span className="material-symbols-outlined">menu</span>
-          </button>
-        )}
-        
+    <header className="h-16 md:h-20 bg-white/70 dark:bg-background-dark/70 backdrop-blur-xl border-b border-slate-200/50 dark:border-white/5 px-4 sm:px-8 flex items-center justify-between sticky top-0 z-40 transition-all duration-300">
+      <div className="flex items-center gap-2 md:gap-8 flex-1">
+        <Link href="/" className="flex items-center gap-2 group">
+          <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-primary to-green-400 rounded-lg flex items-center justify-center text-white shadow-lg shadow-primary/20 group-hover:rotate-6 transition-transform">
+            <span className="material-symbols-outlined text-[20px] md:text-[24px] font-bold">agriculture</span>
+          </div>
+          <h1 className="text-sm md:text-xl font-black text-slate-900 dark:text-white tracking-tighter uppercase italic hidden xs:block">
+            Agri<span className="text-primary tracking-normal">Tech</span>
+          </h1>
+        </Link>
+
         {title ? (
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white hidden sm:block whitespace-nowrap">
+          <h2 className="text-xs md:text-lg font-bold text-slate-900 dark:text-white ml-2 md:ml-4 border-l border-slate-200 dark:border-white/10 pl-2 md:pl-4 whitespace-nowrap">
             {title}
           </h2>
         ) : !isDashboard && (
-          <div className="relative flex-1 max-w-[140px] xs:max-w-[180px] sm:max-w-sm md:max-w-md lg:max-w-lg transition-all duration-300">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px] sm:text-[20px]">search</span>
+          <div className="relative flex-1 max-w-[40px] focus-within:max-w-[200px] md:max-w-md transition-all duration-500 overflow-hidden group">
+            <span className="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-[18px] z-10">search</span>
             <input
               id="navbar-search"
               type="text"
               placeholder={t('search')}
-              className="pl-9 sm:pl-10 pr-4 py-2 bg-slate-50 dark:bg-muted-dark border-none rounded-xl w-full text-xs sm:text-sm focus:ring-2 focus:ring-primary/20 outline-none dark:text-white transition-colors"
+              className="pl-9 pr-4 py-2 bg-slate-100 dark:bg-white/5 border-none rounded-xl w-full text-xs focus:ring-2 focus:ring-primary/20 outline-none dark:text-white transition-all opacity-0 focus:opacity-100 md:opacity-100"
             />
           </div>
         )}
@@ -94,17 +92,18 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
             <Link
               key={item.path}
               href={item.path}
-              title={t(item.label.toLowerCase().replace(' ', '_')) || item.label}
-              className="text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-primary transition-colors flex items-center gap-2"
+              className={`text-xs font-black uppercase tracking-widest transition-colors flex items-center gap-2 ${
+                pathname === item.path ? 'text-primary' : 'text-slate-500 dark:text-slate-500 hover:text-slate-900 dark:hover:text-white'
+              }`}
             >
-              <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
+              <span className="material-symbols-outlined text-[18px]">{item.icon}</span>
               {t(item.label.toLowerCase().replace(' ', '_')) || item.label}
             </Link>
           ))}
         </nav>
       </div>
 
-      <div className="flex items-center gap-1 sm:gap-4 ml-2 sm:ml-4 relative">
+      <div className="flex items-center gap-1 md:gap-3 ml-2 relative">
         <AnimatePresence>
           {!isOnline && (
             <motion.div

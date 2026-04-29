@@ -518,13 +518,15 @@ function MarketplaceContent() {
         </motion.div>
       )}
 
-      <motion.div variants={itemVariants} id="marketplace-category-tabs" className="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
+      <motion.div variants={itemVariants} id="marketplace-category-tabs" className="flex gap-2 overflow-x-auto pb-4 no-scrollbar -mx-4 px-4 sticky top-16 md:top-20 z-30 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-xl py-2">
         {['All Produce', 'Foodstuff', 'Grains & Beans', 'Spices & Pepper', 'Oils', 'Vegetables', 'Fruits', 'Meat & Eggs'].map((cat) => (
           <button
             key={cat}
             onClick={() => setFilters({ ...filters, category: cat })}
-            className={`px-6 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all ${
-              filters.category === cat ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-primary/30 dark:hover:border-primary/30'
+            className={`px-5 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all border ${
+              filters.category === cat 
+                ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20 scale-105' 
+                : 'bg-white dark:bg-white/5 border-slate-200 dark:border-white/5 text-slate-500 dark:text-slate-500 hover:border-primary/30'
             }`}
           >
             {cat}
@@ -532,7 +534,126 @@ function MarketplaceContent() {
         ))}
       </motion.div>
 
-      <motion.div variants={containerVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+      <div className="flex items-center justify-between gap-2 md:gap-4 sticky top-[116px] md:top-32 z-20 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md py-2 -mx-4 px-4">
+        <div className="flex gap-2">
+          <button 
+            id="marketplace-filters-btn"
+            onClick={() => setShowFilters(true)}
+            className="h-10 px-4 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-xl"
+          >
+            <span className="material-symbols-outlined text-[18px]">tune</span>
+            {t('filters')}
+          </button>
+          
+          <div className="relative group">
+            <button className="h-10 px-4 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/5 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 dark:text-white">
+              <span className="material-symbols-outlined text-[18px]">sort</span>
+              {sortBy === 'name-asc' ? 'A-Z' : 'Price'}
+            </button>
+            <div className="absolute left-0 mt-2 w-48 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-2xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 p-2">
+              <button 
+                onClick={() => setSortBy('name-asc')}
+                className={`w-full text-left px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest ${sortBy === 'name-asc' ? 'bg-primary text-white' : 'hover:bg-slate-100 dark:hover:bg-white/5 text-slate-600 dark:text-slate-400'}`}
+              >
+                Alphabetical
+              </button>
+              <button 
+                onClick={() => setSortBy('price-low')}
+                className={`w-full text-left px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest ${sortBy === 'price-low' ? 'bg-primary text-white' : 'hover:bg-slate-100 dark:hover:bg-white/5 text-slate-600 dark:text-slate-400'}`}
+              >
+                Price: Low to High
+              </button>
+              <button 
+                onClick={() => setSortBy('price-high')}
+                className={`w-full text-left px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest ${sortBy === 'price-high' ? 'bg-primary text-white' : 'hover:bg-slate-100 dark:hover:bg-white/5 text-slate-600 dark:text-slate-400'}`}
+              >
+                Price: High to Low
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {selectedProducts.length > 0 && (
+          <button 
+            onClick={() => setShowComparison(true)}
+            className="h-10 px-4 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 animate-pulse shadow-lg shadow-indigo-500/20"
+          >
+            <span className="material-symbols-outlined text-[18px]">compare_arrows</span>
+            Compare ({selectedProducts.length})
+          </button>
+        )}
+      </div>
+
+      <AnimatePresence>
+        {showFilters && (
+          <>
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowFilters(false)}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]"
+            />
+            <motion.div 
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="fixed inset-x-0 bottom-0 bg-white dark:bg-slate-900 z-[101] rounded-t-[3rem] p-8 max-h-[80vh] overflow-y-auto shadow-2xl"
+            >
+              <div className="w-12 h-1.5 bg-slate-200 dark:bg-white/10 rounded-full mx-auto mb-8" />
+              
+              <div className="space-y-8">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-black uppercase italic tracking-tight dark:text-white">Refine Search</h3>
+                  <button onClick={() => setShowFilters(false)} className="text-slate-400">
+                    <span className="material-symbols-outlined">close</span>
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 italic">Origin Region</p>
+                  <div className="flex flex-wrap gap-2">
+                    {['All', 'Littoral', 'South West', 'West', 'North West', 'Centre'].map(country => (
+                      <button
+                        key={country}
+                        onClick={() => setFilters({ ...filters, origin: country })}
+                        className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${filters.origin === country ? 'bg-primary text-white' : 'bg-slate-100 dark:bg-white/5 dark:text-slate-400'}`}
+                      >
+                        {country}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 italic">Certifications</p>
+                  <div className="flex flex-wrap gap-2">
+                    {['Organic', 'Fair Trade', 'G-GAP'].map(cert => (
+                      <button
+                        key={cert}
+                        onClick={() => toggleCertification(cert)}
+                        className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${filters.certification.includes(cert) ? 'bg-primary text-white' : 'bg-slate-100 dark:bg-white/5 dark:text-slate-400'}`}
+                      >
+                        {cert}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <button 
+                  onClick={() => setShowFilters(false)}
+                  className="w-full py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-primary/20 mt-4 transition-transform active:scale-95"
+                >
+                  Apply Filters
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      <motion.div variants={containerVariants} className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8">
         {loading ? (
           Array.from({ length: 8 }).map((_, i) => (
             <motion.div key={i} variants={itemVariants} className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 h-[400px] animate-pulse" />

@@ -316,30 +316,32 @@ function DashboardContent() {
       >
         <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 className="text-2xl sm:text-4xl font-black tracking-tight dark:text-white">{t('marketplace_overview')}</h2>
-            <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400">Fresh produce from Cameroon&apos;s finest farms, delivered to you.</p>
+            <h2 className="text-3xl sm:text-4xl font-black tracking-tight dark:text-white uppercase italic">
+              Agri<span className="text-primary tracking-normal">Market</span>
+            </h2>
+            <p className="text-xs sm:text-base text-slate-500 dark:text-slate-400 font-medium tracking-tight">Fresh produce from Cameroon&apos;s finest farms.</p>
           </div>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-            <form onSubmit={handleSearch} className="relative group min-w-[280px]">
-              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+            <form onSubmit={handleSearch} className="relative group min-w-[240px]">
+              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
               <input type="text" placeholder={t('search')} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-12 pr-4 py-2.5 bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark rounded-xl text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all outline-none dark:text-white" />
+                className="w-full pl-10 pr-4 py-2 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest focus:ring-2 focus:ring-primary/20 transition-all outline-none dark:text-white" />
             </form>
-            <Link href="/marketplace" className="bg-primary text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-primary/90 transition-all shadow-lg shadow-primary/20">
-              <span className="material-symbols-outlined text-[20px]">storefront</span> {t('browse')}
-            </Link>
           </div>
         </motion.div>
 
-        <motion.div variants={containerVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <motion.div 
+          variants={containerVariants} 
+          className="flex overflow-x-auto pb-4 gap-4 no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 lg:grid-cols-4"
+        >
           {stats.map((stat, i) => (
             <motion.div key={i} variants={itemVariants}
-              className="bg-white dark:bg-surface-dark p-6 rounded-3xl border border-slate-100 dark:border-border-dark shadow-sm hover:shadow-xl transition-all group">
-              <div className={`w-12 h-12 ${stat.bg} ${stat.color} rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                <span className="material-symbols-outlined fill-1 text-2xl">{stat.icon}</span>
+              className="min-w-[160px] sm:min-w-0 bg-white dark:bg-slate-900 p-5 rounded-[2rem] border border-slate-100 dark:border-white/5 shadow-sm hover:shadow-xl transition-all group shrink-0">
+              <div className={`w-10 h-10 ${stat.bg} ${stat.color} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                <span className="material-symbols-outlined fill-1 text-xl">{stat.icon}</span>
               </div>
-              <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">{stat.label}</p>
-              <p className="text-2xl font-black dark:text-white">{stat.value}</p>
+              <p className="text-[9px] font-black text-slate-500 dark:text-slate-500 uppercase tracking-widest mb-1 leading-none">{stat.label}</p>
+              <p className="text-lg font-black dark:text-white tracking-tighter">{stat.value}</p>
             </motion.div>
           ))}
         </motion.div>
@@ -517,51 +519,23 @@ function DashboardContent() {
     >
       <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl sm:text-3xl font-black tracking-tight dark:text-white">{t('farm_overview')} 🇨🇲</h2>
-          <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400">Welcome back, {user?.full_name}. Local time: {new Date().toLocaleTimeString('en-CM')}</p>
+          <h2 className="text-3xl sm:text-4xl font-black tracking-tight dark:text-white uppercase italic">
+            Agri<span className="text-primary tracking-normal">Control</span> 🇨🇲
+          </h2>
+          <p className="text-xs sm:text-base text-slate-500 dark:text-slate-400 font-medium tracking-tight">Welcome back, {user?.full_name}.</p>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-          <form id="dashboard-search-form" onSubmit={handleSearch} className="relative group min-w-[280px]">
-            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">search</span>
-            <input 
-              id="dashboard-search-input"
-              type="text" 
-              placeholder={t('search')}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-2 bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-primary/20 dark:text-white transition-all shadow-sm"
-            />
-          </form>
-          <div className="relative">
-            <input 
-              type="date" 
-              ref={dateInputRef}
-              className="absolute inset-0 opacity-0 cursor-pointer -z-10" 
-              onChange={(e) => {
-                if (e.target.value) {
-                  const newDate = new Date(e.target.value);
-                  setSelectedDate(newDate);
-                  toast.success(`Date updated to ${newDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`);
-                }
-              }}
-            />
-            <button 
-              id="dashboard-calendar-trigger"
-              onClick={() => dateInputRef.current?.showPicker?.() || dateInputRef.current?.click()}
-              className="bg-white dark:bg-muted-dark border border-slate-200 dark:border-border-dark px-4 py-2 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 hover:bg-slate-50 dark:hover:bg-surface-hover-dark transition-colors dark:text-white"
-            >
-              <span className="material-symbols-outlined text-[20px]">calendar_today</span>
-              {selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-            </button>
-          </div>
-          <Link id="new-diagnosis-btn" href="/diagnosis" className="bg-primary text-white px-6 py-2 rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-primary/90 transition-all shadow-lg shadow-primary/20">
+          <Link id="new-diagnosis-btn" href="/diagnosis" className="bg-primary text-white px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-primary/90 transition-all shadow-lg shadow-primary/20">
             <span className="material-symbols-outlined text-[20px]">add_a_photo</span>
             {t('diagnose')}
           </Link>
         </div>
       </motion.div>
 
-      <motion.div variants={containerVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+      <motion.div 
+        variants={containerVariants} 
+        className="flex overflow-x-auto pb-4 gap-4 no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 lg:grid-cols-5"
+      >
         {[
           { label: 'Soil Moisture', value: '42%', icon: 'water_drop', color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-500/10' },
           { 
@@ -570,7 +544,7 @@ function DashboardContent() {
             icon: 'eco', 
             color: 'text-green-500', 
             bg: 'bg-green-50 dark:bg-green-500/10',
-            healthStatus: diagnoses.length > 0 ? diagnoses[0].status : 'healthy' // healthy, warning, critical
+            healthStatus: diagnoses.length > 0 ? diagnoses[0].status : 'healthy'
           },
           { label: 'Est. Harvest', value: '12.4t', icon: 'agriculture', color: 'text-orange-500', bg: 'bg-orange-50 dark:bg-orange-500/10' },
           { 
@@ -590,7 +564,7 @@ function DashboardContent() {
             bg: 'bg-amber-50 dark:bg-amber-500/10' 
           },
         ].map((stat, i) => (
-          <motion.div key={i} variants={itemVariants} className="bg-white dark:bg-surface-dark p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-100 dark:border-border-dark shadow-sm hover:shadow-md transition-all relative overflow-hidden">
+          <motion.div key={i} variants={itemVariants} className="min-w-[160px] sm:min-w-0 bg-white dark:bg-slate-900 p-5 rounded-[2rem] border border-slate-100 dark:border-white/5 shadow-sm hover:shadow-md transition-all relative overflow-hidden shrink-0">
             {stat.label === 'Crop Health' && (
               <div className={`absolute top-0 right-0 w-16 h-16 -mr-8 -mt-8 rounded-full opacity-20 blur-2xl ${
                 stat.healthStatus === 'healthy' ? 'bg-green-500' : 
@@ -598,16 +572,10 @@ function DashboardContent() {
               }`}></div>
             )}
             <div className="flex items-center justify-between mb-4">
-              <div className={`w-10 h-10 sm:w-12 sm:h-12 ${stat.bg} ${stat.color} rounded-xl sm:rounded-2xl flex items-center justify-center relative`}>
-                <span className="material-symbols-outlined fill-1 text-xl sm:text-2xl">{stat.icon}</span>
-                {stat.label === 'Crop Health' && (
-                  <div className={`absolute -inset-1 rounded-xl sm:rounded-2xl border-2 ${
-                    stat.healthStatus === 'healthy' ? 'border-green-500/50' : 
-                    stat.healthStatus === 'warning' ? 'border-yellow-500/50' : 'border-red-500/50'
-                  } animate-pulse`}></div>
-                )}
+              <div className={`w-10 h-10 ${stat.bg} ${stat.color} rounded-xl flex items-center justify-center relative`}>
+                <span className="material-symbols-outlined fill-1 text-xl">{stat.icon}</span>
               </div>
-              <span className={`text-[10px] sm:text-xs font-bold px-2 py-1 rounded-lg ${
+              <span className={`text-[8px] font-black px-2 py-1 rounded-lg ${
                 stat.label === 'Crop Health' ? (
                   stat.healthStatus === 'healthy' ? 'text-green-500 bg-green-50 dark:bg-green-500/10' :
                   stat.healthStatus === 'warning' ? 'text-yellow-500 bg-yellow-50 dark:bg-yellow-500/10' :
@@ -617,30 +585,9 @@ function DashboardContent() {
                 {stat.label === 'Crop Health' ? stat.healthStatus?.toUpperCase() : '+2.4%'}
               </span>
             </div>
-            <p className="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400">{stat.label}</p>
+            <p className="text-[9px] font-black text-slate-500 dark:text-slate-500 uppercase tracking-widest mb-1 leading-none">{stat.label}</p>
             <div className="flex items-end gap-2">
-              <p className="text-xl sm:text-2xl font-black dark:text-white">{stat.value}</p>
-              {stat.label === 'Crop Health' && (
-                <div className="relative w-8 h-8 flex items-center justify-center mb-1">
-                  <svg className="w-full h-full transform -rotate-90">
-                    <circle cx="16" cy="16" r="14" stroke="currentColor" strokeWidth="2" fill="transparent" className="text-slate-100 dark:text-slate-800" />
-                    <circle 
-                      cx="16" cy="16" r="14" stroke="currentColor" strokeWidth="2" fill="transparent" 
-                      strokeDasharray={88} 
-                      strokeDashoffset={88 * (1 - parseInt(stat.value) / 100)} 
-                      className={
-                        stat.healthStatus === 'healthy' ? 'text-green-500' : 
-                        stat.healthStatus === 'warning' ? 'text-yellow-500' : 'text-red-500'
-                      } 
-                      strokeLinecap="round" 
-                    />
-                  </svg>
-                  <span className={`absolute text-[8px] font-black ${
-                    stat.healthStatus === 'healthy' ? 'text-green-600' : 
-                    stat.healthStatus === 'warning' ? 'text-yellow-600' : 'text-red-600'
-                  }`}>{stat.value}</span>
-                </div>
-              )}
+              <p className="text-lg font-black dark:text-white tracking-tighter">{stat.value}</p>
             </div>
           </motion.div>
         ))}

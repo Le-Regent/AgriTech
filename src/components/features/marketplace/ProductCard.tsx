@@ -53,21 +53,21 @@ export default function ProductCard({
         )}
         {children}
       </div>
-      <div className="p-6 space-y-4 flex-1 flex flex-col">
+      <div className="p-3 sm:p-6 space-y-2 sm:space-y-4 flex-1 flex flex-col">
         <div className="flex-1">
-          <div className="flex items-center justify-between mb-1">
-            <h3 className="font-black text-lg group-hover:text-primary dark:text-white transition-colors truncate">{product.name}</h3>
-            <p className="font-black text-primary whitespace-nowrap">{product.price.toLocaleString()}<span className="text-xs text-slate-400 dark:text-slate-500 font-bold"> CFA/{product.unit}</span></p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-1 gap-1">
+            <h3 className="font-black text-sm sm:text-lg group-hover:text-primary dark:text-white transition-colors truncate">{product.name}</h3>
+            <p className="font-black text-primary text-xs sm:text-base whitespace-nowrap">{product.price.toLocaleString()}<span className="text-[8px] sm:text-xs text-slate-400 dark:text-slate-500 font-bold uppercase"> CFA</span></p>
           </div>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
             <div className="flex items-center gap-1 text-slate-400 dark:text-slate-500">
-              <span className="material-symbols-outlined text-[16px]">location_on</span>
-              <span className="text-xs font-bold truncate">{product.location}</span>
+              <span className="material-symbols-outlined text-[14px] sm:text-[16px]">location_on</span>
+              <span className="text-[10px] sm:text-xs font-bold truncate">{product.location}</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 truncate max-w-[80px]">{product.profiles?.full_name || 'Unknown Farmer'}</span>
+            <div className="flex items-center gap-1 sm:gap-1.5">
+              <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 truncate max-w-[60px] sm:max-w-[80px]">{product.profiles?.full_name?.split(' ')[0] || 'Farmer'}</span>
               {product.profiles?.is_verified && (
-                <span className="material-symbols-outlined text-blue-500 text-[14px] fill-1" title="Verified Farmer">verified_user</span>
+                <span className="material-symbols-outlined text-blue-500 text-[12px] sm:text-[14px] fill-1" title="Verified Farmer">verified_user</span>
               )}
             </div>
           </div>

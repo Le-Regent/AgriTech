@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'motion/react';
 import ResponsiveImage from '@/components/ui/ResponsiveImage';
 import { GoogleGenAI, Type } from "@google/genai";
 import ProtectedRoute from '@/components/layout/ProtectedRoute';
@@ -365,7 +366,7 @@ function DiagnosisContent() {
         )}
       </div>
 
-      <div className="bg-background-dark rounded-[2rem] sm:rounded-[3rem] overflow-hidden shadow-2xl relative aspect-square sm:aspect-[4/3] flex items-center justify-center">
+      <div className="bg-slate-950 rounded-[2.5rem] sm:rounded-[3rem] overflow-hidden shadow-2xl relative aspect-[3/4] sm:aspect-[4/3] flex items-center justify-center border border-white/5">
         {!isAnalyzing ? (
           <>
             {showCamera ? (
@@ -376,38 +377,73 @@ function DiagnosisContent() {
                   playsInline 
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute bottom-8 flex gap-4">
+                
+                {/* Scanner Overlay */}
+                <div className="absolute inset-x-8 top-1/4 bottom-1/4 border border-primary/30 rounded-3xl overflow-hidden pointer-events-none">
+                  <motion.div 
+                    initial={{ top: '0%' }}
+                    animate={{ top: '100%' }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                    className="absolute inset-x-0 h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent shadow-[0_0_15px_rgba(16,185,129,0.5)] z-20"
+                  />
+                  <div className="absolute inset-0 bg-primary/5"></div>
+                </div>
+
+                <div className="absolute top-8 right-8">
                   <button 
                     onClick={stopCamera}
-                    className="w-14 h-14 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white"
+                    className="w-12 h-12 bg-black/40 backdrop-blur-xl rounded-2xl flex items-center justify-center text-white border border-white/10"
                   >
                     <span className="material-symbols-outlined">close</span>
                   </button>
+                </div>
+
+                <div className="absolute bottom-12 flex items-center gap-8 px-8 w-full justify-center">
+                  <button 
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-14 h-14 bg-white/10 backdrop-blur-xl rounded-2xl flex items-center justify-center text-white border border-white/10"
+                  >
+                    <span className="material-symbols-outlined">photo_library</span>
+                  </button>
+                  
                   <button 
                     onClick={capturePhoto}
-                    className="w-20 h-20 bg-white rounded-full flex items-center justify-center text-primary shadow-xl"
+                    className="w-24 h-24 bg-white rounded-full flex items-center justify-center p-2 shadow-[0_0_30px_rgba(255,255,255,0.3)] group active:scale-90 transition-transform"
                   >
-                    <div className="w-16 h-16 border-4 border-primary rounded-full"></div>
+                    <div className="w-full h-full border-4 border-slate-900 rounded-full flex items-center justify-center">
+                       <div className="w-4 h-4 bg-primary rounded-full animate-pulse"></div>
+                    </div>
                   </button>
+
+                  <div className="w-14 h-14"></div> {/* Spacer to center the button */}
                 </div>
                 <canvas ref={canvasRef} className="hidden" />
               </div>
             ) : (
               <>
                 <ResponsiveImage 
-                  src={selectedImage || "https://picsum.photos/seed/plant-leaf/1200/900"} 
+                  src={selectedImage || "https://picsum.photos/seed/plant-leaf/1200/1600"} 
                   alt="Plant leaf for analysis" 
                   className="w-full h-full object-cover opacity-60"
                   baseWidth={1200}
-                  baseHeight={900}
+                  baseHeight={1600}
                 />
-                <div className="absolute inset-0 flex flex-col items-center justify-center p-4 bg-black/20">
-                  <div className="w-full max-w-[256px] aspect-square border-2 border-primary border-dashed rounded-3xl relative mb-8">
-                    <div className="absolute -top-1 -left-1 w-6 h-6 border-t-4 border-l-4 border-primary rounded-tl-lg"></div>
-                    <div className="absolute -top-1 -right-1 w-6 h-6 border-t-4 border-r-4 border-primary rounded-tr-lg"></div>
-                    <div className="absolute -bottom-1 -left-1 w-6 h-6 border-b-4 border-l-4 border-primary rounded-bl-lg"></div>
-                    <div className="absolute -bottom-1 -right-1 w-6 h-6 border-b-4 border-r-4 border-primary rounded-br-lg"></div>
-                  </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent flex flex-col items-center justify-center p-8">
+                  {!selectedImage ? (
+                    <div className="text-center space-y-4">
+                      <div className="w-24 h-24 bg-primary/20 backdrop-blur-xl rounded-[2rem] border border-primary/20 flex items-center justify-center mx-auto mb-6">
+                        <span className="material-symbols-outlined text-4xl text-primary animate-pulse">photo_camera</span>
+                      </div>
+                      <h3 className="text-xl font-black text-white italic uppercase tracking-tight">Camera Ready</h3>
+                      <p className="text-slate-400 text-sm max-w-[200px] mx-auto">Position the leaf within the frame and ensure good lighting.</p>
+                    </div>
+                  ) : (
+                    <div className="absolute top-6 right-6">
+                       <button onClick={() => setSelectedImage(null)} className="w-10 h-10 bg-black/40 backdrop-blur rounded-xl text-white flex items-center justify-center border border-white/10">
+                          <span className="material-symbols-outlined text-sm">delete</span>
+                       </button>
+                    </div>
+                  )}
                   
                   <input 
                     type="file" 
@@ -417,20 +453,19 @@ function DiagnosisContent() {
                     onChange={handleFileSelect}
                   />
                   
-                  <div className="flex flex-col sm:flex-row gap-4">
-                    <button 
-                      onClick={() => fileInputRef.current?.click()}
-                      className="bg-white/10 backdrop-blur text-white px-6 py-3 rounded-2xl font-bold border border-white/20 hover:bg-white/20 transition-all flex items-center gap-2"
-                    >
-                      <span className="material-symbols-outlined">upload_file</span>
-                      {t('upload_image')}
-                    </button>
+                  <div className="absolute bottom-12 flex flex-col gap-3 w-full max-w-[280px]">
                     <button 
                       onClick={startCamera}
-                      className="bg-primary text-white px-8 py-4 rounded-2xl font-black text-lg shadow-xl shadow-primary/40 hover:scale-105 transition-all flex items-center gap-3"
+                      className="w-full bg-primary text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl shadow-primary/40 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3"
                     >
-                      <span className="material-symbols-outlined">photo_camera</span>
-                      {t('take_photo')}
+                      <span className="material-symbols-outlined">camera</span>
+                      Launch UI Scanner
+                    </button>
+                    <button 
+                      onClick={() => fileInputRef.current?.click()}
+                      className="w-full bg-white/10 backdrop-blur-xl text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest border border-white/10 hover:bg-white/20 transition-all"
+                    >
+                      Import from Gallery
                     </button>
                   </div>
                 </div>
@@ -438,34 +473,48 @@ function DiagnosisContent() {
             )}
           </>
         ) : (
-          <div className="text-center space-y-6 p-8">
-            <div className="relative w-32 h-32 mx-auto">
-              <div className="absolute inset-0 border-4 border-primary/20 rounded-full"></div>
-              <div 
-                className="absolute inset-0 border-4 border-primary border-t-transparent rounded-full animate-spin"
-                style={{ animationDuration: '1.5s' }}
-              ></div>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-primary font-black text-xl">{Math.round((analysisStep + 1) / ANALYSIS_STEPS.length * 100)}%</span>
+          <div className="text-center space-y-12 p-8 relative z-10">
+             {/* Progress Rings */}
+            <div className="relative w-40 h-40 mx-auto">
+                <div className="absolute inset-0 border-[6px] border-primary/10 rounded-full"></div>
+                <motion.div 
+                  className="absolute inset-0 border-[6px] border-primary border-t-transparent rounded-full"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                />
+                <div className="absolute inset-8 border border-white/5 rounded-full flex items-center justify-center flex-col bg-slate-900/50 backdrop-blur-3xl">
+                  <span className="text-3xl font-black text-white italic tracking-tighter">
+                    {Math.round((analysisStep + 1) / ANALYSIS_STEPS.length * 100)}%
+                  </span>
+                  <span className="text-[8px] font-black uppercase text-slate-500 tracking-widest mt-1">Status</span>
+                </div>
+            </div>
+
+            <div className="space-y-4">
+              <motion.div
+                key={analysisStep}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-white font-black text-2xl uppercase italic tracking-tight"
+              >
+                {ANALYSIS_STEPS[analysisStep]}
+              </motion.div>
+              <div className="flex justify-center gap-1.5">
+                {ANALYSIS_STEPS.map((_, i) => (
+                  <div 
+                    key={i} 
+                    className={`h-0.5 rounded-full transition-all duration-700 ${i <= analysisStep ? 'w-10 bg-primary shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'w-2 bg-white/10'}`}
+                  />
+                ))}
               </div>
             </div>
-            <div className="space-y-2">
-              <p className="text-white font-bold text-xl animate-pulse">{ANALYSIS_STEPS[analysisStep]}</p>
-              <p className="text-white/60 text-sm">{t('analyzing')}</p>
-            </div>
-            <div className="flex justify-center gap-1">
-              {ANALYSIS_STEPS.map((_, i) => (
-                <div 
-                  key={i} 
-                  className={`h-1 rounded-full transition-all duration-500 ${i <= analysisStep ? 'w-8 bg-primary' : 'w-2 bg-white/20'}`}
-                />
-              ))}
-            </div>
+            
+            <p className="text-xs text-white/40 font-black uppercase tracking-[0.3em] animate-pulse">Running Neural Engine</p>
           </div>
         )}
       </div>
 
-      <div className="flex flex-col items-center gap-4 pt-4">
+      <div className="flex flex-col items-center gap-4 fixed bottom-24 left-4 right-4 z-40 md:static md:bottom-auto">
         {error && (
           <div className="w-full max-w-md bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-4 rounded-2xl border border-red-100 dark:border-red-800 flex items-center gap-3">
             <span className="material-symbols-outlined">error</span>
