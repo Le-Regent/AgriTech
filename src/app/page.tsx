@@ -56,6 +56,7 @@ function DashboardContent() {
   const isFarmer = user?.user_type === 'farmer';
   const hasLoadedFromCache = useRef(false);
 
+const [showCalendar, setShowCalendar] = useState(false);
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -512,36 +513,72 @@ function DashboardContent() {
   }
 
   return (
-    <motion.div 
+    <motion.div
       variants={containerVariants}
       initial="hidden"
       animate="visible"
       className="space-y-8"
     >
-      <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
-        <div className="lg:col-span-1">
-          <h2 className="text-3xl sm:text-4xl font-black tracking-tight dark:text-white uppercase italic mb-2">
+      <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-slate-100 dark:border-white/5">
+        <div className="flex-1">
+          <h2 className="text-3xl sm:text-4xl font-black tracking-tight dark:text-white uppercase italic">
             Agri<span className="text-primary tracking-normal">Control</span> 🇨🇲
           </h2>
-          <p className="text-xs sm:text-base text-slate-500 dark:text-slate-400 font-medium tracking-tight mb-4">Welcome back, {user?.full_name}.</p>
-          
-          <div className="flex flex-col gap-3">
-            <Link id="new-diagnosis-btn" href="/diagnosis" className="bg-primary text-white px-6 py-4 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-primary/90 transition-all shadow-xl shadow-primary/20 group">
-              <span className="material-symbols-outlined text-[24px] group-hover:rotate-12 transition-transform">add_a_photo</span>
-              {t('diagnose_now') || 'Diagnose Now'}
-            </Link>
-            
-            <Link href="/marketplace" className="bg-white dark:bg-white/5 dark:text-white px-6 py-4 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-3 border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/10 transition-all">
-              <span className="material-symbols-outlined text-[24px]">storefront</span>
-              {t('marketplace') || 'Marketplace'}
-            </Link>
-          </div>
+          <p className="text-sm text-slate-500 dark:text-slate-400 font-medium tracking-tight mt-1">Welcome back, {user?.full_name}. Here is what&apos;s happening today.</p>
         </div>
-
-        <div className="lg:col-span-3">
-          <AgriCalendar />
+        
+        <div className="grid grid-cols-2 sm:flex items-center gap-3">
+          <button 
+            onClick={() => setShowCalendar(true)}
+            className="flex-1 sm:flex-none bg-white dark:bg-white/5 dark:text-white px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/10 transition-all shadow-sm group"
+          >
+            <span className="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform">calendar_month</span>
+            Calendar
+          </button>
+          
+          <Link 
+            id="new-diagnosis-btn" 
+            href="/diagnosis" 
+            className="flex-1 sm:flex-none bg-primary text-white px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 group"
+          >
+            <span className="material-symbols-outlined text-[18px] group-hover:rotate-12 transition-transform">add_a_photo</span>
+            {t('diagnose') || 'Diagnose'}
+          </Link>
         </div>
       </motion.div>
+
+      {/* Calendar Modal */}
+      <AnimatePresence>
+        {showCalendar && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowCalendar(false)}
+              className="absolute inset-0 bg-slate-950/40 backdrop-blur-md"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-xl bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl overflow-hidden border border-white/20"
+            >
+              <div className="absolute top-6 right-6 z-30">
+                <button 
+                  onClick={() => setShowCalendar(false)}
+                  className="w-8 h-8 rounded-full bg-slate-100 dark:bg-white/10 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-white/20 transition-all"
+                >
+                  <span className="material-symbols-outlined text-sm">close</span>
+                </button>
+              </div>
+              <div className="h-[500px]">
+                <AgriCalendar />
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       <motion.div 
         variants={containerVariants} 
