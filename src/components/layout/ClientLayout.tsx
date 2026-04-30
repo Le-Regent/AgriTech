@@ -46,14 +46,14 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsMobileMenuOpen(false)}
-              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] lg:hidden"
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[110] lg:hidden"
             />
             <motion.div
               initial={{ x: -280 }}
               animate={{ x: 0 }}
               exit={{ x: -280 }}
               transition={{ type: 'spring' as const, damping: 25, stiffness: 200 }}
-              className="fixed inset-y-0 left-0 w-[280px] bg-white dark:bg-background-dark z-[70] lg:hidden shadow-2xl"
+              className="fixed inset-y-0 left-0 w-[280px] bg-white dark:bg-background-dark z-[120] lg:hidden shadow-2xl"
             >
               <Sidebar onMobileClose={() => setIsMobileMenuOpen(false)} />
             </motion.div>
@@ -63,10 +63,19 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
 
       <div className="flex-1 flex flex-col min-w-0 h-full relative">
         <Navbar onMenuClick={() => setIsMobileMenuOpen(true)} />
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 no-scrollbar scroll-smooth">
-          <div className="max-w-7xl mx-auto w-full pb-32 lg:pb-8">
-            {children}
-          </div>
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 no-scrollbar scroll-smooth relative">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={pathname}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
+              className="max-w-7xl mx-auto w-full pb-32 lg:pb-8"
+            >
+              {children}
+            </motion.div>
+          </AnimatePresence>
         </main>
         <BottomNav />
       </div>

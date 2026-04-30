@@ -25,7 +25,26 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
   const router = useRouter();
   const [showThemeConfirm, setShowThemeConfirm] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleScroll = (e: Event) => {
+      const target = e.target as HTMLElement;
+      if (target.scrollTop > 10) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+    
+    // Find the scroll container (main)
+    const main = document.querySelector('main');
+    if (main) {
+      main.addEventListener('scroll', handleScroll);
+      return () => main.removeEventListener('scroll', handleScroll);
+    }
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -55,7 +74,11 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
   const isDashboard = pathname === '/';
 
   return (
-    <header className="h-16 md:h-20 bg-white/70 dark:bg-background-dark/70 backdrop-blur-xl border-b border-slate-200/50 dark:border-white/5 sticky top-0 z-40 transition-all duration-300">
+    <header className={`h-16 md:h-20 bg-white/70 dark:bg-background-dark/70 backdrop-blur-xl border-b transition-all duration-500 sticky top-0 z-[100] ${
+      isScrolled 
+        ? 'border-slate-200 dark:border-white/10 shadow-xl shadow-black/5 dark:shadow-white/5 h-14 md:h-16' 
+        : 'border-transparent'
+    }`}>
       <div className="max-w-7xl mx-auto h-full px-2 sm:px-8 flex items-center justify-between gap-1 sm:gap-4">
         <div className="flex items-center gap-1 sm:gap-8 flex-1 min-w-0">
           {onMenuClick && (
@@ -76,7 +99,7 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
         </Link>
 
         {title ? (
-          <h2 className="text-[10px] sm:text-lg font-black text-slate-900 dark:text-white bg-slate-100 dark:bg-white/5 py-1 px-2 sm:px-3 rounded-[10px] sm:rounded-xl border border-slate-200 dark:border-white/10 uppercase italic tracking-tighter whitespace-nowrap overflow-hidden text-ellipsis max-w-[80px] sm:max-w-none ml-1 sm:ml-4">
+          <h2 className="text-[10px] sm:text-lg font-black text-slate-900 dark:text-white bg-slate-100 dark:bg-white/5 py-1 px-2 sm:px-3 rounded-[10px] sm:rounded-xl border border-slate-200 dark:border-white/10 uppercase italic tracking-tighter whitespace-nowrap overflow-hidden text-ellipsis max-w-[120px] sm:max-w-none ml-1 sm:ml-4 flex-shrink">
             {title}
           </h2>
         ) : !isDashboard && (

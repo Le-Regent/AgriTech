@@ -38,16 +38,42 @@ export function RoleSelectionGuard({ children }: RoleSelectionGuardProps) {
   };
 
   if (!isAuthReady || !needsRole) {
-    return <>{children}</>;
+    return (
+      <AnimatePresence mode="wait">
+        <motion.div
+          key="content"
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 1.02 }}
+          transition={{ duration: 0.3 }}
+        >
+          {children}
+        </motion.div>
+      </AnimatePresence>
+    );
   }
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950 font-sans">
-      {/* Background elements */}
-      <div className="absolute inset-0 z-0">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[120px] animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '2s' }} />
+    <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-slate-950 font-sans overflow-hidden">
+      <div className="absolute top-6 right-6 z-20">
+        <button 
+          onClick={() => useUser().logout()}
+          className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border border-white/5 hover:border-white/10"
+        >
+          <span className="material-symbols-outlined text-sm">logout</span>
+          Sign Out
+        </button>
       </div>
+      {/* Background elements */}
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1 }}
+        className="absolute inset-0 z-0"
+      >
+        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[150px] animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[150px] animate-pulse" style={{ animationDelay: '2s' }} />
+      </motion.div>
 
       <motion.div 
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
