@@ -38,12 +38,22 @@ export function UserProvider({ children }: { children: ReactNode }) {
         console.warn('Auth initialization timed out, forcing ready state');
         setIsAuthReady(true);
       }
-    }, 3000);
+    }, 1500);
 
     const fetchAndSetProfile = async (sessionUser: any) => {
-      // Avoid redundant fetches if user is already set and ID matches
-      if (currentUserIdRef.current === sessionUser.id && user?.user_type) return;
+      // Avoid redundant fetches within a short window
+      const lastFetchKey = `last_profile_fetch_${sessionUser.id}`;
+      const lastFetchTime = localStorage.getItem(lastFetchKey);
+      const isVeryRecent = lastFetchTime && (Date.now() - parseInt(lastFetchTime)) < 5000;
+
+      if (currentUserIdRef.current === sessionUser.id && (user?.user_type || isVeryRecent)) {
+        setIsAuthReady(true);
+        clearTimeout(timeout);
+        return;
+      }
+      
       currentUserIdRef.current = sessionUser.id;
+      localStorage.setItem(lastFetchKey, Date.now().toString());
 
       // 1. Check local storage first for immediate role resolution
       const cached = localStorage.getItem(`agritech_profile_${sessionUser.id}`);
@@ -74,11 +84,10 @@ export function UserProvider({ children }: { children: ReactNode }) {
       // Only set preliminary if we don't have a better one from cache
       setUser(prev => (prev?.user_type ? prev : preliminaryUser));
 
-      // If we have user_type in metadata, we can show the UI immediately
-      if (preliminaryUser.user_type) {
-        setIsAuthReady(true);
-        clearTimeout(timeout);
-      }
+      // CRITICAL: Set ready immediately if we have a user identity, 
+      // even if stats/full profile are still loading in background.
+      setIsAuthReady(true);
+      clearTimeout(timeout);
 
       // 2. Fetch full profile in background
       try {
