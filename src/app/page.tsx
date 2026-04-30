@@ -593,17 +593,17 @@ function DashboardContent() {
         ))}
       </motion.div>
 
-      <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
-        <motion.div variants={itemVariants} className="lg:col-span-2 space-y-6 sm:space-y-8">
-          <div className="bg-white dark:bg-surface-dark p-6 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] border border-slate-100 dark:border-border-dark shadow-sm transition-all">
-            <div className="flex items-center justify-between mb-6 sm:mb-8">
-              <h3 className="text-lg sm:text-xl font-bold dark:text-white">{t('field_status_map')}</h3>
+      <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8">
+        <motion.div variants={itemVariants} className="lg:col-span-2 space-y-4 sm:space-y-8">
+          <div className="bg-white dark:bg-surface-dark p-4 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] border border-slate-100 dark:border-border-dark shadow-sm transition-all">
+            <div className="flex items-center justify-between mb-4 sm:mb-8">
+              <h3 className="text-base sm:text-xl font-bold dark:text-white">{t('field_status_map')}</h3>
               <div className="flex gap-2">
                 <button className="px-2 sm:px-3 py-1 bg-slate-100 dark:bg-muted-dark rounded-lg text-[10px] sm:text-xs font-bold dark:text-slate-300">{t('satellite')}</button>
                 <button className="px-2 sm:px-3 py-1 text-[10px] sm:text-xs font-bold text-slate-400 dark:text-slate-500">{t('heatmap')}</button>
               </div>
             </div>
-            <div className="aspect-video bg-slate-100 dark:bg-muted-dark rounded-xl sm:rounded-2xl overflow-hidden relative group border border-slate-100 dark:border-border-dark">
+            <div className="aspect-[16/9] bg-slate-100 dark:bg-muted-dark rounded-xl sm:rounded-2xl overflow-hidden relative group border border-slate-100 dark:border-border-dark">
               <LiveMap 
                 center={[4.0511, 9.7679]} 
                 zoom={14}
@@ -620,9 +620,9 @@ function DashboardContent() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-surface-dark p-6 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] border border-slate-100 dark:border-border-dark shadow-sm transition-all">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg sm:text-xl font-bold dark:text-white">{t('orders_to_process')}</h3>
+          <div className="bg-white dark:bg-surface-dark p-4 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] border border-slate-100 dark:border-border-dark shadow-sm transition-all">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-base sm:text-xl font-bold dark:text-white">{t('orders_to_process')}</h3>
               <span className="bg-primary/10 text-primary text-[10px] font-black px-2 py-1 rounded-lg">
                 {sellerOrders.filter(o => o.status === 'pending' || o.status === 'processing').length} NEW
               </span>
@@ -714,10 +714,10 @@ function DashboardContent() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-surface-dark p-6 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] border border-slate-100 dark:border-border-dark shadow-sm transition-all">
-            <div className="flex items-center justify-between mb-6">
+          <div className="bg-white dark:bg-surface-dark p-4 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] border border-slate-100 dark:border-border-dark shadow-sm transition-all">
+            <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <h3 className="text-lg sm:text-xl font-bold dark:text-white">{t('past_diagnoses')}</h3>
+                <h3 className="text-base sm:text-xl font-bold dark:text-white">{t('past_diagnoses')}</h3>
                 <span className="bg-primary/10 text-primary text-[10px] font-black px-2 py-0.5 rounded-md">
                   {diagnoses.length} 
                 </span>
@@ -776,10 +776,10 @@ function DashboardContent() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-surface-dark p-6 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] border border-slate-100 dark:border-border-dark shadow-sm transition-all">
-            <div className="flex items-center justify-between mb-6">
+          <div className="bg-white dark:bg-surface-dark p-4 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] border border-slate-100 dark:border-border-dark shadow-sm transition-all">
+            <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <h3 className="text-lg sm:text-xl font-bold dark:text-white">{t('my_inventory')}</h3>
+                <h3 className="text-base sm:text-xl font-bold dark:text-white">{t('my_inventory')}</h3>
                 <span className="bg-green-100 text-green-700 text-[10px] font-black px-2 py-0.5 rounded-md">
                   {myProducts.length} 
                 </span>

@@ -46,12 +46,7 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
   const { t } = useLanguage();
 
   const handleLogout = async () => {
-    try {
-      await logout();
-      router.push('/login');
-    } catch (error) {
-      console.error('Logout failed:', error);
-    }
+    await logout();
   };
 
   const filteredNav = MARKETPLACE_NAV.filter(item => !item.roles || (user && item.roles.includes(user.user_type || '')));
@@ -61,19 +56,19 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
 
   return (
     <header className="h-16 md:h-20 bg-white/70 dark:bg-background-dark/70 backdrop-blur-xl border-b border-slate-200/50 dark:border-white/5 sticky top-0 z-40 transition-all duration-300">
-      <div className="max-w-7xl mx-auto h-full px-4 sm:px-8 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-2 md:gap-8 flex-1">
+      <div className="max-w-7xl mx-auto h-full px-2 sm:px-8 flex items-center justify-between gap-1 sm:gap-4">
+        <div className="flex items-center gap-1 sm:gap-8 flex-1 min-w-0">
           {onMenuClick && (
             <button 
               onClick={onMenuClick}
-              className="lg:hidden w-10 h-10 flex items-center justify-center text-slate-500 hover:text-slate-900 transition-colors"
+              className="lg:hidden w-8 h-8 flex items-center justify-center text-slate-500 hover:text-slate-900 transition-colors"
             >
-              <span className="material-symbols-outlined">menu</span>
+              <span className="material-symbols-outlined text-[20px]">menu</span>
             </button>
           )}
           <Link href="/" className="flex items-center gap-2 group shrink-0">
           <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-primary to-green-400 rounded-lg flex items-center justify-center text-white shadow-lg shadow-primary/20 group-hover:rotate-6 transition-transform">
-            <span className="material-symbols-outlined text-[20px] md:text-[24px] font-bold">agriculture</span>
+            <span className="material-symbols-outlined text-[18px] md:text-[24px] font-bold">agriculture</span>
           </div>
           <h1 className="text-sm md:text-xl font-black text-slate-900 dark:text-white tracking-tighter uppercase italic hidden xs:block">
             Agri<span className="text-primary tracking-normal">Tech</span>
@@ -81,11 +76,11 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
         </Link>
 
         {title ? (
-          <h2 className="text-[10px] sm:text-lg font-black text-slate-900 dark:text-white bg-slate-100 dark:bg-white/5 py-1 px-3 rounded-xl border border-slate-200 dark:border-white/10 uppercase italic tracking-tighter whitespace-nowrap overflow-hidden text-ellipsis max-w-[100px] sm:max-w-none">
+          <h2 className="text-[10px] sm:text-lg font-black text-slate-900 dark:text-white bg-slate-100 dark:bg-white/5 py-1 px-2 sm:px-3 rounded-[10px] sm:rounded-xl border border-slate-200 dark:border-white/10 uppercase italic tracking-tighter whitespace-nowrap overflow-hidden text-ellipsis max-w-[80px] sm:max-w-none ml-1 sm:ml-4">
             {title}
           </h2>
         ) : !isDashboard && (
-          <div className="hidden sm:flex relative flex-1 max-w-[40px] focus-within:max-w-[200px] md:max-w-md transition-all duration-500 overflow-hidden group">
+          <div className="hidden sm:flex relative flex-1 max-w-[40px] focus-within:max-w-[200px] md:max-w-md transition-all duration-500 overflow-hidden group ml-4">
             <span className="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-[18px] z-10">search</span>
             <input
               id="navbar-search"

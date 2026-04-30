@@ -11,10 +11,15 @@ interface RoleSelectionGuardProps {
 export function RoleSelectionGuard({ children }: RoleSelectionGuardProps) {
   const { user, updateProfile, loading, isAuthReady } = useUser();
   const [selectedRole, setSelectedRole] = useState<'farmer' | 'buyer' | null>(null);
-  const [isDismissed, setIsDismissed] = useState(false);
+  const [isDismissed, setIsDismissed] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('agritech_role_dismissed') === 'true';
+    }
+    return false;
+  });
 
   // Only show if user is logged in but has no user_type set
-  // We check isAuthReady to ensure we've at least tried to get the session metadata
+  // AND either they are a new user OR they haven't dismissed it this session
   const needsRole = isAuthReady && user && !user.user_type && !isDismissed;
 
   const handleRoleSelect = async () => {
@@ -23,6 +28,7 @@ export function RoleSelectionGuard({ children }: RoleSelectionGuardProps) {
       const { error } = await updateProfile({ user_type: selectedRole });
       if (!error) {
         setIsDismissed(true);
+        localStorage.setItem('agritech_role_dismissed', 'true');
       } else {
         console.error('Failed to set role:', error);
       }

@@ -243,23 +243,31 @@ export function UserProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const logout = useCallback(async () => {
-    setLoading(true);
+    // 1. Immediate UI update for "natural" feel
+    setUser(null);
+    currentUserIdRef.current = null;
+    
+    // 2. Clear critical local storage immediately
     try {
-      // Clear all agritech related local storage to prevent session leakage
       Object.keys(localStorage).forEach(key => {
         if (key.startsWith('agritech_') || key.startsWith('shipments_') || key.startsWith('last_insight_')) {
           localStorage.removeItem(key);
         }
       });
-      
-      currentUserIdRef.current = null;
-      setUser(null);
+    } catch (e) {
+      console.warn('Failed to clear local storage during logout');
+    }
+
+    // 3. Clear Supabase session
+    try {
       await supabase.auth.signOut();
     } catch (error) {
       console.error('Error signing out:', error);
-      setUser(null);
-    } finally {
-      setLoading(false);
+    }
+    
+    // 4. Force redirect if we are on a protected route
+    if (typeof window !== 'undefined') {
+      window.location.href = '/login';
     }
   }, []);
 
