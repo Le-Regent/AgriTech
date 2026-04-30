@@ -71,11 +71,13 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
   const pathname = usePathname();
   const isDashboard = pathname === '/';
 
-  // Key links for the navbar
+  // Key links for the navbar based on role
   const mainNavLinks = [
     { label: 'Marketplace', icon: 'storefront', path: '/marketplace' },
-    { label: 'Diagnosis', icon: 'biotech', path: '/diagnosis', roles: ['farmer'] },
-    { label: 'Insights', icon: 'insights', path: '/insights', roles: ['farmer'] },
+    { label: 'Cart', icon: 'shopping_cart', path: '/cart', showBadge: true },
+    { label: 'My Listings', icon: 'potted_plant', path: '/listings', roles: ['farmer'] },
+    { label: 'Orders', icon: 'receipt_long', path: '/orders' },
+    { label: 'Messages', icon: 'forum', path: '/messages' },
   ].filter(item => !item.roles || (user && item.roles.includes(user.user_type || '')));
 
   return (
@@ -113,13 +115,19 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
               <Link
                 key={item.path}
                 href={item.path}
-                className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                className={`px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 relative ${
                   pathname === item.path 
                     ? 'bg-primary/10 text-primary' 
                     : 'text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5'
                 }`}
               >
-                {t(item.label.toLowerCase()) || item.label}
+                <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
+                <span className="hidden xl:inline">{t(item.label.toLowerCase().replace(/\s+/g, '_')) || item.label}</span>
+                {item.showBadge && item.label === 'Cart' && totalItems > 0 && (
+                  <span className="absolute top-1 right-1 w-4 h-4 bg-primary text-white text-[8px] font-black rounded-full flex items-center justify-center border border-white dark:border-background-dark">
+                    {totalItems}
+                  </span>
+                )}
               </Link>
             ))}
           </nav>
@@ -153,18 +161,6 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
           </span>
         </button>
 
-        <Link 
-          href="/cart"
-          className="w-8 h-8 sm:w-10 sm:h-10 rounded-full hover:bg-slate-50 dark:hover:bg-surface-hover-dark flex items-center justify-center text-slate-500 dark:text-slate-400 relative transition-colors"
-          title="Shopping Cart"
-        >
-          <span className="material-symbols-outlined text-[20px] sm:text-[24px]">shopping_cart</span>
-          {totalItems > 0 && (
-            <span className="absolute top-0 right-0 w-4 h-4 sm:w-5 sm:h-5 bg-primary text-white text-[8px] sm:text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white dark:border-background-dark">
-              {totalItems}
-            </span>
-          )}
-        </Link>
         
         <NotificationCenter />
         
