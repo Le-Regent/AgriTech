@@ -81,11 +81,11 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
         </Link>
 
         {title ? (
-          <h2 className="text-xs md:text-lg font-bold text-slate-900 dark:text-white ml-2 md:ml-4 border-l border-slate-200 dark:border-white/10 pl-2 md:pl-4 whitespace-nowrap">
+          <h2 className="text-[10px] sm:text-lg font-black text-slate-900 dark:text-white bg-slate-100 dark:bg-white/5 py-1 px-3 rounded-xl border border-slate-200 dark:border-white/10 uppercase italic tracking-tighter whitespace-nowrap overflow-hidden text-ellipsis max-w-[100px] sm:max-w-none">
             {title}
           </h2>
         ) : !isDashboard && (
-          <div className="relative flex-1 max-w-[40px] focus-within:max-w-[200px] md:max-w-md transition-all duration-500 overflow-hidden group">
+          <div className="hidden sm:flex relative flex-1 max-w-[40px] focus-within:max-w-[200px] md:max-w-md transition-all duration-500 overflow-hidden group">
             <span className="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-[18px] z-10">search</span>
             <input
               id="navbar-search"

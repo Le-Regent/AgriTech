@@ -42,10 +42,25 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
     const fetchAndSetProfile = async (sessionUser: any) => {
       // Avoid redundant fetches if user is already set and ID matches
-      if (currentUserIdRef.current === sessionUser.id) return;
+      if (currentUserIdRef.current === sessionUser.id && user?.user_type) return;
       currentUserIdRef.current = sessionUser.id;
 
-      // 1. Set preliminary user from metadata immediately for instant UI response
+      // 1. Check local storage first for immediate role resolution
+      const cached = localStorage.getItem(`agritech_profile_${sessionUser.id}`);
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached);
+          if (parsed && parsed.user_type) {
+            setUser(parsed);
+            setIsAuthReady(true);
+            clearTimeout(timeout);
+          }
+        } catch (e) {
+          console.warn('Failed to parse cached profile');
+        }
+      }
+
+      // 2. Set preliminary user from metadata
       const metadata = sessionUser.user_metadata;
       const preliminaryUser: User = {
         id: sessionUser.id,
@@ -56,7 +71,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
         avatar_url: metadata?.avatar_url,
       };
       
-      setUser(preliminaryUser);
+      // Only set preliminary if we don't have a better one from cache
+      setUser(prev => (prev?.user_type ? prev : preliminaryUser));
 
       // If we have user_type in metadata, we can show the UI immediately
       if (preliminaryUser.user_type) {
@@ -187,6 +203,21 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
       if (error) return { error: error.message };
       
+      // If sign up is successful, seed the profile immediately if possible
+      if (data.user) {
+        try {
+          await supabase.from('profiles').upsert({
+            id: data.user.id,
+            full_name: fullName,
+            email: email,
+            user_type: user_type,
+            updated_at: new Date().toISOString()
+          });
+        } catch (e) {
+          console.warn('Initial profile seeding failed:', e);
+        }
+      }
+
       return { error: null };
     } catch (error: any) {
       return { error: error.message || 'An unexpected error occurred' };

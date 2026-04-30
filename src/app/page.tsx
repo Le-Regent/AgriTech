@@ -332,16 +332,16 @@ function DashboardContent() {
 
         <motion.div 
           variants={containerVariants} 
-          className="flex overflow-x-auto pb-4 gap-4 no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 lg:grid-cols-4"
+          className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6"
         >
           {stats.map((stat, i) => (
             <motion.div key={i} variants={itemVariants}
-              className="min-w-[160px] sm:min-w-0 bg-white dark:bg-slate-900 p-5 rounded-[2rem] border border-slate-100 dark:border-white/5 shadow-sm hover:shadow-xl transition-all group shrink-0">
-              <div className={`w-10 h-10 ${stat.bg} ${stat.color} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                <span className="material-symbols-outlined fill-1 text-xl">{stat.icon}</span>
+              className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-[1.5rem] sm:rounded-[2rem] border border-slate-100 dark:border-white/5 shadow-sm hover:shadow-xl transition-all group">
+              <div className={`w-8 h-8 sm:w-10 sm:h-10 ${stat.bg} ${stat.color} rounded-xl flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-110 transition-transform`}>
+                <span className="material-symbols-outlined fill-1 text-lg sm:text-xl">{stat.icon}</span>
               </div>
-              <p className="text-[9px] font-black text-slate-500 dark:text-slate-500 uppercase tracking-widest mb-1 leading-none">{stat.label}</p>
-              <p className="text-lg font-black dark:text-white tracking-tighter">{stat.value}</p>
+              <p className="text-[8px] sm:text-[9px] font-black text-slate-500 dark:text-slate-500 uppercase tracking-widest mb-1 leading-none">{stat.label}</p>
+              <p className="text-sm sm:text-lg font-black dark:text-white tracking-tighter truncate">{stat.value}</p>
             </motion.div>
           ))}
         </motion.div>
@@ -534,7 +534,7 @@ function DashboardContent() {
 
       <motion.div 
         variants={containerVariants} 
-        className="flex overflow-x-auto pb-4 gap-4 no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 lg:grid-cols-5"
+        className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-6"
       >
         {[
           { label: 'Soil Moisture', value: '42%', icon: 'water_drop', color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-500/10' },
@@ -564,30 +564,30 @@ function DashboardContent() {
             bg: 'bg-amber-50 dark:bg-amber-500/10' 
           },
         ].map((stat, i) => (
-          <motion.div key={i} variants={itemVariants} className="min-w-[160px] sm:min-w-0 bg-white dark:bg-slate-900 p-5 rounded-[2rem] border border-slate-100 dark:border-white/5 shadow-sm hover:shadow-md transition-all relative overflow-hidden shrink-0">
+          <motion.div key={i} variants={itemVariants} className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-[1.5rem] sm:rounded-[2rem] border border-slate-100 dark:border-white/5 shadow-sm hover:shadow-md transition-all relative overflow-hidden">
             {stat.label === 'Crop Health' && (
               <div className={`absolute top-0 right-0 w-16 h-16 -mr-8 -mt-8 rounded-full opacity-20 blur-2xl ${
                 stat.healthStatus === 'healthy' ? 'bg-green-500' : 
                 stat.healthStatus === 'warning' ? 'bg-yellow-500' : 'bg-red-500'
               }`}></div>
             )}
-            <div className="flex items-center justify-between mb-4">
-              <div className={`w-10 h-10 ${stat.bg} ${stat.color} rounded-xl flex items-center justify-center relative`}>
-                <span className="material-symbols-outlined fill-1 text-xl">{stat.icon}</span>
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <div className={`w-8 h-8 sm:w-10 sm:h-10 ${stat.bg} ${stat.color} rounded-xl flex items-center justify-center relative`}>
+                <span className="material-symbols-outlined fill-1 text-sm sm:text-lg">{stat.icon}</span>
               </div>
-              <span className={`text-[8px] font-black px-2 py-1 rounded-lg ${
+              <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-lg ${
                 stat.label === 'Crop Health' ? (
                   stat.healthStatus === 'healthy' ? 'text-green-500 bg-green-50 dark:bg-green-500/10' :
                   stat.healthStatus === 'warning' ? 'text-yellow-500 bg-yellow-50 dark:bg-yellow-500/10' :
                   'text-red-500 bg-red-50 dark:bg-red-500/10'
                 ) : 'text-green-500 bg-green-50 dark:bg-green-500/10'
               }`}>
-                {stat.label === 'Crop Health' ? stat.healthStatus?.toUpperCase() : '+2.4%'}
+                {stat.label === 'Crop Health' ? stat.healthStatus?.toUpperCase() : '+2%'}
               </span>
             </div>
-            <p className="text-[9px] font-black text-slate-500 dark:text-slate-500 uppercase tracking-widest mb-1 leading-none">{stat.label}</p>
+            <p className="text-[8px] sm:text-[9px] font-black text-slate-500 dark:text-slate-500 uppercase tracking-widest mb-1 leading-none">{stat.label}</p>
             <div className="flex items-end gap-2">
-              <p className="text-lg font-black dark:text-white tracking-tighter">{stat.value}</p>
+              <p className="text-sm sm:text-lg font-black dark:text-white tracking-tighter truncate">{stat.value}</p>
             </div>
           </motion.div>
         ))}

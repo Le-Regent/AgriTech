@@ -453,19 +453,19 @@ function DiagnosisContent() {
                     onChange={handleFileSelect}
                   />
                   
-                  <div className="absolute bottom-12 flex flex-col gap-3 w-full max-w-[280px]">
+          <div className="absolute bottom-12 flex flex-col gap-3 w-full max-w-[280px]">
                     <button 
                       onClick={startCamera}
                       className="w-full bg-primary text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl shadow-primary/40 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3"
                     >
                       <span className="material-symbols-outlined">camera</span>
-                      Launch UI Scanner
+                      Take Photo
                     </button>
                     <button 
                       onClick={() => fileInputRef.current?.click()}
                       className="w-full bg-white/10 backdrop-blur-xl text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest border border-white/10 hover:bg-white/20 transition-all"
                     >
-                      Import from Gallery
+                      Choose from Gallery
                     </button>
                   </div>
                 </div>
