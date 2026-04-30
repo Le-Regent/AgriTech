@@ -2,14 +2,16 @@
 
 import React, { useEffect, useState } from 'react';
 import { supabaseService } from '@/services/supabaseService';
-import { motion } from 'motion/react';
-import { Search, Filter, ShieldCheck, Mail, Calendar, User as UserIcon } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { Search, Filter, ShieldCheck, Mail, Calendar, User as UserIcon, ShieldAlert } from 'lucide-react';
 import { User } from '@/types';
+import { toast } from 'sonner';
 
 export default function UsersManagement() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadUsers() {
@@ -24,6 +26,22 @@ export default function UsersManagement() {
     }
     loadUsers();
   }, []);
+
+  const handleToggleAdmin = async (userId: string, currentStatus: boolean) => {
+    setUpdatingId(userId);
+    try {
+      await supabaseService.toggleUserAdminStatus(userId, currentStatus);
+      setUsers(prev => prev.map(u => 
+        u.id === userId ? { ...u, is_admin: !currentStatus } : u
+      ));
+      toast.success(`User admin privileges ${!currentStatus ? 'granted' : 'revoked'}`);
+    } catch (error) {
+      toast.error('Failed to update admin status');
+      console.error(error);
+    } finally {
+      setUpdatingId(null);
+    }
+  };
 
   const filteredUsers = users.filter(u => 
     u.full_name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -131,8 +149,24 @@ export default function UsersManagement() {
                     )}
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <button className="p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
-                      <span className="material-symbols-outlined text-[20px]">more_vert</span>
+                    <button 
+                      onClick={() => handleToggleAdmin(u.id, !!u.is_admin)}
+                      disabled={updatingId === u.id}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
+                        u.is_admin 
+                          ? 'bg-amber-100 text-amber-700 hover:bg-amber-200 dark:bg-amber-900/30 dark:text-amber-400' 
+                          : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-white/5 dark:text-slate-400'
+                      } disabled:opacity-50`}
+                      title={u.is_admin ? 'Revoke Admin' : 'Grant Admin'}
+                    >
+                      {updatingId === u.id ? (
+                        <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <span className="material-symbols-outlined text-[18px]">
+                          {u.is_admin ? 'shield_person' : 'person_add'}
+                        </span>
+                      )}
+                      {u.is_admin ? 'Revoke' : 'Admin'}
                     </button>
                   </td>
                 </tr>

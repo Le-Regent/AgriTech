@@ -619,5 +619,17 @@ export const supabaseService = {
       products: productsCount.count || 0,
       revenue
     };
+  },
+
+  async toggleUserAdminStatus(userId: string, currentStatus: boolean) {
+    const { data, error } = await supabase
+      .from('profiles')
+      .update({ is_admin: !currentStatus })
+      .eq('id', userId)
+      .select()
+      .single();
+    
+    if (error) throw new Error(error.message);
+    return data;
   }
 };
