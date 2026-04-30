@@ -34,6 +34,7 @@ import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'motion/react';
 import Skeleton from '@/components/ui/Skeleton';
 import { supabase } from '@/lib/supabase';
+import AgriCalendar from '@/components/ui/AgriCalendar';
 
 function DashboardContent() {
   const { user } = useUser();
@@ -517,18 +518,28 @@ function DashboardContent() {
       animate="visible"
       className="space-y-8"
     >
-      <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-3xl sm:text-4xl font-black tracking-tight dark:text-white uppercase italic">
+      <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+        <div className="lg:col-span-1">
+          <h2 className="text-3xl sm:text-4xl font-black tracking-tight dark:text-white uppercase italic mb-2">
             Agri<span className="text-primary tracking-normal">Control</span> 🇨🇲
           </h2>
-          <p className="text-xs sm:text-base text-slate-500 dark:text-slate-400 font-medium tracking-tight">Welcome back, {user?.full_name}.</p>
+          <p className="text-xs sm:text-base text-slate-500 dark:text-slate-400 font-medium tracking-tight mb-4">Welcome back, {user?.full_name}.</p>
+          
+          <div className="flex flex-col gap-3">
+            <Link id="new-diagnosis-btn" href="/diagnosis" className="bg-primary text-white px-6 py-4 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-primary/90 transition-all shadow-xl shadow-primary/20 group">
+              <span className="material-symbols-outlined text-[24px] group-hover:rotate-12 transition-transform">add_a_photo</span>
+              {t('diagnose_now') || 'Diagnose Now'}
+            </Link>
+            
+            <Link href="/marketplace" className="bg-white dark:bg-white/5 dark:text-white px-6 py-4 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-3 border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/10 transition-all">
+              <span className="material-symbols-outlined text-[24px]">storefront</span>
+              {t('marketplace') || 'Marketplace'}
+            </Link>
+          </div>
         </div>
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-          <Link id="new-diagnosis-btn" href="/diagnosis" className="bg-primary text-white px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-primary/90 transition-all shadow-lg shadow-primary/20">
-            <span className="material-symbols-outlined text-[20px]">add_a_photo</span>
-            {t('diagnose')}
-          </Link>
+
+        <div className="lg:col-span-3">
+          <AgriCalendar />
         </div>
       </motion.div>
 

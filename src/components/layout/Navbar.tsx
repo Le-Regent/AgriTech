@@ -133,6 +133,16 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
           </nav>
         )}
         
+        <div className="hidden min-[1100px]:flex items-center justify-center flex-1 max-w-md mx-4">
+          <div className="relative w-full group">
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px] transition-colors group-focus-within:text-primary">search</span>
+            <input 
+              type="text" 
+              placeholder={t('search_placeholder') || "Search marketplace, crops, insights..."}
+              className="w-full bg-slate-100 dark:bg-white/5 border-none rounded-xl py-2 pl-10 pr-4 text-[10px] font-black uppercase tracking-widest outline-none focus:ring-2 focus:ring-primary/20 transition-all dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600"
+            />
+          </div>
+        </div>
       </div>
 
       <div className="flex items-center gap-1 md:gap-3 ml-2 relative">
