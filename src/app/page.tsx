@@ -317,16 +317,9 @@ function DashboardContent() {
   }, [diagnoses, sellerOrders, isFarmer]);
 
   return (
-    <AnimatePresence mode="wait">
+    <>
       {dataLoading ? (
-        <motion.div 
-          key="skeleton"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
-          className="space-y-8"
-        >
+        <div className="space-y-8 animate-in fade-in duration-500">
           <div className="flex flex-col sm:flex-row justify-between gap-4">
             <div className="space-y-2">
               <Skeleton className="h-8 w-64" />
@@ -344,17 +337,10 @@ function DashboardContent() {
             <Skeleton className="h-96 lg:col-span-2 w-full" />
             <Skeleton className="h-96 w-full" />
           </div>
-        </motion.div>
+        </div>
       ) : isFarmer ? (
-        <motion.div 
-          key="farmer-dashboard"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          exit={{ opacity: 0, scale: 0.95 }}
-          className="space-y-8"
-        >
-          <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="space-y-8">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h2 className="text-3xl sm:text-4xl font-black tracking-tight dark:text-white uppercase italic">
                 Agri<span className="text-primary tracking-normal">Control</span> 🇨🇲
@@ -367,14 +353,11 @@ function DashboardContent() {
                 {t('diagnose')}
               </Link>
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div 
-            variants={containerVariants} 
-            className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6"
-          >
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
             {stats.map((stat, i) => (
-              <motion.div key={i} variants={itemVariants} className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-[1.5rem] sm:rounded-[2rem] border border-slate-100 dark:border-white/5 shadow-sm hover:shadow-md transition-all relative overflow-hidden">
+              <div key={i} className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-[1.5rem] sm:rounded-[2rem] border border-slate-100 dark:border-white/5 shadow-sm hover:shadow-md transition-all relative overflow-hidden">
                 <div className="flex items-center justify-between mb-3 sm:mb-4">
                   <div className={`w-8 h-8 sm:w-10 sm:h-10 ${stat.bg} ${stat.color} rounded-xl flex items-center justify-center relative`}>
                     <span className="material-symbols-outlined fill-1 text-sm sm:text-lg">{stat.icon}</span>
@@ -382,12 +365,12 @@ function DashboardContent() {
                 </div>
                 <p className="text-[8px] sm:text-[9px] font-black text-slate-500 dark:text-slate-500 uppercase tracking-widest mb-1 leading-none">{stat.label}</p>
                 <p className="text-sm sm:text-lg font-black dark:text-white tracking-tighter truncate">{stat.value}</p>
-              </motion.div>
+              </div>
             ))}
-          </motion.div>
+          </div>
 
-          <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8">
-            <motion.div variants={itemVariants} className="lg:col-span-2 space-y-4 sm:space-y-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8">
+            <div className="lg:col-span-2 space-y-4 sm:space-y-8">
               <div className="bg-white dark:bg-surface-dark p-4 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] border border-slate-100 dark:border-border-dark shadow-sm transition-all">
                 <div className="flex items-center justify-between mb-4 sm:mb-8">
                   <h3 className="text-base sm:text-xl font-bold dark:text-white">{t('field_status_map')}</h3>
@@ -426,9 +409,9 @@ function DashboardContent() {
                   )}
                 </div>
               </div>
-            </motion.div>
+            </div>
 
-            <motion.div variants={itemVariants} className="space-y-4 sm:space-y-8">
+            <div className="space-y-4 sm:space-y-8">
               {weather && (
                 <div className="bg-white dark:bg-surface-dark p-4 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] border border-slate-100 dark:border-border-dark shadow-sm">
                   <h3 className="text-base sm:text-xl font-bold mb-4 dark:text-white">{t('weather_title')}</h3>
@@ -436,19 +419,6 @@ function DashboardContent() {
                     <div className="text-4xl font-black dark:text-white">{Math.round(weather.temp)}°</div>
                     <div className="text-sm dark:text-slate-400 capitalize">{weather.description}</div>
                   </div>
-                  
-                  {forecast && (
-                    <div className="mt-6 pt-6 border-t border-slate-100 dark:border-border-dark grid grid-cols-4 gap-2">
-                      {forecast.daily.slice(0, 4).map((f, i) => (
-                        <div key={i} className="text-center">
-                          <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1">
-                            {f.time}
-                          </p>
-                          <p className="text-[10px] font-black dark:text-white">{Math.round(f.temp)}°</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
                 </div>
               )}
 
@@ -468,19 +438,12 @@ function DashboardContent() {
                   ))}
                 </div>
               </div>
-            </motion.div>
-          </motion.div>
-        </motion.div>
+            </div>
+          </div>
+        </div>
       ) : (
-        <motion.div 
-          key="buyer-dashboard"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          exit={{ opacity: 0, scale: 0.95 }}
-          className="space-y-8 pb-12"
-        >
-          <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="space-y-8 pb-12">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h2 className="text-3xl sm:text-4xl font-black tracking-tight dark:text-white uppercase italic">
                 Agri<span className="text-primary tracking-normal">Market</span>
@@ -494,23 +457,20 @@ function DashboardContent() {
                   className="w-full pl-10 pr-4 py-2 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest focus:ring-2 focus:ring-primary/20 transition-all outline-none dark:text-white" />
               </form>
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div 
-            variants={containerVariants} 
-            className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6"
-          >
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
             {stats.map((stat, i) => (
-              <motion.div key={i} variants={itemVariants}
+              <div key={i}
                 className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-[1.5rem] sm:rounded-[2rem] border border-slate-100 dark:border-white/5 shadow-sm hover:shadow-xl transition-all group">
                 <div className={`w-8 h-8 sm:w-10 sm:h-10 ${stat.bg} ${stat.color} rounded-xl flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-110 transition-transform`}>
                   <span className="material-symbols-outlined fill-1 text-lg sm:text-xl">{stat.icon}</span>
                 </div>
                 <p className="text-[8px] sm:text-[9px] font-black text-slate-500 dark:text-slate-500 uppercase tracking-widest mb-1 leading-none">{stat.label}</p>
                 <p className="text-sm sm:text-lg font-black dark:text-white tracking-tighter truncate">{stat.value}</p>
-              </motion.div>
+              </div>
             ))}
-          </motion.div>
+          </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-8">
@@ -566,15 +526,14 @@ function DashboardContent() {
               </section>
             </div>
           </div>
-        </motion.div>
+        </div>
       )}
-    </AnimatePresence>
+    </>
   );
 }
 
 export default function Dashboard() {
   const { user, isAuthReady } = useUser();
-  const router = useRouter();
 
   if (!isAuthReady) {
     return (
@@ -606,9 +565,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950">
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24 sm:pt-28">
-        <DashboardContent />
-      </main>
+      <DashboardContent />
     </div>
   );
 }
