@@ -7,6 +7,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { useCart } from '@/context/CartContext';
 import { useOffline } from '@/context/OfflineContext';
 import { useUser } from '@/context/UserContext';
+import { MARKETPLACE_NAV } from '@/constants';
 import { useLanguage } from '@/context/LanguageContext';
 import { NotificationCenter } from './NotificationCenter';
 
@@ -70,6 +71,13 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
   const pathname = usePathname();
   const isDashboard = pathname === '/';
 
+  // Key links for the navbar
+  const mainNavLinks = [
+    { label: 'Marketplace', icon: 'storefront', path: '/marketplace' },
+    { label: 'Diagnosis', icon: 'biotech', path: '/diagnosis', roles: ['farmer'] },
+    { label: 'Insights', icon: 'insights', path: '/insights', roles: ['farmer'] },
+  ].filter(item => !item.roles || (user && item.roles.includes(user.user_type || '')));
+
   return (
     <header className={`h-16 md:h-20 bg-white/70 dark:bg-background-dark/70 backdrop-blur-xl border-b transition-all duration-500 sticky top-0 z-[100] ${
       isScrolled 
@@ -99,16 +107,22 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
           <h2 className="text-[10px] sm:text-lg font-black text-slate-900 dark:text-white bg-slate-100 dark:bg-white/5 py-1 px-2 sm:px-3 rounded-[10px] sm:rounded-xl border border-slate-200 dark:border-white/10 uppercase italic tracking-tighter whitespace-nowrap overflow-hidden text-ellipsis max-w-[120px] sm:max-w-none ml-1 sm:ml-4 flex-shrink">
             {title}
           </h2>
-        ) : !isDashboard && (
-          <div className="hidden sm:flex relative flex-1 max-w-[40px] focus-within:max-w-[200px] md:max-w-md transition-all duration-500 overflow-hidden group ml-4">
-            <span className="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-[18px] z-10">search</span>
-            <input
-              id="navbar-search"
-              type="text"
-              placeholder={t('search')}
-              className="pl-9 pr-4 py-2 bg-slate-100 dark:bg-white/5 border-none rounded-xl w-full text-xs focus:ring-2 focus:ring-primary/20 outline-none dark:text-white transition-all opacity-0 focus:opacity-100 md:opacity-100"
-            />
-          </div>
+        ) : (
+          <nav className="hidden lg:flex items-center ml-8 gap-1">
+            {mainNavLinks.map((item) => (
+              <Link
+                key={item.path}
+                href={item.path}
+                className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                  pathname === item.path 
+                    ? 'bg-primary/10 text-primary' 
+                    : 'text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5'
+                }`}
+              >
+                {t(item.label.toLowerCase()) || item.label}
+              </Link>
+            ))}
+          </nav>
         )}
         
       </div>
@@ -123,22 +137,21 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
               className="flex items-center gap-2 bg-red-50 dark:bg-red-500/10 text-red-500 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border border-red-100 dark:border-red-500/20"
             >
               <span className="material-symbols-outlined text-sm animate-pulse">cloud_off</span>
-              Offline Mode
+              Offline
             </motion.div>
           )}
         </AnimatePresence>
-        <AnimatePresence>
-          {showThemeConfirm && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 10 }}
-              className="absolute -bottom-12 right-0 bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-3 py-1.5 rounded-lg text-[10px] font-bold whitespace-nowrap shadow-xl z-50"
-            >
-              {theme === 'light' ? t('theme_dark') : t('theme_light')}
-            </motion.div>
-          )}
-        </AnimatePresence>
+        
+        <button 
+          id="theme-toggle"
+          onClick={handleToggleTheme}
+          className="w-8 h-8 sm:w-10 sm:h-10 rounded-full hover:bg-slate-50 dark:hover:bg-surface-hover-dark flex items-center justify-center text-slate-500 dark:text-slate-400 transition-all active:scale-90"
+          title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
+        >
+          <span className="material-symbols-outlined text-[20px] sm:text-[22px]">
+            {theme === 'light' ? 'dark_mode' : 'light_mode'}
+          </span>
+        </button>
 
         <Link 
           href="/cart"
@@ -216,21 +229,6 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
                     </div>
                   </div>
 
-                  <button 
-                    onClick={handleToggleTheme}
-                    className="w-full flex items-center justify-between px-3 py-2 text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-surface-hover-dark rounded-xl transition-colors"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="material-symbols-outlined text-[20px]">
-                        {theme === 'light' ? 'dark_mode' : 'light_mode'}
-                      </span>
-                      <span>{theme === 'light' ? 'Dark Mode' : 'Light Mode'}</span>
-                    </div>
-                    <div className={`w-8 h-4 rounded-full relative transition-colors ${theme === 'dark' ? 'bg-primary' : 'bg-slate-200'}`}>
-                      <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-transform ${theme === 'dark' ? 'translate-x-4.5' : 'translate-x-0.5'}`} />
-                    </div>
-                  </button>
-
                   <Link 
                     href="/profile" 
                     onClick={() => setShowProfileMenu(false)}
@@ -253,6 +251,7 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
               </motion.div>
             )}
           </AnimatePresence>
+
         </div>
       </div>
     </div>
