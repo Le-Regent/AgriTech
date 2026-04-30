@@ -7,7 +7,6 @@ export const SIDEBAR_NAV: NavItem[] = [
   { label: 'History', icon: 'history', path: '/history' },
   { label: 'Messages', icon: 'forum', path: '/messages' },
   { label: 'Profile', icon: 'account_circle', path: '/profile' },
-  { label: 'Research', icon: 'school', path: '/research' },
 ];
 
 export const MARKETPLACE_NAV: NavItem[] = [
