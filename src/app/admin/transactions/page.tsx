@@ -61,77 +61,121 @@ export default function TransactionsManagement() {
     }
   };
 
+  const totalOrders = orders.length;
+  const completedVolume = orders.filter(o => o.status === 'delivered').length;
+  const processingVolume = orders.filter(o => o.status === 'processing' || o.status === 'pending').length;
+  const totalCFA = orders.reduce((acc, o) => acc + o.total_amount, 0);
+
+  const marketStats = [
+    { label: 'Total Volume', value: totalOrders, icon: Package, color: 'text-slate-600 bg-slate-100' },
+    { label: 'Settled', value: completedVolume, icon: CheckCircle2, color: 'text-green-600 bg-green-100' },
+    { label: 'In Transit', value: processingVolume, icon: Truck, color: 'text-blue-600 bg-blue-100' },
+    { label: 'Aggregate', value: `${totalCFA.toLocaleString()} CFA`, icon: Package, color: 'text-amber-600 bg-amber-100' },
+  ];
+
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-8 pb-12">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Transaction Hub</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400">Monitor and track all platform transactions</p>
+          <h1 className="text-4xl font-black tracking-tighter text-slate-900 dark:text-white uppercase italic">Ledger</h1>
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 mt-1">Settlement & Logistics Terminal</p>
         </div>
         <div className="flex items-center gap-2">
-          <button className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium hover:bg-slate-50 transition-colors">
-            <Download size={18} />
-            Export CSV
+          <button className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all shadow-sm">
+            <Download size={16} />
+            Export Protocol
           </button>
-          <button className="p-2 bg-slate-900 dark:bg-green-600 text-white rounded-xl hover:opacity-90 transition-opacity">
+          <button className="p-2.5 bg-slate-900 dark:bg-green-600 text-white rounded-2xl hover:opacity-90 transition-opacity shadow-lg shadow-primary/20">
             <Filter size={20} />
           </button>
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700/50 overflow-hidden">
+      {/* Transaction Overview */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {marketStats.map((stat, idx) => (
+          <motion.div
+            key={idx}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: idx * 0.05 }}
+            className="bg-white dark:bg-slate-900 p-5 rounded-[2rem] border border-slate-100 dark:border-white/5 shadow-sm"
+          >
+            <div className={`w-8 h-8 rounded-xl ${stat.color} dark:bg-opacity-20 flex items-center justify-center mb-4`}>
+              <stat.icon size={16} />
+            </div>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">{stat.label}</p>
+            <p className="text-xl font-black text-slate-900 dark:text-white tracking-tight">{stat.value}</p>
+          </motion.div>
+        ))}
+      </div>
+
+      <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-white/5 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 text-xs uppercase font-semibold">
-                <th className="px-6 py-4 w-10"></th>
-                <th className="px-6 py-4">Order ID</th>
-                <th className="px-6 py-4">Buyer</th>
-                <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4">Date</th>
-                <th className="px-6 py-4 text-right">Amount</th>
-                <th className="px-6 py-4"></th>
+              <tr className="bg-slate-50/50 dark:bg-white/[0.02] text-slate-400 text-[10px] uppercase font-black tracking-widest">
+                <th className="px-8 py-5 w-10"></th>
+                <th className="px-8 py-5">TX ID</th>
+                <th className="px-8 py-5">Originator</th>
+                <th className="px-8 py-5">Protocol State</th>
+                <th className="px-8 py-5">Timestamp</th>
+                <th className="px-8 py-5 text-right">Value</th>
+                <th className="px-8 py-5"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
+            <tbody className="divide-y divide-slate-50 dark:divide-white/5">
               {orders.map((order) => (
                 <React.Fragment key={order.id}>
-                  <tr className={`hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors cursor-pointer ${expandedOrder === order.id ? 'bg-slate-50 dark:bg-slate-900/30' : ''}`}
+                  <tr className={`hover:bg-slate-50 dark:hover:bg-white/[0.01] transition-colors cursor-pointer group ${expandedOrder === order.id ? 'bg-slate-50 dark:bg-white/[0.01]' : ''}`}
                     onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}
                   >
-                    <td className="px-6 py-4">
-                      {expandedOrder === order.id ? <ChevronDown size={18} className="text-slate-400" /> : <ChevronRight size={18} className="text-slate-400" />}
+                    <td className="px-8 py-6">
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${expandedOrder === order.id ? 'bg-primary text-white' : 'text-slate-400 group-hover:text-primary'}`}>
+                        {expandedOrder === order.id ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+                      </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <span className="text-sm font-mono font-medium text-slate-900 dark:text-white">#{order.id.slice(0, 8).toUpperCase()}</span>
+                    <td className="px-8 py-6">
+                      <span className="text-xs font-black text-slate-900 dark:text-white tracking-widest italic group-hover:text-primary transition-colors">#{order.id.slice(0, 8).toUpperCase()}</span>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center">
-                        <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 overflow-hidden mr-2">
-                          <img src={order.buyer?.avatar_url || `https://picsum.photos/seed/${order.buyer?.id}/32/32`} alt="Avatar" />
+                    <td className="px-8 py-6">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-white/5 overflow-hidden border border-slate-100 dark:border-white/10 shrink-0">
+                          <img src={order.buyer?.avatar_url || `https://picsum.photos/seed/${order.buyer?.id}/36/36`} alt="Avatar" className="w-full h-full object-contain grayscale group-hover:grayscale-0 transition-all" />
                         </div>
-                        <div>
-                          <p className="text-xs font-bold text-slate-900 dark:text-white">{order.buyer?.full_name}</p>
-                          <p className="text-[10px] text-slate-500">{order.buyer?.email}</p>
+                        <div className="min-w-0">
+                          <p className="text-xs font-black text-slate-900 dark:text-white truncate">{order.buyer?.full_name}</p>
+                          <p className="text-[10px] font-medium text-slate-400 truncate">{order.buyer?.email}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${getStatusColor(order.status)}`}>
-                        {getStatusIcon(order.status)}
-                        {order.status}
-                      </span>
+                    <td className="px-8 py-6">
+                      <div className="flex flex-col gap-1.5">
+                        <span className={`inline-flex items-center w-fit px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-[0.2em] ${getStatusColor(order.status)}`}>
+                          {getStatusIcon(order.status)}
+                          {order.status}
+                        </span>
+                        <div className="flex items-center gap-1">
+                          {[1, 2, 3].map(i => (
+                            <div key={i} className={`h-1 w-4 rounded-full ${
+                              i === 1 ? 'bg-green-500' : 
+                              (order.status === 'delivered' ? 'bg-green-500' : (order.status === 'shipped' && i <= 2 ? 'bg-blue-500' : 'bg-slate-200 dark:bg-white/5'))
+                            }`} />
+                          ))}
+                        </div>
+                      </div>
                     </td>
-                    <td className="px-6 py-4 text-xs text-slate-500">
-                      {new Date(order.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                    <td className="px-8 py-6">
+                       <div className="space-y-0.5">
+                         <p className="text-[10px] font-black text-slate-900 dark:text-white">{new Date(order.created_at).toLocaleDateString()}</p>
+                         <p className="text-[9px] font-black text-slate-400 uppercase">{new Date(order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</p>
+                       </div>
                     </td>
-                    <td className="px-6 py-4 text-right font-bold text-slate-900 dark:text-white">
-                      ${order.total_amount.toLocaleString()}
+                    <td className="px-8 py-6 text-right">
+                      <p className="text-sm font-black text-slate-900 dark:text-white tracking-tight">{order.total_amount.toLocaleString()} CFA</p>
                     </td>
-                    <td className="px-6 py-4 text-right">
-                      <button className="text-slate-400 hover:text-slate-900 dark:hover:text-white">
-                        <MoreVertical size={18} />
-                      </button>
+                    <td className="px-8 py-6 text-right text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
+                      <MoreVertical size={18} />
                     </td>
                   </tr>
                   
@@ -141,45 +185,58 @@ export default function TransactionsManagement() {
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
-                        className="bg-slate-50/50 dark:bg-slate-900/10"
+                        className="bg-slate-50/30 dark:bg-white/[0.01]"
                       >
-                        <td colSpan={7} className="px-6 py-4">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-4">
-                            <div>
-                              <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4">Items Purchased</h4>
-                              <div className="space-y-3">
+                        <td colSpan={7} className="px-8 py-8">
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            <div className="lg:col-span-2">
+                              <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-6 flex items-center gap-2">
+                                <Package size={14} className="text-primary" />
+                                Inventory Protocol
+                              </h4>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 {order.order_items?.map((item: any, idx: number) => (
-                                  <div key={idx} className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                      <div className="w-10 h-10 bg-white dark:bg-slate-800 p-1 rounded-lg border border-slate-100 dark:border-slate-700">
-                                        <Package size={20} className="text-slate-400" />
-                                      </div>
-                                      <div>
-                                        <p className="text-xs font-bold dark:text-white">{item.products?.name}</p>
-                                        <p className="text-[10px] text-slate-500">By {item.products?.farmer?.full_name}</p>
-                                      </div>
+                                  <div key={idx} className="flex p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-white/5 gap-4 group/item">
+                                    <div className="w-14 h-14 bg-slate-50 dark:bg-white/5 rounded-xl border border-slate-100 dark:border-white/10 flex items-center justify-center text-slate-400 group-hover/item:border-primary/30 transition-all shrink-0">
+                                      {item.products?.image_url ? (
+                                        <img src={item.products.image_url} alt="Item" className="w-full h-full object-cover rounded-lg" />
+                                      ) : (
+                                        <Package size={24} />
+                                      )}
                                     </div>
-                                    <div className="text-right">
-                                      <p className="text-xs font-bold dark:text-white">${item.price_at_purchase} x {item.quantity}</p>
+                                    <div className="min-w-0">
+                                      <p className="text-[11px] font-black text-slate-900 dark:text-white tracking-tight leading-tight mb-1">{item.products?.name}</p>
+                                      <p className="text-[10px] font-bold text-slate-400">By {item.products?.farmer?.full_name}</p>
+                                      <div className="flex items-center gap-3 mt-2">
+                                         <p className="text-xs font-black text-primary">{item.price_at_purchase.toLocaleString()} CFA</p>
+                                         <span className="text-[10px] font-black text-slate-400">x {item.quantity}</span>
+                                      </div>
                                     </div>
                                   </div>
                                 ))}
                               </div>
                             </div>
-                            <div>
-                              <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4">Shipping Information</h4>
-                              <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700">
-                                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed italic">
-                                  {order.shipping_address || 'Standard Pickup from Cameroon Regional Terminal'}
-                                </p>
-                              </div>
-                              <div className="mt-4 flex gap-2">
-                                <button className="flex-1 px-4 py-2 bg-green-600 text-white text-xs font-bold rounded-lg hover:bg-green-700 transition-colors">
-                                  Update Status
-                                </button>
-                                <button className="px-4 py-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold rounded-lg hover:bg-slate-200 transition-colors">
-                                  View Invoice
-                                </button>
+                            <div className="space-y-6">
+                              <div className="p-6 bg-slate-900 rounded-[2rem] text-white shadow-xl">
+                                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-4">Destination Access</h4>
+                                <div className="flex items-start gap-3 mb-6">
+                                   <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center shrink-0">
+                                      <span className="material-symbols-outlined text-[18px]">location_on</span>
+                                   </div>
+                                   <p className="text-[11px] font-bold text-white/80 leading-relaxed italic">
+                                     {order.shipping_address || 'Regional Logistics Hub, Douala Terminal 4'}
+                                   </p>
+                                </div>
+                                <div className="space-y-3">
+                                  <button className="w-full py-3 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20 flex items-center justify-center gap-2">
+                                    <span className="material-symbols-outlined text-[18px]">terminal</span>
+                                    Sync Status
+                                  </button>
+                                  <button className="w-full py-3 bg-white/10 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-white/20 transition-all flex items-center justify-center gap-2">
+                                    <span className="material-symbols-outlined text-[18px]">receipt_long</span>
+                                    Issue Protocol
+                                  </button>
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -191,6 +248,9 @@ export default function TransactionsManagement() {
               ))}
             </tbody>
           </table>
+        </div>
+        <div className="p-8 bg-slate-50 dark:bg-white/[0.01] flex justify-center border-t border-slate-100 dark:border-white/5">
+           <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Ledger Protocol Sequence End · {orders.length} Records Verified</p>
         </div>
       </div>
     </div>
