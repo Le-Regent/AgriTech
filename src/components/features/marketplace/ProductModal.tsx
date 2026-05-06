@@ -6,6 +6,7 @@ import { Product } from '@/types';
 import { supabaseService } from '@/services/supabaseService';
 import { toast } from 'sonner';
 import { formatUnit } from '@/lib/unitUtils';
+import { X, Upload, Sparkles, Image as ImageIcon } from 'lucide-react';
 
 interface ProductModalProps {
   isOpen: boolean;
@@ -258,7 +259,7 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, far
                 onClick={onClose}
                 className="w-10 h-10 rounded-xl flex items-center justify-center text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               >
-                <span className="material-symbols-outlined">close</span>
+                <X size={20} />
               </button>
             </div>
 
@@ -404,7 +405,7 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, far
                           {uploadingImage ? (
                             <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                           ) : (
-                            <span className="material-symbols-outlined group-hover:scale-110 transition-transform">upload</span>
+                            <Upload size={18} className="group-hover:scale-110 transition-transform" />
                           )}
                           Upload Picture
                         </div>
@@ -436,7 +437,7 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, far
                           {generatingImage ? (
                             <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                           ) : (
-                            <span className="material-symbols-outlined group-hover:rotate-12 transition-transform">auto_awesome</span>
+                            <Sparkles size={18} className="group-hover:rotate-12 transition-transform" />
                           )}
                           Generate with AI
                         </div>
@@ -489,12 +490,12 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, far
                           onClick={() => setFormData(prev => ({ ...prev, image_url: '' }))}
                           className="absolute top-2 right-2 w-8 h-8 bg-black/50 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                         >
-                          <span className="material-symbols-outlined text-sm">close</span>
+                          <X size={14} />
                         </button>
                       </>
                     ) : (
                       <div className="text-center space-y-2 text-slate-400">
-                        <span className="material-symbols-outlined text-4xl">image</span>
+                        <ImageIcon size={40} />
                         <p className="text-[10px] font-black uppercase tracking-widest">Image Preview</p>
                       </div>
                     )}

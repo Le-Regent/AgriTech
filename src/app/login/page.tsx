@@ -6,6 +6,7 @@ import Link from 'next/link';
 import ResponsiveImage from '@/components/ui/ResponsiveImage';
 import { useUser } from '@/context/UserContext';
 import { useLanguage } from '@/context/LanguageContext';
+import { Leaf } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -86,7 +87,7 @@ export default function LoginPage() {
           <div className="relative z-10">
             <div className="flex items-center gap-3 mb-12">
               <div className="w-12 h-12 bg-gradient-to-br from-primary to-green-400 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-primary/30 rotate-6">
-                <span className="material-symbols-outlined text-2xl font-bold">eco</span>
+                <Leaf size={24} />
               </div>
               <h1 className="font-black text-2xl tracking-tighter uppercase italic">Agri<span className="text-primary italic">Tech</span></h1>
             </div>

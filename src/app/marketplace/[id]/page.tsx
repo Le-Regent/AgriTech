@@ -15,6 +15,27 @@ import ProtectedRoute from '@/components/layout/ProtectedRoute';
 import { toast } from 'sonner';
 import { convertQuantity, getAvailableUnits, Unit, formatUnit } from '@/lib/unitUtils';
 
+import { 
+  ArrowLeft, 
+  Heart, 
+  Share2, 
+  BadgeCheck, 
+  Leaf, 
+  Store, 
+  Package, 
+  Ban, 
+  BadgeCheck as VerifiedIcon, 
+  Star, 
+  MapPin, 
+  Clock, 
+  Layout, 
+  ArrowRight, 
+  CheckCircle,
+  Plus,
+  Minus,
+  ShoppingCart
+} from 'lucide-react';
+
 function ProductDetailContent() {
   const params = useParams();
   const id = params?.id as string;
@@ -239,18 +260,18 @@ function ProductDetailContent() {
     <div className="max-w-6xl mx-auto space-y-8">
       <div className="flex items-center justify-between">
         <Link href="/marketplace" className="flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-primary transition-colors font-bold">
-          <span className="material-symbols-outlined">arrow_back</span>
+          <ArrowLeft size={20} />
           Back to Marketplace
         </Link>
         <div className="flex gap-3 relative">
-          <button className="w-10 h-10 bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark rounded-xl flex items-center justify-center text-slate-400 hover:text-red-500 transition-colors">
-            <span className="material-symbols-outlined">favorite</span>
+          <button className="w-10 h-10 bg-white dark:bg-surface-dark border border-slate-100 dark:border-border-dark rounded-xl flex items-center justify-center text-slate-400 hover:text-red-500 transition-colors">
+            <Heart size={20} />
           </button>
           <button 
             onClick={handleShare}
             className="w-10 h-10 bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark rounded-xl flex items-center justify-center text-slate-400 hover:text-primary transition-colors"
           >
-            <span className="material-symbols-outlined">share</span>
+            <Share2 size={20} />
           </button>
         </div>
       </div>
@@ -268,13 +289,13 @@ function ProductDetailContent() {
             <div className="absolute top-4 sm:top-6 left-4 sm:left-6 flex flex-col gap-2 sm:gap-3">
               {product.is_verified && (
                 <div className="bg-white/90 dark:bg-surface-dark/90 backdrop-blur px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl shadow-lg flex items-center gap-2 transition-colors">
-                  <span className="material-symbols-outlined text-primary fill-1 text-sm sm:text-base">verified</span>
+                  <BadgeCheck className="text-primary" size={18} />
                   <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest dark:text-white">Health Verified</span>
                 </div>
               )}
               {product.health_status !== 'N/A' && (
                 <div className="bg-primary/90 backdrop-blur px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl shadow-lg flex items-center gap-2 text-white">
-                  <span className="material-symbols-outlined fill-1 text-sm sm:text-base">eco</span>
+                  <Leaf size={18} />
                   <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest">{product.health_status} Grade</span>
                 </div>
               )}
@@ -298,7 +319,7 @@ function ProductDetailContent() {
         <div className="space-y-6 sm:space-y-8">
           <div className="space-y-3 sm:space-y-4">
             <div className="flex items-center gap-2 text-primary">
-              <span className="material-symbols-outlined text-[18px] sm:text-[20px]">storefront</span>
+              <Store size={20} />
               <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest">{product.profiles?.full_name || 'Unknown Farmer'}</span>
             </div>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight dark:text-white">{product.name}</h2>
@@ -315,12 +336,12 @@ function ProductDetailContent() {
             
             <div className="flex flex-wrap gap-4 py-2">
               <div className="bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-xl flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm text-slate-400">inventory</span>
+                <Package size={16} className="text-slate-400" />
                 <span className="text-xs font-bold dark:text-white">Min: {product.min_quantity || 1} {product.unit}</span>
               </div>
               {product.max_quantity && (
                 <div className="bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-xl flex items-center gap-2">
-                  <span className="material-symbols-outlined text-sm text-slate-400">block</span>
+                  <Ban size={16} className="text-slate-400" />
                   <span className="text-xs font-bold dark:text-white">Max: {product.max_quantity} {product.unit}</span>
                 </div>
               )}
@@ -344,18 +365,18 @@ function ProductDetailContent() {
                     <p className="font-black text-sm sm:text-base dark:text-white">{product.profiles?.full_name || 'Unknown Farmer'}</p>
                     {product.profiles?.is_verified && (
                       <div className="flex items-center gap-1 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded-full border border-blue-100 dark:border-blue-800">
-                        <span className="material-symbols-outlined text-blue-500 text-[12px] fill-1">verified_user</span>
+                        <VerifiedIcon className="text-blue-500" size={14} />
                         <span className="text-[8px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">Verified Farmer</span>
                       </div>
                     )}
                   </div>
                   <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-1 text-amber-400">
-                      <span className="material-symbols-outlined text-[14px] sm:text-[16px] fill-1">star</span>
+                      <Star size={14} fill="currentColor" />
                       <span className="text-[10px] sm:text-xs font-bold text-slate-900 dark:text-slate-300 transition-colors">4.5 (10 reviews)</span>
                     </div>
                     <div className="flex items-center gap-1 text-slate-400">
-                      <span className="material-symbols-outlined text-[14px]">location_on</span>
+                      <MapPin size={14} />
                       <span className="text-[10px] font-bold uppercase tracking-widest">{product.location || 'Unknown'}</span>
                     </div>
                   </div>
@@ -374,12 +395,12 @@ function ProductDetailContent() {
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-4">
               {[
-                { label: 'Harvest Season', value: product.harvest_season || 'Year round', icon: 'schedule' },
-                { label: 'Category', value: product.category, icon: 'category' },
-                { label: 'Location', value: product.location || 'Unknown', icon: 'location_on' },
+                { label: 'Harvest Season', value: product.harvest_season || 'Year round', icon: Clock },
+                { label: 'Category', value: product.category, icon: Layout },
+                { label: 'Location', value: product.location || 'Unknown', icon: MapPin },
               ].map((detail, i) => (
                 <div key={i} className="bg-slate-50 dark:bg-muted-dark p-4 rounded-2xl border border-slate-100 dark:border-border-dark transition-colors">
-                  <span className="material-symbols-outlined text-primary text-xl mb-2">{detail.icon}</span>
+                  <detail.icon className="text-primary mb-2" size={20} />
                   <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">{detail.label}</p>
                   <p className="text-sm font-bold dark:text-white">{detail.value}</p>
                 </div>
@@ -391,12 +412,12 @@ function ProductDetailContent() {
             <h4 className="font-black text-base sm:text-lg dark:text-white">Diagnostic History</h4>
             <div className="space-y-3 sm:space-y-4">
               {[
-                { date: 'Mar 05, 2026', result: 'Healthy', score: '99.2%', icon: 'check_circle', color: 'text-green-500' },
-                { date: 'Feb 20, 2026', result: 'Healthy', score: '98.8%', icon: 'check_circle', color: 'text-green-500' },
+                { date: 'Mar 05, 2026', result: 'Healthy', score: '99.2%', icon: CheckCircle, color: 'text-green-500' },
+                { date: 'Feb 20, 2026', result: 'Healthy', score: '98.8%', icon: CheckCircle, color: 'text-green-500' },
               ].map((log, i) => (
                 <div key={i} className="flex items-center justify-between bg-white dark:bg-slate-800 p-3 sm:p-4 rounded-xl sm:rounded-2xl shadow-sm transition-colors">
                   <div className="flex items-center gap-3">
-                    <span className={`material-symbols-outlined text-sm sm:text-base ${log.color}`}>{log.icon}</span>
+                    <log.icon className={`text-sm sm:text-base ${log.color}`} size={18} />
                     <div>
                       <p className="text-xs sm:text-sm font-bold dark:text-white">{log.result}</p>
                       <p className="text-[9px] sm:text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-widest">{log.date}</p>
@@ -440,7 +461,7 @@ function ProductDetailContent() {
                       disabled={product.stock_quantity <= 0}
                       className="px-4 py-3 hover:bg-slate-50 dark:hover:bg-surface-hover-dark text-slate-400 transition-colors disabled:opacity-30"
                     >
-                      <span className="material-symbols-outlined">remove</span>
+                      <Minus size={18} />
                     </button>
                     <input 
                       type="number"
@@ -463,7 +484,7 @@ function ProductDetailContent() {
                       disabled={product.stock_quantity <= 0 || (convertQuantity(quantity + 1, selectedUnit, product.unit) > product.stock_quantity)}
                       className="px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-400 transition-colors disabled:opacity-30"
                     >
-                      <span className="material-symbols-outlined">add</span>
+                      <Plus size={18} />
                     </button>
                   </div>
                   {product.stock_quantity > 0 && (
@@ -486,7 +507,7 @@ function ProductDetailContent() {
               disabled={product.stock_quantity <= 0}
               className="w-full bg-primary text-white py-4 rounded-2xl font-black text-lg hover:bg-primary/90 transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-3 mt-4 disabled:bg-slate-300 disabled:shadow-none"
             >
-              <span className="material-symbols-outlined">shopping_cart</span>
+              <ShoppingCart size={24} />
               {product.stock_quantity > 0 ? 'Add to Cart' : 'Out of Stock'}
             </button>
           </div>
@@ -499,7 +520,7 @@ function ProductDetailContent() {
             <div className="flex items-center justify-between">
               <h3 className="text-2xl font-black dark:text-white">Customer Reviews</h3>
               <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-900 px-4 py-2 rounded-xl border border-slate-100 dark:border-slate-800">
-                <span className="material-symbols-outlined text-yellow-400 fill-1">star</span>
+                <Star className="text-yellow-400" size={18} fill="currentColor" />
                 <span className="font-black dark:text-white">{ratingStats.avg}</span>
                 <span className="text-xs text-slate-400 font-bold">({ratingStats.total} reviews)</span>
               </div>
@@ -510,7 +531,7 @@ function ProductDetailContent() {
                 <p className="text-6xl font-black text-slate-900 dark:text-white">{ratingStats.avg}</p>
                 <div className="flex items-center gap-1 text-yellow-400 my-2">
                   {[...Array(5)].map((_, i) => (
-                    <span key={i} className={`material-symbols-outlined ${i < Math.round(Number(ratingStats.avg)) ? 'fill-1' : ''}`}>star</span>
+                    <Star key={i} size={18} fill={i < Math.round(Number(ratingStats.avg)) ? "currentColor" : "none"} className={i < Math.round(Number(ratingStats.avg)) ? "text-yellow-400" : "text-slate-300 dark:text-slate-700"} />
                   ))}
                 </div>
                 <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Average Rating</p>
@@ -554,7 +575,7 @@ function ProductDetailContent() {
                           <p className="font-bold text-sm dark:text-white">{review.profiles?.full_name || 'Anonymous'}</p>
                           {review.is_verified && (
                             <div className="flex items-center gap-1 text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-1.5 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest">
-                              <span className="material-symbols-outlined text-[10px] fill-1">verified</span>
+                              <VerifiedIcon size={10} />
                               Verified
                             </div>
                           )}
@@ -566,7 +587,7 @@ function ProductDetailContent() {
                     </div>
                     <div className="flex items-center gap-1 text-yellow-400">
                       {[...Array(5)].map((_, i) => (
-                        <span key={i} className={`material-symbols-outlined text-sm ${i < review.rating ? 'fill-1' : ''}`}>star</span>
+                        <Star key={i} size={14} fill={i < review.rating ? "currentColor" : "none"} className={i < review.rating ? "text-yellow-400" : "text-slate-300 dark:text-slate-700"} />
                       ))}
                     </div>
                   </div>
@@ -575,11 +596,11 @@ function ProductDetailContent() {
                   </p>
                   <div className="mt-4 flex items-center gap-4">
                     <button className="flex items-center gap-1.5 text-xs font-bold text-slate-400 hover:text-primary transition-colors">
-                      <span className="material-symbols-outlined text-[16px]">thumb_up</span>
+                      <Star size={16} />
                       Helpful ({review.helpful})
                     </button>
                     <button className="flex items-center gap-1.5 text-xs font-bold text-slate-400 hover:text-primary transition-colors">
-                      <span className="material-symbols-outlined text-[16px]">reply</span>
+                      <Share2 size={16} />
                       Reply
                     </button>
                   </div>
@@ -601,9 +622,13 @@ function ProductDetailContent() {
                       key={star}
                       type="button"
                       onClick={() => setNewReview({ ...newReview, rating: star })}
-                      className={`material-symbols-outlined text-2xl transition-colors ${star <= newReview.rating ? 'text-yellow-400 fill-1' : 'text-slate-300 dark:text-slate-700'}`}
+                      className="transition-colors"
                     >
-                      star
+                      <Star 
+                        size={24} 
+                        fill={star <= newReview.rating ? "currentColor" : "none"} 
+                        className={star <= newReview.rating ? "text-yellow-400" : "text-slate-300 dark:text-slate-700"} 
+                      />
                     </button>
                   ))}
                 </div>
@@ -658,10 +683,10 @@ function ProductDetailContent() {
                   <h4 className="font-black text-lg group-hover:text-primary transition-colors dark:text-white">{p.name}</h4>
                   <div className="flex items-center justify-between mt-2">
                     <p className="font-black text-primary">{p.price.toLocaleString()}<span className="text-xs text-slate-400 dark:text-slate-500 font-bold"> CFA/{p.unit}</span></p>
-                    <div className="flex items-center gap-1 text-amber-400">
-                      <span className="material-symbols-outlined text-[14px] fill-1">star</span>
-                      <span className="text-[10px] font-bold text-slate-900 dark:text-slate-300">4.5</span>
-                    </div>
+                      <div className="flex items-center gap-1 text-amber-400">
+                        <Star size={14} fill="currentColor" />
+                        <span className="text-[10px] font-bold text-slate-900 dark:text-slate-300">4.5</span>
+                      </div>
                   </div>
                 </div>
               </Link>
@@ -681,7 +706,7 @@ function ProductDetailContent() {
             disabled={product.stock_quantity <= 0}
             className="bg-primary text-white h-14 px-8 rounded-2xl font-black text-sm flex items-center gap-3 shadow-xl shadow-primary/20 active:scale-95 transition-all disabled:opacity-50"
           >
-            <span className="material-symbols-outlined">shopping_cart</span>
+            <ShoppingCart size={20} />
             {product.stock_quantity > 0 ? 'Add' : 'Out'}
           </button>
         </div>

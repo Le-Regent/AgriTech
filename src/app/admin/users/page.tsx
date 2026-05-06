@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabaseService } from '@/services/supabaseService';
 import { motion, AnimatePresence } from 'motion/react';
-import { Search, Filter, ShieldCheck, Mail, Calendar, User as UserIcon, ShieldAlert } from 'lucide-react';
+import { Search, Filter, ShieldCheck, Mail, Calendar, User as UserIcon, ShieldAlert, Fingerprint, Shield, Ban } from 'lucide-react';
 import { User } from '@/types';
 import { toast } from 'sonner';
 
@@ -149,7 +149,7 @@ export default function UsersManagement() {
                           {u.full_name}
                         </p>
                         <p className="text-[10px] text-slate-400 font-bold truncate flex items-center gap-1.5 mt-0.5">
-                          <span className="material-symbols-outlined text-[12px]">fingerprint</span>
+                          <Fingerprint size={12} />
                           {u.id.slice(0, 8).toUpperCase()}
                         </p>
                       </div>
@@ -203,13 +203,11 @@ export default function UsersManagement() {
                         {updatingId === u.id ? (
                           <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
                         ) : (
-                          <span className="material-symbols-outlined text-[20px]">
-                            {u.is_admin ? 'security' : 'shield'}
-                          </span>
+                          u.is_admin ? <ShieldCheck size={20} /> : <Shield size={20} />
                         )}
                       </button>
                       <button className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/5 text-slate-400 hover:bg-red-500 hover:text-white transition-all">
-                        <span className="material-symbols-outlined text-[20px]">block</span>
+                        <Ban size={20} />
                       </button>
                     </div>
                   </td>

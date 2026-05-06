@@ -8,6 +8,16 @@ import { useUser } from '@/context/UserContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { AppNotification, NotificationCategory } from '@/types';
 import { format } from 'date-fns';
+import { 
+  Bell, 
+  BellOff, 
+  ShoppingBag, 
+  TrendingUp, 
+  CloudSun, 
+  Package, 
+  Settings, 
+  Info 
+} from 'lucide-react';
 
 export function NotificationCenter() {
   const { user } = useUser();
@@ -87,13 +97,13 @@ export function NotificationCenter() {
 
   const getCategoryIcon = (category: NotificationCategory) => {
     switch (category) {
-      case 'primary': return 'notifications_active';
-      case 'proposition': return 'local_mall';
-      case 'market': return 'trending_up';
-      case 'climate': return 'partly_cloudy_day';
-      case 'order': return 'package_2';
-      case 'system': return 'settings';
-      default: return 'info';
+      case 'primary': return <Bell size={20} />;
+      case 'proposition': return <ShoppingBag size={20} />;
+      case 'market': return <TrendingUp size={20} />;
+      case 'climate': return <CloudSun size={20} />;
+      case 'order': return <Package size={20} />;
+      case 'system': return <Settings size={20} />;
+      default: return <Info size={20} />;
     }
   };
 
@@ -116,9 +126,7 @@ export function NotificationCenter() {
         className="w-10 h-10 rounded-full hover:bg-slate-50 dark:hover:bg-surface-hover-dark flex items-center justify-center text-slate-500 dark:text-slate-400 relative transition-all group"
         title="Notifications"
       >
-        <span className={`material-symbols-outlined text-[24px] ${unreadCount > 0 ? 'animate-wiggle' : ''} group-hover:scale-110 transition-transform`}>
-          notifications
-        </span>
+        <Bell size={24} className={unreadCount > 0 ? 'animate-wiggle' : ''} />
         {unreadCount > 0 && (
           <span className="absolute top-1 right-1 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white dark:border-background-dark shadow-sm">
             {unreadCount > 9 ? '9+' : unreadCount}
@@ -176,7 +184,7 @@ export function NotificationCenter() {
               ) : displayedNotifications.length === 0 ? (
                 <div className="p-12 text-center space-y-4">
                   <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto">
-                    <span className="material-symbols-outlined text-3xl text-slate-300">notifications_off</span>
+                    <BellOff size={30} className="text-slate-300" />
                   </div>
                   <div className="space-y-1">
                     <p className="text-sm font-black dark:text-white">{t('all_caught_up')}</p>
@@ -192,9 +200,7 @@ export function NotificationCenter() {
                     >
                       <div className="flex gap-4">
                         <div className={`w-10 h-10 shrink-0 rounded-2xl flex items-center justify-center ${getCategoryColor(n.category)}`}>
-                          <span className="material-symbols-outlined text-[20px]">
-                            {getCategoryIcon(n.category)}
-                          </span>
+                          {getCategoryIcon(n.category)}
                         </div>
                         <div className="flex-1 space-y-1">
                           <div className="flex items-start justify-between gap-2">

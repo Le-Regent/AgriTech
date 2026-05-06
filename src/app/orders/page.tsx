@@ -10,6 +10,24 @@ import ResponsiveImage from '@/components/ui/ResponsiveImage';
 import ProtectedRoute from '@/components/layout/ProtectedRoute';
 import { toast } from 'sonner';
 
+import { 
+  Filter, 
+  SortAsc, 
+  CheckCircle2, 
+  X, 
+  User as UserIcon, 
+  Receipt, 
+  ChevronDown, 
+  Check, 
+  Circle, 
+  XCircle, 
+  Package, 
+  Truck, 
+  Info,
+  MapPin,
+  ShoppingBag
+} from 'lucide-react';
+
 function OrdersContent() {
   const { user } = useUser();
   const { isOnline, saveToCache, getFromCache } = useOffline();
@@ -154,7 +172,7 @@ function OrdersContent() {
         
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-2xl">
-            <span className="material-symbols-outlined text-slate-400 text-sm">filter_list</span>
+            <Filter size={14} className="text-slate-400" />
             <select 
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
@@ -170,7 +188,7 @@ function OrdersContent() {
           </div>
           
           <div className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-2xl">
-            <span className="material-symbols-outlined text-slate-400 text-sm">sort</span>
+            <SortAsc size={14} className="text-slate-400" />
             <select 
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as 'newest' | 'oldest')}
@@ -192,14 +210,14 @@ function OrdersContent() {
             className="bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800 p-6 rounded-[2rem] flex items-center gap-4"
           >
             <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-white shrink-0">
-              <span className="material-symbols-outlined">check_circle</span>
+              <CheckCircle2 size={24} />
             </div>
             <div>
               <h4 className="font-black text-green-800 dark:text-green-400">Success!</h4>
               <p className="text-sm text-green-700 dark:text-green-500/80">Your action was completed successfully.</p>
             </div>
             <button onClick={() => setShowSuccess(false)} className="ml-auto text-green-500 hover:text-green-700">
-              <span className="material-symbols-outlined">close</span>
+              <X size={24} />
             </button>
           </motion.div>
         )}
@@ -215,16 +233,16 @@ function OrdersContent() {
                 animate={{ opacity: 1, y: 0 }}
                 className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden"
               >
-                <div 
-                  className="p-6 sm:p-8 border-b border-slate-50 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors"
-                  onClick={() => toggleExpand(order.id)}
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-slate-400">
-                      <span className="material-symbols-outlined">{isFarmer ? 'person' : 'receipt_long'}</span>
-                    </div>
-                    <div>
-                      <p className="text-xs font-black uppercase tracking-widest text-slate-400">{isFarmer ? 'Customer' : 'Order ID'}</p>
+                  <div 
+                    className="p-6 sm:p-8 border-b border-slate-50 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors"
+                    onClick={() => toggleExpand(order.id)}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-slate-400">
+                        {isFarmer ? <UserIcon size={24} /> : <Receipt size={24} />}
+                      </div>
+                      <div>
+                        <p className="text-xs font-black uppercase tracking-widest text-slate-400">{isFarmer ? 'Customer' : 'Order ID'}</p>
                       <p className="font-bold dark:text-white">
                         {isFarmer 
                           ? (order.profiles?.full_name || 'AgriTech Customer') 
@@ -251,9 +269,7 @@ function OrdersContent() {
                       <span className={`px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${getStatusColor(order.status)}`}>
                         {order.status}
                       </span>
-                      <span className={`material-symbols-outlined text-slate-400 transition-transform ${expandedOrders.has(order.id) ? 'rotate-180' : ''}`}>
-                        expand_more
-                      </span>
+                      <ChevronDown size={20} className={`text-slate-400 transition-transform ${expandedOrders.has(order.id) ? 'rotate-180' : ''}`} />
                     </div>
                   </div>
                 </div>
@@ -282,9 +298,7 @@ function OrdersContent() {
                                   <div className={`w-8 h-8 rounded-full flex items-center justify-center z-10 transition-all duration-500 ${
                                     isCompleted ? 'bg-primary text-white scale-110' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'
                                   }`}>
-                                    <span className="material-symbols-outlined text-sm">
-                                      {isCompleted ? 'check' : 'radio_button_unchecked'}
-                                    </span>
+                                    {isCompleted ? <Check size={16} /> : <Circle size={16} />}
                                   </div>
                                   <span className={`text-[10px] font-bold uppercase tracking-wider ${
                                     isCurrent ? 'text-primary' : isCompleted ? 'text-slate-900 dark:text-white' : 'text-slate-400'
@@ -297,7 +311,7 @@ function OrdersContent() {
                           </div>
                         ) : (
                           <div className="flex items-center justify-center gap-2 p-4 bg-red-50 dark:bg-red-500/10 text-red-500 rounded-2xl mb-8">
-                            <span className="material-symbols-outlined">cancel</span>
+                            <XCircle size={20} />
                             <span className="text-xs font-black uppercase tracking-widest">This order has been cancelled</span>
                           </div>
                         )}
@@ -340,7 +354,7 @@ function OrdersContent() {
                               <h5 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">Delivery Information</h5>
                               <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-100 dark:border-slate-700">
                                 <div className="flex items-start gap-3">
-                                  <span className="material-symbols-outlined text-slate-400 mt-1">location_on</span>
+                                  <MapPin size={18} className="text-slate-400 mt-1" />
                                   <div>
                                     <p className="text-xs font-bold dark:text-white">Shipping Address</p>
                                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{order.shipping_address || 'No address provided'}</p>
@@ -366,7 +380,7 @@ function OrdersContent() {
                                   }}
                                   className="flex-1 bg-primary text-white py-4 rounded-2xl font-black text-sm hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
                                 >
-                                  <span className="material-symbols-outlined">check_circle</span>
+                                  <CheckCircle2 size={20} />
                                   Accept Order
                                 </button>
                               )}
@@ -384,13 +398,13 @@ function OrdersContent() {
                                   }}
                                   className="flex-1 bg-indigo-500 text-white py-4 rounded-2xl font-black text-sm hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
                                 >
-                                  <span className="material-symbols-outlined">local_shipping</span>
+                                  <Truck size={20} />
                                   Mark as Shipped
                                 </button>
                               )}
                               {order.status === 'shipped' && (
                                 <div className="flex-1 bg-slate-100 dark:bg-slate-800 text-slate-500 py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2">
-                                  <span className="material-symbols-outlined">info</span>
+                                  <Info size={20} />
                                   Waiting for buyer confirmation
                                 </div>
                               )}
@@ -405,14 +419,14 @@ function OrdersContent() {
                                   }}
                                   className="flex-1 bg-red-50 dark:bg-red-900/20 text-red-500 py-4 rounded-2xl font-black text-sm hover:bg-red-100 dark:hover:bg-red-900/40 transition-all flex items-center justify-center gap-2"
                                 >
-                                  <span className="material-symbols-outlined">cancel</span>
+                                  <XCircle size={20} />
                                   Cancel Order
                                 </button>
                               )}
                               {order.status === 'shipped' && (
                                 <>
                                   <button className="flex-1 bg-slate-900 dark:bg-white dark:text-slate-900 text-white py-4 rounded-2xl font-black text-sm hover:scale-[1.02] transition-all flex items-center justify-center gap-2">
-                                    <span className="material-symbols-outlined">local_shipping</span>
+                                    <Truck size={20} />
                                     Track Shipment
                                   </button>
                                   <button 
@@ -429,7 +443,7 @@ function OrdersContent() {
                                     }}
                                     className="flex-1 bg-green-500 text-white py-4 rounded-2xl font-black text-sm hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
                                   >
-                                    <span className="material-symbols-outlined">check_circle</span>
+                                    <CheckCircle2 size={20} />
                                     Mark as Received
                                   </button>
                                 </>
@@ -448,7 +462,7 @@ function OrdersContent() {
       ) : (
         <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm min-h-[400px] flex flex-col items-center justify-center text-center">
           <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center text-primary mb-6">
-            <span className="material-symbols-outlined text-4xl">shopping_bag</span>
+            <ShoppingBag size={40} />
           </div>
           <h3 className="text-xl font-bold mb-2 dark:text-white">No Orders Found</h3>
           <p className="text-slate-500 dark:text-slate-400 max-w-md">

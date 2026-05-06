@@ -8,6 +8,16 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import ResponsiveImage from '@/components/ui/ResponsiveImage';
 import { motion, AnimatePresence } from 'motion/react';
+import { 
+  CheckCircle2, 
+  CreditCard, 
+  Smartphone, 
+  Landmark, 
+  ShoppingCart, 
+  Check, 
+  ShieldCheck,
+  ChevronRight
+} from 'lucide-react';
 import { supabaseService } from '@/services/supabaseService';
 import { toast } from 'sonner';
 import { formatUnit } from '@/lib/unitUtils';
@@ -132,7 +142,7 @@ function CheckoutContent() {
           animate={{ scale: 1 }}
           className="w-24 h-24 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto"
         >
-          <span className="material-symbols-outlined text-5xl">check_circle</span>
+          <CheckCircle2 size={48} />
         </motion.div>
         <div className="space-y-2">
           <h2 className="text-4xl font-black dark:text-white">Order Confirmed!</h2>
@@ -167,9 +177,7 @@ function CheckoutContent() {
           <div className="absolute inset-0 border-4 border-primary/20 rounded-full"></div>
           <div className="absolute inset-0 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="material-symbols-outlined text-primary text-3xl animate-pulse">
-              {formData.paymentMethod === 'card' ? 'credit_card' : formData.paymentMethod === 'm-pesa' ? 'smartphone' : 'account_balance'}
-            </span>
+            {formData.paymentMethod === 'card' ? <CreditCard className="text-primary" size={32} /> : formData.paymentMethod === 'm-pesa' ? <Smartphone className="text-primary" size={32} /> : <Landmark className="text-primary" size={32} />}
           </div>
         </div>
         <div className="space-y-2">
@@ -197,7 +205,7 @@ function CheckoutContent() {
   if (cart.length === 0) {
     return (
       <div className="max-w-4xl mx-auto py-20 text-center space-y-6">
-        <span className="material-symbols-outlined text-6xl text-slate-200">shopping_cart_off</span>
+        <ShoppingCart size={64} className="text-slate-200 mx-auto" />
         <h2 className="text-3xl font-black dark:text-white">Your cart is empty</h2>
         <p className="text-slate-500 dark:text-slate-400">Add some fresh produce to your cart before checking out.</p>
         <Link href="/marketplace" className="inline-block bg-primary text-white px-8 py-3 rounded-2xl font-black shadow-lg shadow-primary/20">
@@ -222,7 +230,7 @@ function CheckoutContent() {
               <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black transition-all ${
                 step >= s.step ? 'bg-primary text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'
               }`}>
-                {step > s.step ? <span className="material-symbols-outlined text-sm">check</span> : s.step}
+                {step > s.step ? <Check size={18} /> : s.step}
               </div>
               <span className={`text-[10px] font-black uppercase tracking-widest ${
                 step >= s.step ? 'text-primary' : 'text-slate-400'
@@ -295,9 +303,9 @@ function CheckoutContent() {
                 <h3 className="text-2xl font-black dark:text-white">Payment Method</h3>
                 <div className="space-y-4">
                   {[
-                    { id: 'card', label: 'Credit / Debit Card', icon: 'credit_card' },
-                    { id: 'm-pesa', label: 'Mobile Money (M-Pesa)', icon: 'smartphone' },
-                    { id: 'bank', label: 'Bank Transfer', icon: 'account_balance' }
+                    { id: 'card', label: 'Credit / Debit Card', icon: CreditCard },
+                    { id: 'm-pesa', label: 'Mobile Money (M-Pesa)', icon: Smartphone },
+                    { id: 'bank', label: 'Bank Transfer', icon: Landmark }
                   ].map((method) => (
                     <button
                       key={method.id}
@@ -309,9 +317,7 @@ function CheckoutContent() {
                       }`}
                     >
                       <div className="flex items-center gap-4">
-                        <span className={`material-symbols-outlined text-2xl ${formData.paymentMethod === method.id ? 'text-primary' : 'text-slate-400'}`}>
-                          {method.icon}
-                        </span>
+                        <method.icon className={formData.paymentMethod === method.id ? 'text-primary' : 'text-slate-400'} size={24} />
                         <span className={`font-bold ${formData.paymentMethod === method.id ? 'text-primary' : 'dark:text-white'}`}>
                           {method.label}
                         </span>
@@ -461,7 +467,7 @@ function CheckoutContent() {
                       <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                     ) : (
                       <>
-                        <span className="material-symbols-outlined">verified</span>
+                        <ShieldCheck size={20} />
                         Place Order - {total.toLocaleString()} CFA
                       </>
                     )}

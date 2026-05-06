@@ -12,7 +12,12 @@ import {
   ArrowDownRight,
   Clock,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  RefreshCcw,
+  HeartPulse,
+  ShieldCheck,
+  FileText,
+  ArrowRight
 } from 'lucide-react';
 
 interface Stats {
@@ -81,7 +86,7 @@ export default function AdminDashboard() {
             <span className="text-[10px] font-black uppercase tracking-widest text-green-600">System Live</span>
           </div>
           <button className="p-2 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl text-slate-400">
-            <span className="material-symbols-outlined text-[20px]">refresh</span>
+            <RefreshCcw size={20} />
           </button>
         </div>
       </div>
@@ -119,7 +124,7 @@ export default function AdminDashboard() {
         <div className="lg:col-span-12 xl:col-span-3 space-y-6">
           <div className="bg-slate-900 dark:bg-slate-950 p-6 rounded-[2.5rem] text-white shadow-2xl border border-white/5">
             <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-6 flex items-center gap-2">
-              <span className="material-symbols-outlined text-sm">health_metrics</span>
+              <HeartPulse size={14} />
               System Telemetry
             </h2>
             <div className="space-y-6">
@@ -143,7 +148,7 @@ export default function AdminDashboard() {
             <div className="mt-8 pt-8 border-t border-white/5">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center">
-                  <span className="material-symbols-outlined text-green-400">shield_check</span>
+                  <ShieldCheck className="text-green-400" size={24} />
                 </div>
                 <div>
                   <p className="text-xs font-black uppercase">Security Verified</p>
@@ -203,7 +208,7 @@ export default function AdminDashboard() {
                     <td className="px-8 py-6">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-slate-100 dark:bg-white/5 rounded-xl flex items-center justify-center text-slate-400 transition-colors group-hover:bg-primary/20 group-hover:text-primary">
-                          <span className="material-symbols-outlined text-[20px]">assignment</span>
+                          <FileText size={20} />
                         </div>
                         <div>
                           <p className="text-xs font-black text-slate-900 dark:text-white tracking-tight">#{order.id.slice(0, 8).toUpperCase()}</p>
@@ -252,7 +257,7 @@ export default function AdminDashboard() {
           <div className="p-6 bg-slate-50 dark:bg-white/[0.01] flex justify-center">
             <button className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-primary transition-colors flex items-center gap-2">
               Operational Logs
-              <span className="material-symbols-outlined text-sm">arrow_forward</span>
+              <ArrowRight size={14} />
             </button>
           </div>
         </div>

@@ -12,6 +12,36 @@ import { downloadDiagnosisReport } from '@/lib/diagnosisUtils';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'motion/react';
+import { 
+  RefreshCcw, 
+  Camera, 
+  User, 
+  AtSign, 
+  Phone, 
+  MapPin, 
+  Tractor, 
+  Globe, 
+  FileText, 
+  Shield, 
+  Mail, 
+  MessageSquare, 
+  ChevronRight, 
+  Download, 
+  Clock, 
+  Truck, 
+  CheckCircle, 
+  XCircle, 
+  Eye, 
+  ArrowDown, 
+  ArrowUp, 
+  ArrowRight,
+  Edit,
+  LogIn,
+  RotateCcw,
+  Smartphone,
+  AlertTriangle,
+  Moon
+} from 'lucide-react';
 
 function ProfileContent() {
   const { theme, toggleTheme } = useTheme();
@@ -39,9 +69,9 @@ function ProfileContent() {
 
   // Simulation of security logs
   const securityLogs = [
-    { event: 'Login successful', device: 'Chrome on MacOS', location: 'Yaoundé, CM', time: '2 mins ago', icon: 'login' },
-    { event: 'Password changed', device: 'Safari on iPhone', location: 'Douala, CM', time: '2 days ago', icon: 'lock_reset' },
-    { event: 'New device authorized', device: 'Firefox on Windows', location: 'Unknown', time: '1 week ago', icon: 'devices' },
+    { event: 'Login successful', device: 'Chrome on MacOS', location: 'Yaoundé, CM', time: '2 mins ago', icon: LogIn },
+    { event: 'Password changed', device: 'Safari on iPhone', location: 'Douala, CM', time: '2 days ago', icon: RotateCcw },
+    { event: 'New device authorized', device: 'Firefox on Windows', location: 'Unknown', time: '1 week ago', icon: Smartphone },
   ];
 
   const handlePromoteAdmin = async () => {
@@ -249,10 +279,10 @@ function ProfileContent() {
 
   const getSecurityHealth = () => {
     const health = [
-      { label: 'Email Verified', status: !!user?.email, icon: 'email_heart' },
-      { label: 'Profile Complete', status: !!user?.full_name && !!user?.bio, icon: 'person_check' },
-      { label: 'Phone Linked', status: !!user?.phone_number, icon: 'phone_callback' },
-      { label: 'Identified as Admin', status: !!user?.is_admin, icon: 'security' },
+      { label: 'Email Verified', status: !!user?.email, icon: Mail },
+      { label: 'Profile Complete', status: !!user?.full_name && !!user?.bio, icon: User },
+      { label: 'Phone Linked', status: !!user?.phone_number, icon: Phone },
+      { label: 'Identified as Admin', status: !!user?.is_admin, icon: Shield },
     ];
     const score = Math.round((health.filter(h => h.status).length / health.length) * 100);
     return { health, score };
@@ -261,15 +291,15 @@ function ProfileContent() {
   const { health: securityHealth, score: trustScore } = getSecurityHealth();
 
   const personalFields = [
-    { label: 'Full Name', value: formData.full_name, icon: 'person', key: 'full_name' },
-    { label: 'Email Address', value: user?.email || '', icon: 'alternate_email', key: 'email', readOnly: true },
-    { label: 'Phone Number', value: formData.phone_number, icon: 'call', key: 'phone_number' },
-    { label: isFarmer ? 'Farm Location' : 'Shipping Address', value: formData.location_name, icon: 'location_on', key: 'location_name' },
+    { label: 'Full Name', value: formData.full_name, icon: User, key: 'full_name' },
+    { label: 'Email Address', value: user?.email || '', icon: AtSign, key: 'email', readOnly: true },
+    { label: 'Phone Number', value: formData.phone_number, icon: Phone, key: 'phone_number' },
+    { label: isFarmer ? 'Farm Location' : 'Shipping Address', value: formData.location_name, icon: MapPin, key: 'location_name' },
   ];
 
   const professionalFields = [
-    { label: 'Farm Name', value: formData.farm_name, icon: 'agriculture', key: 'farm_name', farmerOnly: true },
-    { label: 'Website', value: formData.website, icon: 'language', key: 'website' },
+    { label: 'Farm Name', value: formData.farm_name, icon: Tractor, key: 'farm_name', farmerOnly: true },
+    { label: 'Website', value: formData.website, icon: Globe, key: 'website' },
   ];
 
   return (
@@ -331,7 +361,7 @@ function ProfileContent() {
             title="Force sync data from database"
             className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-primary transition-all disabled:opacity-50"
           >
-            <span className={`material-symbols-outlined ${isRefreshing ? 'animate-spin' : ''}`}>sync</span>
+            <RefreshCcw size={20} className={isRefreshing ? 'animate-spin' : ''} />
           </button>
         </div>
       </div>
@@ -355,14 +385,14 @@ function ProfileContent() {
                   )}
                   {hasChanges && !isUploading && (
                     <div className="absolute -top-2 -right-2 bg-yellow-500 text-white text-[8px] font-black px-2 py-1 rounded-full shadow-lg animate-bounce flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[10px]">edit</span>
+                      <Edit size={10} />
                       UNSAVED
                     </div>
                   )}
                 </div>
                 {isEditing && (
                   <label className={`absolute bottom-0 right-0 w-8 h-8 sm:w-10 sm:h-10 bg-primary text-white rounded-full border-4 border-white dark:border-slate-900 flex items-center justify-center hover:scale-110 transition-transform cursor-pointer ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                    <span className="material-symbols-outlined text-[16px] sm:text-[20px]">photo_camera</span>
+                    <Camera size={20} />
                     <input
                       type="file"
                       accept="image/*"
@@ -423,12 +453,14 @@ function ProfileContent() {
                 {securityHealth.map((item, i) => (
                   <div key={i} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-white/5 rounded-2xl border border-slate-100 dark:border-slate-800 transition-colors">
                     <div className="flex items-center gap-3">
-                      <span className={`material-symbols-outlined text-[20px] ${item.status ? 'text-green-500' : 'text-slate-400'}`}>{item.icon}</span>
+                      <item.icon className={`${item.status ? 'text-green-500' : 'text-slate-400'}`} size={20} />
                       <span className="text-xs font-bold dark:text-white">{item.label}</span>
                     </div>
-                    <span className={`material-symbols-outlined text-[18px] ${item.status ? 'text-green-500' : 'text-amber-400'}`}>
-                      {item.status ? 'verified' : 'error'}
-                    </span>
+                    {item.status ? (
+                      <CheckCircle className="text-green-500" size={18} />
+                    ) : (
+                      <AlertTriangle className="text-amber-400" size={18} />
+                    )}
                   </div>
                 ))}
 
@@ -459,7 +491,7 @@ function ProfileContent() {
                 {securityLogs.map((log, i) => (
                   <div key={i} className="flex items-start gap-3 p-3 hover:bg-slate-50 dark:hover:bg-white/5 rounded-2xl transition-colors group">
                     <div className="w-8 h-8 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center text-slate-400 group-hover:bg-primary/10 group-hover:text-primary transition-colors shrink-0">
-                      <span className="material-symbols-outlined text-[18px]">{log.icon}</span>
+                      <log.icon size={18} />
                     </div>
                     <div className="min-w-0">
                       <p className="text-xs font-bold dark:text-white">{log.event}</p>
@@ -477,7 +509,7 @@ function ProfileContent() {
                 visibility and builds stronger trust with the AgriControl community.
               </p>
               <Link href="/SECURITY.md" className="text-[9px] font-black uppercase tracking-widest text-primary flex items-center gap-1 hover:underline">
-                <span className="material-symbols-outlined text-sm">security</span>
+                <Shield size={14} />
                 View Security Whitepaper
               </Link>
             </div>
@@ -488,7 +520,7 @@ function ProfileContent() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <span className="material-symbols-outlined text-slate-400">dark_mode</span>
+                  <Moon className="text-slate-400" size={20} />
                   <span className="text-sm font-bold dark:text-white">Dark Mode</span>
                 </div>
                 <div 
@@ -499,13 +531,13 @@ function ProfileContent() {
                 </div>
               </div>
               {[
-                { label: 'Email Notifications', icon: 'mail', checked: true },
-                { label: 'SMS Alerts', icon: 'sms', checked: false },
-                { label: 'Two-Factor Auth', icon: 'security', checked: true },
+                { label: 'Email Notifications', icon: Mail, checked: true },
+                { label: 'SMS Alerts', icon: MessageSquare, checked: false },
+                { label: 'Two-Factor Auth', icon: Shield, checked: true },
               ].map((pref, i) => (
                 <div key={i} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <span className="material-symbols-outlined text-slate-400">{pref.icon}</span>
+                    <pref.icon className="text-slate-400" size={20} />
                     <span className="text-sm font-bold dark:text-white">{pref.label}</span>
                   </div>
                   <div className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors ${pref.checked ? 'bg-primary' : 'bg-slate-200 dark:bg-slate-700'}`}>
@@ -525,7 +557,7 @@ function ProfileContent() {
                 <div key={i} className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{field.label}</label>
                   <div className="relative">
-                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">{field.icon}</span>
+                    <field.icon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
                     <input
                       type="text"
                       value={field.value}
@@ -542,7 +574,7 @@ function ProfileContent() {
             <div className="space-y-2 mb-8">
               <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">About / Bio</label>
               <div className="relative">
-                <span className="material-symbols-outlined absolute left-4 top-4 text-slate-400 text-[20px]">description</span>
+                <FileText className="absolute left-4 top-4 text-slate-400" size={20} />
                 <textarea
                   value={formData.bio}
                   readOnly={!isEditing}
@@ -560,7 +592,7 @@ function ProfileContent() {
                 <div key={i} className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{field.label}</label>
                   <div className="relative">
-                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">{field.icon}</span>
+                    <field.icon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
                     <input
                       type="text"
                       value={field.value}
@@ -594,11 +626,11 @@ function ProfileContent() {
                     className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-500"
                     title="Toggle Sort"
                   >
-                    <span className="material-symbols-outlined text-sm">{profileSort === 'newest' ? 'south' : 'north'}</span>
+                    {profileSort === 'newest' ? <ArrowDown size={16} /> : <ArrowUp size={16} />}
                   </button>
                   <Link href="/orders" className="text-primary text-xs font-bold hover:underline flex items-center gap-1 ml-2">
                     Full History
-                    <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+                    <ArrowRight size={14} />
                   </Link>
                 </div>
               </div>
@@ -612,11 +644,9 @@ function ProfileContent() {
                     <div key={order.id} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 group hover:border-primary/30 transition-all">
                       <div className="flex items-center gap-3 overflow-hidden">
                         <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${getStatusClasses(order.status)}`}>
-                          <span className="material-symbols-outlined text-[20px]">
-                            {order.status === 'delivered' ? 'check_circle' : 
-                             order.status === 'pending' ? 'schedule' : 
-                             order.status === 'cancelled' ? 'cancel' : 'local_shipping'}
-                          </span>
+                          {order.status === 'delivered' ? <CheckCircle size={20} /> : 
+                           order.status === 'pending' ? <Clock size={20} /> : 
+                           order.status === 'cancelled' ? <XCircle size={20} /> : <Truck size={20} />}
                         </div>
                         <div className="min-w-0">
                           <p className="text-sm font-bold dark:text-white truncate">Order #{order.id.slice(0, 8).toUpperCase()}</p>
@@ -628,7 +658,7 @@ function ProfileContent() {
                           {order.status}
                         </span>
                         <Link href="/orders" className="w-8 h-8 rounded-full bg-white dark:bg-white/5 flex items-center justify-center text-slate-400 hover:text-primary transition-colors opacity-0 group-hover:opacity-100">
-                          <span className="material-symbols-outlined text-sm">visibility</span>
+                          <Eye size={14} />
                         </Link>
                       </div>
                     </div>
@@ -654,7 +684,7 @@ function ProfileContent() {
               />
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center animate-pulse">
-                  <span className="material-symbols-outlined text-primary text-3xl fill-1">location_on</span>
+                  <MapPin className="text-primary" size={32} />
                 </div>
               </div>
               <div className="absolute top-4 right-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur px-4 py-2 rounded-xl shadow-sm transition-colors">
@@ -706,18 +736,20 @@ function ProfileContent() {
                       <div className="flex items-center gap-2">
                         <button 
                           onClick={() => downloadDiagnosisReport(diagnosis)}
-                          className="material-symbols-outlined text-slate-400 hover:text-primary transition-colors"
+                          className="text-slate-400 hover:text-primary transition-colors"
                           title="Download Report"
                         >
-                          download
+                          <Download size={18} />
                         </button>
-                        <Link href={`/diagnosis/result?id=${diagnosis.id}`} className="material-symbols-outlined text-slate-400 hover:text-primary transition-colors">chevron_right</Link>
+                        <Link href={`/diagnosis/result?id=${diagnosis.id}`} className="text-slate-400 hover:text-primary transition-colors">
+                          <ChevronRight size={18} />
+                        </Link>
                       </div>
                     </div>
                   ))
                 ) : (
                   <div className="text-center py-8">
-                    <span className="material-symbols-outlined text-4xl text-slate-300 mb-2">biotech</span>
+                    <AlertTriangle className="text-slate-300 mx-auto mb-2" size={40} />
                     <p className="text-sm text-slate-500">No diagnoses yet.</p>
                   </div>
                 )}

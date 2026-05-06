@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { motion } from 'motion/react';
+import { LockOpen, Lock } from 'lucide-react';
 
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState('');
@@ -59,7 +60,7 @@ export default function ResetPasswordPage() {
       >
         <div className="flex flex-col items-center text-center mb-10">
           <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-6">
-            <span className="material-symbols-outlined text-3xl fill-1">lock_open</span>
+            <LockOpen size={32} />
           </div>
           <h1 className="text-3xl font-black tracking-tight dark:text-white mb-3">Set New Password</h1>
           <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
@@ -71,7 +72,7 @@ export default function ResetPasswordPage() {
           <div className="space-y-2">
             <label className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">New Password</label>
             <div className="relative group">
-              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">lock</span>
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={20} />
               <input 
                 type="password" 
                 value={password}
@@ -86,7 +87,7 @@ export default function ResetPasswordPage() {
           <div className="space-y-2">
             <label className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">Confirm Password</label>
             <div className="relative group">
-              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">lock</span>
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={20} />
               <input 
                 type="password" 
                 value={confirmPassword}

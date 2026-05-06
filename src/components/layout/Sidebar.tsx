@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { SIDEBAR_NAV, MARKETPLACE_NAV } from '@/constants';
+import { SIDEBAR_NAV, MARKETPLACE_NAV, ADMIN_NAV } from '@/constants';
 import { useUser } from '@/context/UserContext';
 import { useLanguage } from '@/context/LanguageContext';
 import ResponsiveImage from '@/components/ui/ResponsiveImage';
+import { Sprout, X, ShieldAlert, ChevronRight } from 'lucide-react';
 
 interface SidebarProps {
   onMobileClose?: () => void;
@@ -14,22 +15,27 @@ export function Sidebar({ onMobileClose }: SidebarProps) {
   const { user } = useUser();
   const { t } = useLanguage();
 
+  const isAdminRoute = pathname.startsWith('/admin');
+
   const renderNavItems = (items: typeof SIDEBAR_NAV, titleKey: string) => {
     let filteredItems = items.filter(item => !item.roles || (user && item.roles.includes(user.user_type || '')));
     
-    // Add Admin Command Center if user is admin
-    if (titleKey === 'main_menu' && user?.is_admin) {
+    // Switch to ADMIN_NAV if on admin route
+    if (isAdminRoute && titleKey === 'main_menu') {
+      filteredItems = ADMIN_NAV;
+    } else if (titleKey === 'main_menu' && user?.is_admin) {
+      // Add Admin entry point to standard menu if not in admin already
       filteredItems = [
         ...filteredItems,
         {
           label: 'Admin Panel',
-          icon: 'admin_panel_settings',
+          icon: ShieldAlert,
           path: '/admin',
         }
       ];
     }
 
-    if (filteredItems.length === 0) return null;
+    if (filteredItems.length === 0 || (isAdminRoute && titleKey !== 'main_menu')) return null;
 
     return (
       <div className="space-y-1">
@@ -53,9 +59,7 @@ export function Sidebar({ onMobileClose }: SidebarProps) {
               }`}
             >
               <div className="w-6 h-6 flex items-center justify-center">
-                <span className={`material-symbols-outlined text-[22px] transition-transform duration-200 group-hover:scale-110 ${isActive ? 'fill-1' : ''}`}>
-                  {item.icon}
-                </span>
+                <item.icon size={22} className={`transition-transform duration-200 group-hover:scale-110 ${isActive ? 'text-primary' : ''}`} />
               </div>
               <span className="text-sm">{t(labelKey) || item.label}</span>
             </Link>
@@ -70,7 +74,7 @@ export function Sidebar({ onMobileClose }: SidebarProps) {
       <div className="p-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white">
-            <span className="material-symbols-outlined fill-1">potted_plant</span>
+            <Sprout size={24} />
           </div>
           <h1 className="font-bold text-xl tracking-tight dark:text-white">AgriTech Pro</h1>
         </div>
@@ -80,7 +84,7 @@ export function Sidebar({ onMobileClose }: SidebarProps) {
             className="lg:hidden w-10 h-10 flex items-center justify-center text-slate-400 hover:text-slate-900 dark:hover:text-white"
             title={t('close_menu')}
           >
-            <span className="material-symbols-outlined">close</span>
+            <X size={24} />
           </button>
         )}
       </div>
@@ -116,7 +120,7 @@ export function Sidebar({ onMobileClose }: SidebarProps) {
             <p className="text-sm font-black dark:text-white truncate">{user?.full_name || 'Guest'}</p>
             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-tight">{user?.user_type || 'Account'}</p>
           </div>
-          <span className="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">chevron_right</span>
+          <ChevronRight size={16} className="text-slate-400 group-hover:text-primary transition-colors" />
         </Link>
       </div>
     </aside>

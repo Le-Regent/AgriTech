@@ -16,7 +16,25 @@ import { Product } from '@/types';
 import ProtectedRoute from '@/components/layout/ProtectedRoute';
 import { toast } from 'sonner';
 import ProductModal from '@/components/features/marketplace/ProductModal';
-import ProductCard from '@/components/features/marketplace/ProductCard';
+import { 
+  PlusCircle, 
+  Search, 
+  Filter, 
+  Settings2, 
+  ChevronDown, 
+  ChevronUp, 
+  Sparkles, 
+  ShoppingCart, 
+  PlusShoppingCart, 
+  SearchX, 
+  ArrowRight,
+  MapPin,
+  CheckCircle2,
+  X,
+  ArrowLeftRight,
+  LayoutGrid,
+  List
+} from 'lucide-react';
 import { useUser } from '@/context/UserContext';
 import { useLanguage } from '@/context/LanguageContext';
 
@@ -342,12 +360,12 @@ function MarketplaceContent() {
                 onClick={() => setIsAddModalOpen(true)}
                 className="bg-primary text-white px-6 py-3 rounded-2xl font-black text-sm shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all flex items-center justify-center gap-2 sm:w-auto"
               >
-                <span className="material-symbols-outlined">add_circle</span>
+                <PlusCircle size={20} />
                 <span className="truncate">{t('sell_produce')}</span>
               </button>
             )}
             <div className="relative flex-1">
-              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
               <input
                 type="text"
                 placeholder={t('search_products_placeholder')}
@@ -362,12 +380,12 @@ function MarketplaceContent() {
                 onClick={() => setShowFilters(true)}
                 className="flex-1 bg-slate-900 dark:bg-slate-800 text-white py-3 rounded-xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2"
               >
-                <span className="material-symbols-outlined text-sm">tune</span>
+                <Settings2 size={14} />
                 {t('filters')}
               </button>
               <div className="relative flex-1">
                 <button className="w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white py-3 rounded-xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2">
-                  <span className="material-symbols-outlined text-sm">sort</span>
+                  <ChevronDown size={14} />
                   Sort
                 </button>
                 <select 
@@ -398,7 +416,7 @@ function MarketplaceContent() {
               className="flex items-center justify-between w-full text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 hover:text-primary transition-colors"
             >
               {t('origin')}
-              <span className={`material-symbols-outlined text-[18px] transition-transform ${collapsedFilters.includes('origin') ? 'rotate-180' : ''}`}>expand_more</span>
+              {collapsedFilters.includes('origin') ? <ChevronDown size={18} /> : <ChevronUp size={18} />}
             </button>
             {!collapsedFilters.includes('origin') && (
               <div className="flex flex-wrap gap-2">
@@ -420,7 +438,7 @@ function MarketplaceContent() {
               className="flex items-center justify-between w-full text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 hover:text-primary transition-colors"
             >
               {t('certifications')}
-              <span className={`material-symbols-outlined text-[18px] transition-transform ${collapsedFilters.includes('certifications') ? 'rotate-180' : ''}`}>expand_more</span>
+              {collapsedFilters.includes('certifications') ? <ChevronDown size={18} /> : <ChevronUp size={18} />}
             </button>
             {!collapsedFilters.includes('certifications') && (
               <div className="flex flex-wrap gap-2">
@@ -442,7 +460,7 @@ function MarketplaceContent() {
               className="flex items-center justify-between w-full text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 hover:text-primary transition-colors"
             >
               {t('harvest_season')}
-              <span className={`material-symbols-outlined text-[18px] transition-transform ${collapsedFilters.includes('season') ? 'rotate-180' : ''}`}>expand_more</span>
+              {collapsedFilters.includes('season') ? <ChevronDown size={18} /> : <ChevronUp size={18} />}
             </button>
             {!collapsedFilters.includes('season') && (
               <div className="flex flex-wrap gap-2">
@@ -522,13 +540,13 @@ function MarketplaceContent() {
             onClick={() => setShowFilters(true)}
             className="h-8 px-3 bg-slate-900 dark:bg-slate-800 text-white rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-lg shrink-0"
           >
-            <span className="material-symbols-outlined text-[16px]">tune</span>
+            <Settings2 size={16} />
             {t('filters')}
           </button>
           
           <div className="relative group shrink-0">
             <button className="h-8 px-3 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/5 rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 dark:text-white">
-              <span className="material-symbols-outlined text-[16px]">sort</span>
+              <ChevronDown size={16} />
               {sortBy === 'name-asc' ? 'A-Z' : 'Price'}
             </button>
             <div className="absolute left-0 mt-2 w-40 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 p-1.5">
@@ -560,7 +578,7 @@ function MarketplaceContent() {
               onClick={() => setShowComparison(true)}
               className="h-8 px-3 bg-indigo-600 text-white rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 animate-pulse shadow-lg shadow-indigo-500/20"
             >
-              <span className="material-symbols-outlined text-[16px]">compare_arrows</span>
+              <ArrowLeftRight size={16} />
               Compare({selectedProducts.length})
             </button>
           )}
@@ -570,13 +588,13 @@ function MarketplaceContent() {
                onClick={() => setViewMode('grid')}
                className={`w-7 h-7 flex items-center justify-center rounded-md transition-all ${viewMode === 'grid' ? 'bg-white dark:bg-slate-800 text-primary shadow-sm' : 'text-slate-400'}`}
              >
-               <span className="material-symbols-outlined text-[18px]">grid_view</span>
+               <LayoutGrid size={18} />
              </button>
              <button 
                onClick={() => setViewMode('list')}
                className={`w-7 h-7 flex items-center justify-center rounded-md transition-all ${viewMode === 'list' ? 'bg-white dark:bg-slate-800 text-primary shadow-sm' : 'text-slate-400'}`}
              >
-               <span className="material-symbols-outlined text-[18px]">view_list</span>
+               <List size={18} />
              </button>
           </div>
         </div>
@@ -605,7 +623,7 @@ function MarketplaceContent() {
                 <div className="flex items-center justify-between">
                   <h3 className="text-xl font-black uppercase italic tracking-tight dark:text-white">Refine Search</h3>
                   <button onClick={() => setShowFilters(false)} className="text-slate-400">
-                    <span className="material-symbols-outlined">close</span>
+                    <X size={24} />
                   </button>
                 </div>
 
@@ -679,50 +697,50 @@ function MarketplaceContent() {
                 {viewMode === 'grid' ? (
                   <ProductCard product={product}>
                     <div className="absolute top-4 right-4 flex gap-2">
-                      <button 
-                        onClick={(e) => toggleProductSelection(e, product.id)}
-                        className={`w-10 h-10 backdrop-blur rounded-xl shadow-lg flex items-center justify-center transition-all ${index === 0 ? 'compare-btn-first' : ''} ${selectedProducts.includes(product.id) ? 'bg-indigo-600 text-white' : 'bg-white/90 dark:bg-slate-900/90 text-slate-400 hover:text-indigo-600'}`}
-                        title="Select for comparison"
-                      >
-                        <span className="material-symbols-outlined">{selectedProducts.includes(product.id) ? 'check_circle' : 'add_circle'}</span>
-                      </button>
-                      
-                      {(!product.image_url || product.image_url.includes('picsum.photos')) && (
                         <button 
-                          onClick={(e) => generateAIImage(e, product.id, product.name)}
-                          disabled={generatingId === product.id}
-                          className={`h-10 px-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur rounded-xl shadow-lg flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed ${index === 0 ? 'ai-image-btn-first' : ''}`}
-                          title="Generate AI Image"
+                          onClick={(e) => toggleProductSelection(e, product.id)}
+                          className={`w-10 h-10 backdrop-blur rounded-xl shadow-lg flex items-center justify-center transition-all ${index === 0 ? 'compare-btn-first' : ''} ${selectedProducts.includes(product.id) ? 'bg-indigo-600 text-white' : 'bg-white/90 dark:bg-slate-900/90 text-slate-400 hover:text-indigo-600'}`}
+                          title="Select for comparison"
                         >
-                          {generatingId === product.id ? (
-                            <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                          ) : (
-                            <div className="flex items-center gap-2">
-                              <span className="material-symbols-outlined text-[18px]">auto_awesome</span>
-                              <span className="text-[10px] font-black uppercase tracking-widest">AI Image</span>
-                            </div>
-                          )}
+                          {selectedProducts.includes(product.id) ? <CheckCircle2 size={24} /> : <PlusCircle size={24} />}
                         </button>
-                      )}
+                        
+                        {(!product.image_url || product.image_url.includes('picsum.photos')) && (
+                          <button 
+                            onClick={(e) => generateAIImage(e, product.id, product.name)}
+                            disabled={generatingId === product.id}
+                            className={`h-10 px-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur rounded-xl shadow-lg flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed ${index === 0 ? 'ai-image-btn-first' : ''}`}
+                            title="Generate AI Image"
+                          >
+                            {generatingId === product.id ? (
+                              <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                            ) : (
+                              <div className="flex items-center gap-2">
+                                <Sparkles size={18} />
+                                <span className="text-[10px] font-black uppercase tracking-widest">AI Image</span>
+                              </div>
+                            )}
+                          </button>
+                        )}
                     </div>
                     <div className="absolute inset-x-4 bottom-4 translate-y-12 group-hover:translate-y-0 transition-transform duration-300">
-                      <button 
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          addToCart(product, 1);
-                          toast.success(`${product.name} added to cart`, {
-                            action: {
-                              label: 'View Cart',
-                              onClick: () => window.location.href = '/cart'
-                            }
-                          });
-                        }}
-                        className="w-full bg-primary text-white py-3 rounded-xl font-black text-xs shadow-xl shadow-primary/20 flex items-center justify-center gap-2 hover:scale-105 active:scale-95 transition-all"
-                      >
-                        <span className="material-symbols-outlined text-[18px]">shopping_cart</span>
-                        {t('add_to_cart')}
-                      </button>
+                        <button 
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            addToCart(product, 1);
+                            toast.success(`${product.name} added to cart`, {
+                              action: {
+                                label: 'View Cart',
+                                onClick: () => window.location.href = '/cart'
+                              }
+                            });
+                          }}
+                          className="w-full bg-primary text-white py-3 rounded-xl font-black text-xs shadow-xl shadow-primary/20 flex items-center justify-center gap-2 hover:scale-105 active:scale-95 transition-all"
+                        >
+                          <ShoppingCart size={18} />
+                          {t('add_to_cart')}
+                        </button>
                     </div>
                   </ProductCard>
                 ) : (
@@ -736,7 +754,7 @@ function MarketplaceContent() {
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1 px-2 py-0.5 bg-slate-100 dark:bg-white/5 rounded-md">
-                         <span className="material-symbols-outlined text-[12px] text-primary">location_on</span>
+                         <MapPin size={12} className="text-primary" />
                          <span className="text-[9px] font-bold text-slate-600 dark:text-slate-400">{product.location}</span>
                       </div>
                       <button 
@@ -748,7 +766,7 @@ function MarketplaceContent() {
                         }}
                         className="w-8 h-8 bg-primary/10 text-primary rounded-lg flex items-center justify-center hover:bg-primary hover:text-white transition-colors"
                       >
-                        <span className="material-symbols-outlined text-[18px]">add_shopping_cart</span>
+                        <PlusShoppingCart size={18} />
                       </button>
                     </div>
                   </div>
@@ -758,7 +776,7 @@ function MarketplaceContent() {
           ))
         ) : (
           <motion.div variants={itemVariants} className="col-span-full text-center py-20">
-            <span className="material-symbols-outlined text-6xl text-slate-200 dark:text-slate-700 mb-4">search_off</span>
+            <SearchX size={60} className="mx-auto text-slate-200 dark:text-slate-700 mb-4" />
             <p className="text-slate-500 dark:text-slate-400 font-bold">No products found matching your filters.</p>
           </motion.div>
         )}
@@ -776,7 +794,7 @@ function MarketplaceContent() {
                 onClick={() => setShowComparison(false)}
                 className="w-12 h-12 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-slate-400 hover:text-red-500 transition-colors"
               >
-                <span className="material-symbols-outlined">close</span>
+                <X size={24} />
               </button>
             </div>
             <div className="flex-1 overflow-auto p-6 sm:p-8">

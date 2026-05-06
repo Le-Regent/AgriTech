@@ -10,19 +10,18 @@ import { useUser } from '@/context/UserContext';
 import ProtectedRoute from '@/components/layout/ProtectedRoute';
 import { formatUnit } from '@/lib/unitUtils';
 import { format } from 'date-fns';
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  AreaChart,
-  Area
-} from 'recharts';
+import dynamic from 'next/dynamic';
+import { ArrowLeft, Package, Loader2 } from 'lucide-react';
+
+const ListingCharts = dynamic(() => import('./ListingCharts'), {
+  ssr: false,
+  loading: () => (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-pulse">
+      <div className="h-[400px] bg-slate-100 dark:bg-muted-dark rounded-[2.5rem]" />
+      <div className="h-[400px] bg-slate-100 dark:bg-muted-dark rounded-[2.5rem]" />
+    </div>
+  )
+});
 
 export default function ProductInsightsPage() {
   const params = useParams();
@@ -76,8 +75,20 @@ export default function ProductInsightsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      <div className="space-y-8 pb-20">
+        <div className="flex items-center gap-4 animate-pulse">
+          <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-muted-dark" />
+          <div className="space-y-2">
+            <div className="h-8 w-48 bg-slate-100 dark:bg-muted-dark rounded-lg" />
+            <div className="h-4 w-32 bg-slate-100 dark:bg-muted-dark rounded-lg" />
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[1, 2, 3, 4].map(i => (
+            <div key={i} className="h-32 bg-white dark:bg-muted-dark border border-slate-100 dark:border-border-dark rounded-[2rem] animate-pulse" />
+          ))}
+        </div>
+        <div className="h-96 bg-white dark:bg-muted-dark border border-slate-100 dark:border-border-dark rounded-[2.5rem] animate-pulse" />
       </div>
     );
   }
@@ -99,9 +110,9 @@ export default function ProductInsightsPage() {
           <div className="flex items-center gap-4">
             <Link 
               href="/listings"
-              className="w-10 h-10 rounded-xl bg-white dark:bg-surface-dark border border-slate-100 dark:border-border-border-dark flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-primary transition-colors"
+              className="w-10 h-10 rounded-xl bg-white dark:bg-surface-dark border border-slate-100 dark:border-border-dark flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-primary transition-all active:scale-95"
             >
-              <span className="material-symbols-outlined">arrow_back</span>
+              <ArrowLeft size={20} />
             </Link>
             <div>
               <h2 className="text-3xl font-black tracking-tight dark:text-white">{product.name}</h2>
@@ -109,7 +120,7 @@ export default function ProductInsightsPage() {
             </div>
           </div>
           <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-xl font-bold text-sm">
-            <span className="material-symbols-outlined text-[18px]">inventory_2</span>
+            <Package size={18} />
             {product.stock_quantity} {formatUnit(product.unit)} Left
           </div>
         </div>
@@ -141,48 +152,8 @@ export default function ProductInsightsPage() {
           </div>
         </div>
 
-        {/* Charts */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="bg-white dark:bg-surface-dark p-8 rounded-[2.5rem] border border-slate-100 dark:border-border-dark shadow-sm">
-            <h3 className="text-lg font-black mb-6 dark:text-white">Sales Volume</h3>
-            <div className="h-[300px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={stats.chartData}>
-                  <defs>
-                    <linearGradient id="colorQty" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                  <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#94a3b8' }} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#94a3b8' }} />
-                  <Tooltip 
-                    contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-                  />
-                  <Area type="monotone" dataKey="quantity" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorQty)" />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-surface-dark p-8 rounded-[2.5rem] border border-slate-100 dark:border-border-dark shadow-sm">
-            <h3 className="text-lg font-black mb-6 dark:text-white">Revenue Trend</h3>
-            <div className="h-[300px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={stats.chartData}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                  <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#94a3b8' }} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#94a3b8' }} />
-                  <Tooltip 
-                    contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-                  />
-                  <Bar dataKey="revenue" fill="#10b981" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        </div>
+        {/* Charts - Dynamic */}
+        <ListingCharts chartData={stats.chartData} />
 
         {/* Recent Sales Table */}
         <div className="bg-white dark:bg-surface-dark rounded-[2.5rem] border border-slate-100 dark:border-border-dark shadow-sm overflow-hidden">

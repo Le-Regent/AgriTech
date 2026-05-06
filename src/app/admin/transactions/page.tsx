@@ -13,7 +13,10 @@ import {
   Truck, 
   CheckCircle2, 
   Clock,
-  MoreVertical
+  MoreVertical,
+  MapPin,
+  Terminal,
+  Receipt
 } from 'lucide-react';
 
 export default function TransactionsManagement() {
@@ -221,7 +224,7 @@ export default function TransactionsManagement() {
                                 <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-4">Destination Access</h4>
                                 <div className="flex items-start gap-3 mb-6">
                                    <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center shrink-0">
-                                      <span className="material-symbols-outlined text-[18px]">location_on</span>
+                                      <MapPin size={18} />
                                    </div>
                                    <p className="text-[11px] font-bold text-white/80 leading-relaxed italic">
                                      {order.shipping_address || 'Regional Logistics Hub, Douala Terminal 4'}
@@ -229,11 +232,11 @@ export default function TransactionsManagement() {
                                 </div>
                                 <div className="space-y-3">
                                   <button className="w-full py-3 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20 flex items-center justify-center gap-2">
-                                    <span className="material-symbols-outlined text-[18px]">terminal</span>
+                                    <Terminal size={18} />
                                     Sync Status
                                   </button>
                                   <button className="w-full py-3 bg-white/10 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-white/20 transition-all flex items-center justify-center gap-2">
-                                    <span className="material-symbols-outlined text-[18px]">receipt_long</span>
+                                    <Receipt size={18} />
                                     Issue Protocol
                                   </button>
                                 </div>

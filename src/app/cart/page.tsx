@@ -11,6 +11,15 @@ import { supabaseService } from '@/services/supabaseService';
 import ProtectedRoute from '@/components/layout/ProtectedRoute';
 import { toast } from 'sonner';
 import { formatUnit, convertQuantity } from '@/lib/unitUtils';
+import { 
+  ShoppingCart, 
+  ArrowLeft, 
+  Trash2, 
+  X, 
+  Minus, 
+  Plus, 
+  ArrowRight 
+} from 'lucide-react';
 
 function CartContent() {
   const { cart, removeFromCart, clearCart, totalItems, updateQuantity } = useCart();
@@ -50,7 +59,7 @@ function CartContent() {
     return (
       <div className="max-w-4xl mx-auto py-20 text-center space-y-6">
         <div className="w-24 h-24 bg-slate-100 dark:bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-6 transition-colors">
-          <span className="material-symbols-outlined text-4xl text-slate-400">shopping_cart</span>
+          <ShoppingCart size={40} className="text-slate-400" />
         </div>
         <h2 className="text-3xl font-black dark:text-white">Your cart is empty</h2>
         <p className="text-slate-500 dark:text-slate-400">Looks like you haven&apos;t added any fresh produce yet.</p>
@@ -70,7 +79,7 @@ function CartContent() {
             <span className="text-sm font-bold bg-primary/10 text-primary px-3 py-1 rounded-full">{totalItems} items</span>
           </h2>
           <Link href="/marketplace" className="text-xs font-bold text-slate-400 hover:text-primary flex items-center gap-1 transition-colors">
-            <span className="material-symbols-outlined text-sm">arrow_back</span>
+            <ArrowLeft size={16} />
             Continue Shopping
           </Link>
         </div>
@@ -78,7 +87,7 @@ function CartContent() {
           onClick={clearCart}
           className="text-slate-400 hover:text-red-500 font-bold text-sm flex items-center gap-2 transition-colors"
         >
-          <span className="material-symbols-outlined text-sm">delete_sweep</span>
+          <Trash2 size={16} />
           Clear Cart
         </button>
       </div>
@@ -114,7 +123,7 @@ function CartContent() {
                       onClick={() => removeFromCart(item.id, item.unit)}
                       className="text-slate-300 hover:text-red-500 transition-colors"
                     >
-                      <span className="material-symbols-outlined text-xl">close</span>
+                      <X size={20} />
                     </button>
                   </div>
                   <div className="flex items-center justify-between mt-4">
@@ -123,7 +132,7 @@ function CartContent() {
                         onClick={() => handleUpdateQuantity(item, -1)}
                         className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-all font-black"
                       >
-                        <span className="material-symbols-outlined text-sm">remove</span>
+                        <Minus size={14} />
                       </button>
                       <span className="font-black text-sm w-8 text-center dark:text-white">{item.quantity}</span>
                       <button 
@@ -131,7 +140,7 @@ function CartContent() {
                         disabled={convertQuantity(item.quantity + 1, item.unit, item.baseUnit) > item.stockQuantity}
                         className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-all font-black disabled:opacity-30"
                       >
-                        <span className="material-symbols-outlined text-sm">add</span>
+                        <Plus size={14} />
                       </button>
                     </div>
                     <div className="text-right">
@@ -172,7 +181,7 @@ function CartContent() {
               className="w-full bg-primary text-white py-4 rounded-2xl font-black text-lg hover:bg-primary/90 transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-3 disabled:opacity-50"
             >
               {isCheckingOut ? 'Processing...' : 'Checkout'}
-              <span className="material-symbols-outlined">arrow_forward</span>
+              <ArrowRight size={20} />
             </button>
             <p className="text-[10px] text-center text-slate-400 mt-4 font-bold uppercase tracking-widest">
               Secure Checkout Powered by AgriTech Pay

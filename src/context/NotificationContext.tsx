@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { TrendingDown, AlertTriangle, AlertCircle, Info, X } from 'lucide-react';
 
 export interface Notification {
   id: string;
@@ -89,18 +90,16 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
                 n.type === 'error' ? 'bg-red-100 text-red-600' :
                 'bg-blue-100 text-blue-600'
               }`}>
-                <span className="material-symbols-outlined">
-                  {n.type === 'success' ? 'trending_down' :
-                   n.type === 'warning' ? 'warning' :
-                   n.type === 'error' ? 'error' :
-                   'info'}
-                </span>
+                {n.type === 'success' ? <TrendingDown size={20} /> :
+                 n.type === 'warning' ? <AlertTriangle size={20} /> :
+                 n.type === 'error' ? <AlertCircle size={20} /> :
+                 <Info size={20} />}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-2">
                   <h4 className="font-bold text-sm dark:text-white">{n.title}</h4>
                   <button onClick={() => markAsRead(n.id)} className="text-slate-300 hover:text-slate-500">
-                    <span className="material-symbols-outlined text-sm">close</span>
+                    <X size={16} />
                   </button>
                 </div>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{n.message}</p>

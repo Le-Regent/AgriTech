@@ -13,6 +13,19 @@ import { Product, Order } from '@/types';
 import ProtectedRoute from '@/components/layout/ProtectedRoute';
 import { toast } from 'sonner';
 
+import { 
+  Calendar, 
+  Download, 
+  CreditCard, 
+  Package, 
+  ShoppingBag, 
+  TrendingUp, 
+  BarChart3, 
+  PieChart as PieChartIcon, 
+  Activity, 
+  Sparkles 
+} from 'lucide-react';
+
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -105,11 +118,11 @@ function InsightsContent() {
         </div>
         <div className="flex gap-2">
           <div className="bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark px-4 py-2 rounded-xl flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary">calendar_today</span>
+            <Calendar size={18} className="text-primary" />
             <span className="text-xs font-bold dark:text-white">Last 30 Days</span>
           </div>
           <button className="bg-primary text-white px-4 py-2 rounded-xl text-xs font-black shadow-lg shadow-primary/20 hover:scale-105 transition-all flex items-center gap-2">
-            <span className="material-symbols-outlined text-[18px]">download</span>
+            <Download size={18} />
             Export Report
           </button>
         </div>
@@ -117,10 +130,10 @@ function InsightsContent() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
-          { label: 'Total Revenue', value: '2.4M CFA', change: '+12%', icon: 'payments', color: 'text-green-600', bg: 'bg-green-50' },
-          { label: 'Active Listings', value: products.length.toString(), change: 'Stable', icon: 'inventory_2', color: 'text-blue-600', bg: 'bg-blue-50' },
-          { label: 'Total Orders', value: orders.length.toString(), change: '+5%', icon: 'shopping_bag', color: 'text-amber-600', bg: 'bg-amber-50' },
-          { label: 'Market Demand', value: 'High', change: 'Trending', icon: 'trending_up', color: 'text-indigo-600', bg: 'bg-indigo-50' },
+          { label: 'Total Revenue', value: '2.4M CFA', change: '+12%', icon: <CreditCard size={24} />, color: 'text-green-600', bg: 'bg-green-50' },
+          { label: 'Active Listings', value: products.length.toString(), change: 'Stable', icon: <Package size={24} />, color: 'text-blue-600', bg: 'bg-blue-50' },
+          { label: 'Total Orders', value: orders.length.toString(), change: '+5%', icon: <ShoppingBag size={24} />, color: 'text-amber-600', bg: 'bg-amber-50' },
+          { label: 'Market Demand', value: 'High', change: 'Trending', icon: <TrendingUp size={24} />, color: 'text-indigo-600', bg: 'bg-indigo-50' },
         ].map((stat, i) => (
           <motion.div 
             key={i} 
@@ -129,7 +142,7 @@ function InsightsContent() {
           >
             <div className="flex justify-between items-start mb-4">
               <div className={`${stat.bg} ${stat.color} w-12 h-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110`}>
-                <span className="material-symbols-outlined">{stat.icon}</span>
+                {stat.icon}
               </div>
               <span className={`text-[10px] font-black px-2 py-1 rounded-lg ${stat.change.startsWith('+') ? 'bg-green-50 text-green-600' : 'bg-slate-50 text-slate-400'}`}>
                 {stat.change}
@@ -149,7 +162,7 @@ function InsightsContent() {
               <p className="text-xs text-slate-500 font-medium">Projected monthly earnings performance</p>
             </div>
             <div className="w-10 h-10 bg-green-50 text-green-600 rounded-xl flex items-center justify-center">
-              <span className="material-symbols-outlined">analytics</span>
+              <BarChart3 size={20} />
             </div>
           </div>
           <div className="h-[300px] w-full">
@@ -201,7 +214,7 @@ function InsightsContent() {
               <p className="text-xs text-slate-500 font-medium">Conversion rate across top listings</p>
             </div>
             <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
-              <span className="material-symbols-outlined">pie_chart</span>
+              <PieChartIcon size={20} />
             </div>
           </div>
           <div className="h-[300px] w-full flex items-center justify-center">
@@ -227,7 +240,7 @@ function InsightsContent() {
               </ResponsiveContainer>
             ) : (
               <div className="text-center space-y-2">
-                <span className="material-symbols-outlined text-4xl text-slate-200">monitoring</span>
+                <Activity size={40} className="text-slate-200 mx-auto" />
                 <p className="text-xs text-slate-400 font-bold font-mono">No product data available for comparison</p>
               </div>
             )}
@@ -270,7 +283,7 @@ function InsightsContent() {
           <div className="relative z-10 h-full flex flex-col justify-between">
             <div className="space-y-4">
               <div className="w-12 h-12 bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center">
-                <span className="material-symbols-outlined">auto_awesome</span>
+                <Sparkles size={24} />
               </div>
               <h3 className="text-2xl font-black leading-tight">AI Farm Manager</h3>
               <p className="text-white/80 text-sm font-bold leading-relaxed">

@@ -20,7 +20,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
 
   // Define routes where we don't want to show the layout (e.g., welcome, login)
   const noLayoutRoutes = ['/welcome', '/login'];
-  const isNoLayoutRoute = noLayoutRoutes.includes(pathname);
+  const isNoLayoutRoute = noLayoutRoutes.includes(pathname) || pathname.startsWith('/admin');
   
   // Also hide layout if not logged in on the root route (which will show LandingPage)
   const showLayout = !isNoLayoutRoute && (user !== null || pathname !== '/');

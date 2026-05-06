@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { X } from 'lucide-react';
 
 interface Step {
   target: string;
@@ -95,7 +96,7 @@ export function OnboardingTour() {
                 Step {currentStep + 1} of {STEPS.length}
               </span>
               <button onClick={handleComplete} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
-                <span className="material-symbols-outlined text-[20px]">close</span>
+                <X size={20} />
               </button>
             </div>
             <div>
