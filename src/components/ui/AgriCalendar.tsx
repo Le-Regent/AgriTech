@@ -12,11 +12,15 @@ interface AgriTip {
 }
 
 const AGRI_TIPS: AgriTip[] = [
-  { date: '2026-04-15', title: 'Maize Planting', type: 'planting', desc: 'Optimal time for maize planting in the Northwest region.' },
-  { date: '2026-04-20', title: 'Soil Preparation', type: 'maintenance', desc: 'Prepare your cassava beds before the heavy rains start.' },
-  { date: '2026-05-02', title: 'Pest Scouter', type: 'warning', desc: 'Keep an eye out for armyworms during late spring.' },
-  { date: '2026-05-10', title: 'Cocoa Harvesting', type: 'harvesting', desc: 'Main harvest season approaching for cocoa in Littoral.' },
-  { date: '2026-04-30', title: 'Fertilizer Application', type: 'maintenance', desc: 'Apply nitrogen-based fertilizer to young plantains today.' },
+  { date: '2026-04-15', title: 'Maize Planting', type: 'planting', desc: 'Optimal time for maize planting in the Northwest region. Ensure soil is moist.' },
+  { date: '2026-04-20', title: 'Soil Preparation', type: 'maintenance', desc: 'Prepare your cassava beds before the heavy rains start. Add organic matter.' },
+  { date: '2026-05-02', title: 'Pest Scouter', type: 'warning', desc: 'Keep an eye out for armyworms during late spring. Check under leaves.' },
+  { date: '2026-05-10', title: 'Cocoa Harvesting', type: 'harvesting', desc: 'Main harvest season approaching for cocoa in Littoral. Prepare drying mats.' },
+  { date: '2026-04-30', title: 'Fertilizer Application', type: 'maintenance', desc: 'Apply nitrogen-based fertilizer to young plantains today for better growth.' },
+  { date: '2026-05-15', title: 'Coffee Pruning', type: 'maintenance', desc: 'Light pruning for Arabica coffee trees in the West region.' },
+  { date: '2026-05-22', title: 'Tomato Spraying', type: 'warning', desc: 'High humidity forecasted. Spray fungicides to prevent early blight.' },
+  { date: '2026-06-05', title: 'Yam Staking', type: 'maintenance', desc: 'Ensure yam vines are properly staked to maximize sunlight exposure.' },
+  { date: '2026-06-15', title: 'Rice Weeding', type: 'maintenance', desc: 'First round of weeding for upland rice should be completed this week.' },
 ];
 
 export default function AgriCalendar() {

@@ -91,26 +91,27 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
           {onMenuClick && (
             <button 
               onClick={onMenuClick}
-              className="lg:hidden w-8 h-8 flex items-center justify-center text-slate-500 hover:text-slate-900 transition-colors"
+              className="lg:hidden w-10 h-10 flex items-center justify-center text-slate-500 hover:text-slate-900 transition-colors"
             >
-              <span className="material-symbols-outlined text-[20px]">menu</span>
+              <span className="material-symbols-outlined text-[24px]">menu</span>
             </button>
           )}
           <Link href="/" className="flex items-center gap-2 group shrink-0">
-          <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-primary to-green-400 rounded-lg flex items-center justify-center text-white shadow-lg shadow-primary/20 group-hover:rotate-6 transition-transform">
-            <span className="material-symbols-outlined text-[18px] md:text-[24px] font-bold">agriculture</span>
-          </div>
-          <h1 className="text-sm md:text-xl font-black text-slate-900 dark:text-white tracking-tighter uppercase italic hidden xs:block">
-            Agri<span className="text-primary tracking-normal">Tech</span>
-          </h1>
-        </Link>
+            <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-primary to-green-400 rounded-lg flex items-center justify-center text-white shadow-lg shadow-primary/20 group-hover:rotate-6 transition-transform">
+              <span className="material-symbols-outlined text-[18px] md:text-[24px] font-bold">agriculture</span>
+            </div>
+            <h1 className="text-sm md:text-xl font-black text-slate-900 dark:text-white tracking-tighter uppercase italic hidden xs:block">
+              {title ? '' : 'Agri'}<span className={title ? 'hidden' : 'text-primary tracking-normal'}>Tech</span>
+            </h1>
+          </Link>
 
-        {title ? (
-          <h2 className="text-[10px] sm:text-lg font-black text-slate-900 dark:text-white bg-slate-100 dark:bg-white/5 py-1 px-2 sm:px-3 rounded-[10px] sm:rounded-xl border border-slate-200 dark:border-white/10 uppercase italic tracking-tighter whitespace-nowrap overflow-hidden text-ellipsis max-w-[120px] sm:max-w-none ml-1 sm:ml-4 flex-shrink">
-            {title}
-          </h2>
-        ) : (
-          <nav className="hidden lg:flex items-center ml-8 gap-1">
+          {title && (
+            <h2 className="text-[10px] sm:text-lg font-black text-slate-900 dark:text-white bg-slate-100 dark:bg-white/5 py-1 px-2 sm:px-3 rounded-[10px] sm:rounded-xl border border-slate-200 dark:border-white/10 uppercase italic tracking-tighter whitespace-nowrap overflow-hidden text-ellipsis max-w-[100px] sm:max-w-none ml-1 sm:ml-4 flex-shrink">
+              {title}
+            </h2>
+          )}
+          
+          <nav className="hidden lg:flex items-center ml-4 gap-1">
             {mainNavLinks.map((item) => (
               <Link
                 key={item.path}
@@ -131,21 +132,34 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
               </Link>
             ))}
           </nav>
-        )}
-        
-        <div className="hidden min-[1100px]:flex items-center justify-center flex-1 max-w-md mx-4">
-          <div className="relative w-full group">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px] transition-colors group-focus-within:text-primary">search</span>
-            <input 
-              type="text" 
-              placeholder={t('search_placeholder') || "Search marketplace, crops, insights..."}
-              className="w-full bg-slate-100 dark:bg-white/5 border-none rounded-xl py-2 pl-10 pr-4 text-[10px] font-black uppercase tracking-widest outline-none focus:ring-2 focus:ring-primary/20 transition-all dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600"
-            />
-          </div>
         </div>
-      </div>
 
-      <div className="flex items-center gap-1 md:gap-3 ml-2 relative">
+        <div className="flex items-center gap-1 sm:gap-3">
+          {/* Mobile Search Icon */}
+          <button 
+            className="lg:hidden w-10 h-10 rounded-full hover:bg-slate-50 dark:hover:bg-white/5 flex items-center justify-center text-slate-500 dark:text-slate-400"
+            onClick={() => router.push('/marketplace')}
+          >
+            <span className="material-symbols-outlined text-[22px]">search</span>
+          </button>
+
+          <div className="hidden lg:flex items-center justify-center flex-1 max-w-md mx-4">
+            <div className="relative w-full group">
+              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px] transition-colors group-focus-within:text-primary">search</span>
+              <input 
+                type="text" 
+                placeholder={t('search_placeholder') || "Search products..."}
+                onChange={(e) => {
+                  if (pathname !== '/marketplace') {
+                     // Simple redirect for now, or could be real shared search
+                  }
+                }}
+                className="w-full bg-slate-100 dark:bg-white/5 border-none rounded-xl py-2 pl-10 pr-4 text-[10px] font-black uppercase tracking-widest outline-none focus:ring-2 focus:ring-primary/20 transition-all dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600"
+              />
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-1 md:gap-3">
         <AnimatePresence>
           {!isOnline && (
             <motion.div
@@ -261,6 +275,7 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
         </div>
       </div>
     </div>
-  </header>
+  </div>
+</header>
   );
 }

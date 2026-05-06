@@ -11,6 +11,7 @@ import { CropDiagnosis } from '@/types';
 import { downloadDiagnosisReport } from '@/lib/diagnosisUtils';
 import Link from 'next/link';
 import { toast } from 'sonner';
+import { motion, AnimatePresence } from 'motion/react';
 
 function ProfileContent() {
   const { theme, toggleTheme } = useTheme();
@@ -31,6 +32,40 @@ function ProfileContent() {
     farm_name: '',
     website: ''
   });
+
+  const [securityTab, setSecurityTab] = useState<'info' | 'activity' | 'devices'>('info');
+  const [adminKey, setAdminKey] = useState('');
+  const [promoting, setPromoting] = useState(false);
+
+  // Simulation of security logs
+  const securityLogs = [
+    { event: 'Login successful', device: 'Chrome on MacOS', location: 'Yaoundé, CM', time: '2 mins ago', icon: 'login' },
+    { event: 'Password changed', device: 'Safari on iPhone', location: 'Douala, CM', time: '2 days ago', icon: 'lock_reset' },
+    { event: 'New device authorized', device: 'Firefox on Windows', location: 'Unknown', time: '1 week ago', icon: 'devices' },
+  ];
+
+  const handlePromoteAdmin = async () => {
+    if (!user || adminKey !== 'AGRI_ADMIN_2026') {
+      toast.error('Invalid Admin Promotion Key');
+      return;
+    }
+    setPromoting(true);
+    try {
+      const { error } = await updateProfile({ is_admin: true } as any);
+      if (error) {
+        toast.error(error);
+      } else {
+        toast.success('You are now an Admin!', {
+          description: 'Refresh the page to see admin features.'
+        });
+        setAdminKey('');
+      }
+    } catch (err) {
+      toast.error('Failed to elevate privileges');
+    } finally {
+      setPromoting(false);
+    }
+  };
 
   const isFarmer = user?.user_type === 'farmer';
 
@@ -366,25 +401,85 @@ function ProfileContent() {
               />
             </div>
 
-            <div className="space-y-4">
-              {securityHealth.map((item, i) => (
-                <div key={i} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-white/5 rounded-2xl border border-slate-100 dark:border-slate-800 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <span className={`material-symbols-outlined text-[20px] ${item.status ? 'text-green-500' : 'text-slate-400'}`}>{item.icon}</span>
-                    <span className="text-xs font-bold dark:text-white">{item.label}</span>
-                  </div>
-                  <span className={`material-symbols-outlined text-[18px] ${item.status ? 'text-green-500' : 'text-amber-400'}`}>
-                    {item.status ? 'verified' : 'error'}
-                  </span>
-                </div>
-              ))}
+            <div className="flex gap-4 mb-6 border-b border-slate-100 dark:border-slate-800">
+              <button 
+                onClick={() => setSecurityTab('info')}
+                className={`pb-3 text-[10px] font-black uppercase tracking-widest transition-colors relative ${securityTab === 'info' ? 'text-primary' : 'text-slate-400'}`}
+              >
+                Invariants
+                {securityTab === 'info' && <motion.div layoutId="secTab" className="absolute bottom-0 inset-x-0 h-0.5 bg-primary" />}
+              </button>
+              <button 
+                onClick={() => setSecurityTab('activity')}
+                className={`pb-3 text-[10px] font-black uppercase tracking-widest transition-colors relative ${securityTab === 'activity' ? 'text-primary' : 'text-slate-400'}`}
+              >
+                Activity Log
+                {securityTab === 'activity' && <motion.div layoutId="secTab" className="absolute bottom-0 inset-x-0 h-0.5 bg-primary" />}
+              </button>
             </div>
 
+            {securityTab === 'info' ? (
+              <div className="space-y-4">
+                {securityHealth.map((item, i) => (
+                  <div key={i} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-white/5 rounded-2xl border border-slate-100 dark:border-slate-800 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <span className={`material-symbols-outlined text-[20px] ${item.status ? 'text-green-500' : 'text-slate-400'}`}>{item.icon}</span>
+                      <span className="text-xs font-bold dark:text-white">{item.label}</span>
+                    </div>
+                    <span className={`material-symbols-outlined text-[18px] ${item.status ? 'text-green-500' : 'text-amber-400'}`}>
+                      {item.status ? 'verified' : 'error'}
+                    </span>
+                  </div>
+                ))}
+
+                {isEditing && !user?.is_admin && (
+                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-3">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 italic">Elevate Privileges</p>
+                    <div className="flex gap-2">
+                      <input 
+                        type="password"
+                        placeholder="Admin Activation Key"
+                        value={adminKey}
+                        onChange={(e) => setAdminKey(e.target.value)}
+                        className="flex-1 bg-slate-100 dark:bg-white/5 border-none rounded-xl px-4 py-2 text-xs font-bold outline-none dark:text-white"
+                      />
+                      <button 
+                        onClick={handlePromoteAdmin}
+                        disabled={promoting || !adminKey}
+                        className="bg-slate-900 dark:bg-white dark:text-slate-900 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest disabled:opacity-50"
+                      >
+                        {promoting ? '...' : 'Activate'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {securityLogs.map((log, i) => (
+                  <div key={i} className="flex items-start gap-3 p-3 hover:bg-slate-50 dark:hover:bg-white/5 rounded-2xl transition-colors group">
+                    <div className="w-8 h-8 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center text-slate-400 group-hover:bg-primary/10 group-hover:text-primary transition-colors shrink-0">
+                      <span className="material-symbols-outlined text-[18px]">{log.icon}</span>
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold dark:text-white">{log.event}</p>
+                      <p className="text-[10px] text-slate-400 truncate">{log.device} · {log.location}</p>
+                      <p className="text-[9px] font-black text-primary uppercase mt-1">{log.time}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
             <div className="mt-8 p-4 bg-primary/5 rounded-2xl border border-primary/10">
-              <p className="text-[10px] text-slate-500 leading-relaxed">
+              <p className="text-[10px] text-slate-500 leading-relaxed mb-3">
                 <span className="font-bold text-primary">Pro Tip:</span> Completing your profile and verifying your contact info increases 
                 visibility and builds stronger trust with the AgriControl community.
               </p>
+              <Link href="/SECURITY.md" className="text-[9px] font-black uppercase tracking-widest text-primary flex items-center gap-1 hover:underline">
+                <span className="material-symbols-outlined text-sm">security</span>
+                View Security Whitepaper
+              </Link>
             </div>
           </div>
 

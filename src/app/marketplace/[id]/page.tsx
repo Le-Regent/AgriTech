@@ -669,6 +669,23 @@ function ProductDetailContent() {
           </div>
         </div>
       )}
+      {/* Sticky Mobile Add to Cart */}
+      <div className="lg:hidden fixed bottom-24 left-4 right-4 z-40">
+        <div className="bg-slate-900/90 dark:bg-slate-800/90 backdrop-blur-xl p-4 rounded-[2.5rem] shadow-2xl border border-white/10 flex items-center justify-between gap-4">
+          <div className="flex-1">
+             <p className="text-[10px] font-black uppercase text-white/50 tracking-widest leading-none mb-1">Total Price</p>
+             <p className="text-lg font-black text-white leading-none">{totalPrice.toLocaleString()} CFA</p>
+          </div>
+          <button 
+            onClick={handleAddToCart}
+            disabled={product.stock_quantity <= 0}
+            className="bg-primary text-white h-14 px-8 rounded-2xl font-black text-sm flex items-center gap-3 shadow-xl shadow-primary/20 active:scale-95 transition-all disabled:opacity-50"
+          >
+            <span className="material-symbols-outlined">shopping_cart</span>
+            {product.stock_quantity > 0 ? 'Add' : 'Out'}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

@@ -276,6 +276,8 @@ function MarketplaceContent() {
     }
   };
 
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -304,7 +306,7 @@ function MarketplaceContent() {
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className="space-y-8"
+      className="space-y-4 sm:space-y-8"
     >
       <Joyride
         {...({
@@ -322,82 +324,61 @@ function MarketplaceContent() {
           }
         } as any)}
       />
-      <motion.div variants={itemVariants} id="marketplace-header" className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl sm:text-3xl font-black tracking-tight dark:text-white">{t('marketplace_explorer')}</h2>
-          <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400">{t('marketplace_explorer_desc')}</p>
-        </div>
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4 flex-1">
-          {user?.user_type === 'farmer' && (
-            <button 
-              onClick={() => setIsAddModalOpen(true)}
-              className="bg-primary text-white px-6 py-3 rounded-2xl font-black text-sm shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all flex items-center justify-center gap-2"
-            >
-              <span className="material-symbols-outlined">add_circle</span>
-              {t('sell_produce')}
-            </button>
-          )}
-          <div className="relative flex-1">
-            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">search</span>
-            <input
-              type="text"
-              placeholder={t('search_products_placeholder')}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-white dark:bg-muted-dark border border-slate-200 dark:border-border-dark rounded-2xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-primary/20 dark:text-white transition-all transition-colors"
-            />
+      
+      {/* Search Header - Sticky on Mobile */}
+      <motion.div 
+        variants={itemVariants} 
+        id="marketplace-header" 
+        className="sticky top-0 z-40 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-xl -mx-4 px-4 py-4 border-b border-slate-100 dark:border-white/5 sm:static sm:bg-transparent sm:backdrop-blur-none sm:p-0 sm:border-none"
+      >
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="hidden sm:block">
+            <h2 className="text-2xl sm:text-3xl font-black tracking-tight dark:text-white">{t('marketplace_explorer')}</h2>
+            <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400">{t('marketplace_explorer_desc')}</p>
           </div>
-          <div className="flex gap-2 sm:gap-3">
-            <button 
-              onClick={() => setRunTour(true)}
-              className="flex-1 sm:flex-none border border-slate-200 dark:border-border-dark px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 hover:bg-slate-50 dark:hover:bg-surface-hover-dark dark:text-white transition-colors"
-              title="Replay Onboarding Tour"
-            >
-              <span className="material-symbols-outlined text-[18px] sm:text-[20px]">help</span>
-              {t('tour')}
-            </button>
-            {selectedProducts.length > 0 && (
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 flex-1">
+            {user?.user_type === 'farmer' && (
               <button 
-                id="marketplace-compare-btn"
-                onClick={() => setShowComparison(true)}
-                className="flex-1 sm:flex-none bg-indigo-600 text-white px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200 dark:shadow-none"
+                onClick={() => setIsAddModalOpen(true)}
+                className="bg-primary text-white px-6 py-3 rounded-2xl font-black text-sm shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all flex items-center justify-center gap-2 sm:w-auto"
               >
-                <span className="material-symbols-outlined text-[18px] sm:text-[20px]">compare_arrows</span>
-                {t('compare')} ({selectedProducts.length})
+                <span className="material-symbols-outlined">add_circle</span>
+                <span className="truncate">{t('sell_produce')}</span>
               </button>
             )}
-            <button 
-              id="marketplace-filters-btn"
-              onClick={() => setShowFilters(!showFilters)}
-              className={`flex-1 sm:flex-none border px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-colors ${showFilters ? 'bg-primary text-white border-primary' : 'bg-white dark:bg-muted-dark border-slate-200 dark:border-border-dark dark:text-white hover:bg-slate-50 dark:hover:bg-surface-hover-dark'}`}
-            >
-              <span className="material-symbols-outlined text-[18px] sm:text-[20px]">filter_list</span>
-              {t('filters')}
-            </button>
-            <div id="marketplace-sort-btn" className="relative group flex-1 sm:flex-none">
-              <button className="w-full bg-white dark:bg-muted-dark border border-slate-200 dark:border-border-dark px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 hover:bg-slate-50 dark:hover:bg-surface-hover-dark dark:text-white transition-colors">
-                <span className="material-symbols-outlined text-[18px] sm:text-[20px]">sort</span>
-                <span className="truncate">{t('sort')}: {sortBy === 'name-asc' ? 'A-Z' : sortBy === 'price-low' ? 'Low-High' : 'High-Low'}</span>
+            <div className="relative flex-1">
+              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+              <input
+                type="text"
+                placeholder={t('search_products_placeholder')}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 bg-white dark:bg-muted-dark border border-slate-200 dark:border-border-dark rounded-2xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-primary/20 dark:text-white transition-all transition-colors"
+              />
+            </div>
+            {/* Mobile Tour/Quick Action Button */}
+            <div className="flex gap-2 sm:hidden">
+               <button 
+                onClick={() => setShowFilters(true)}
+                className="flex-1 bg-slate-900 dark:bg-slate-800 text-white py-3 rounded-xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2"
+              >
+                <span className="material-symbols-outlined text-sm">tune</span>
+                {t('filters')}
               </button>
-              <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-muted-dark border border-slate-100 dark:border-border-dark rounded-2xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10 p-2 space-y-1">
-                <button 
-                  onClick={() => setSortBy('name-asc')}
-                  className={`w-full text-left px-4 py-2 rounded-xl text-[10px] sm:text-xs font-bold transition-colors ${sortBy === 'name-asc' ? 'bg-primary text-white' : 'hover:bg-slate-50 dark:hover:bg-surface-hover-dark text-slate-600 dark:text-slate-300'}`}
-                >
-                  {t('sort_az')}
+              <div className="relative flex-1">
+                <button className="w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white py-3 rounded-xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2">
+                  <span className="material-symbols-outlined text-sm">sort</span>
+                  Sort
                 </button>
-                <button 
-                  onClick={() => setSortBy('price-low')}
-                  className={`w-full text-left px-4 py-2 rounded-xl text-[10px] sm:text-xs font-bold transition-colors ${sortBy === 'price-low' ? 'bg-primary text-white' : 'hover:bg-slate-50 dark:hover:bg-surface-hover-dark text-slate-600 dark:text-slate-300'}`}
+                <select 
+                  className="absolute inset-0 opacity-0 cursor-pointer"
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as SortOption)}
                 >
-                  {t('sort_price_low')}
-                </button>
-                <button 
-                  onClick={() => setSortBy('price-high')}
-                  className={`w-full text-left px-4 py-2 rounded-xl text-[10px] sm:text-xs font-bold transition-colors ${sortBy === 'price-high' ? 'bg-primary text-white' : 'hover:bg-slate-50 dark:hover:bg-surface-hover-dark text-slate-600 dark:text-slate-300'}`}
-                >
-                  {t('sort_price_high')}
-                </button>
+                  <option value="name-asc">A-Z</option>
+                  <option value="price-low">Price: Low-High</option>
+                  <option value="price-high">Price: High-Low</option>
+                </select>
               </div>
             </div>
           </div>
@@ -518,12 +499,12 @@ function MarketplaceContent() {
         </motion.div>
       )}
 
-      <motion.div variants={itemVariants} id="marketplace-category-tabs" className="flex gap-2 overflow-x-auto pb-2 no-scrollbar -mx-4 px-4 sticky top-0 z-30 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-xl py-2">
+      <motion.div variants={itemVariants} id="marketplace-category-tabs" className="flex gap-2 overflow-x-auto pb-2 no-scrollbar -mx-4 px-4 sticky top-[64px] sm:top-0 z-30 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-xl py-3 border-b border-white/5 lg:relative lg:top-0 lg:py-0 lg:border-none lg:bg-transparent">
         {['All Produce', 'Foodstuff', 'Grains & Beans', 'Spices & Pepper', 'Oils', 'Vegetables', 'Fruits', 'Meat & Eggs'].map((cat) => (
           <button
             key={cat}
             onClick={() => setFilters({ ...filters, category: cat })}
-            className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest whitespace-nowrap transition-all border ${
+            className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest whitespace-nowrap transition-all border shrink-0 ${
               filters.category === cat 
                 ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20' 
                 : 'bg-white dark:bg-white/5 border-slate-200 dark:border-white/5 text-slate-500 dark:text-slate-500'
@@ -534,18 +515,18 @@ function MarketplaceContent() {
         ))}
       </motion.div>
 
-      <div className="flex items-center justify-between gap-2 md:gap-4 sticky top-[44px] z-20 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md py-1 -mx-4 px-4 shadow-sm border-b border-white/5">
-        <div className="flex gap-1.5">
+      <div className="hidden sm:flex items-center justify-between gap-4 py-1 -mx-4 px-4">
+        <div className="flex gap-1.5 overflow-x-auto no-scrollbar">
           <button 
             id="marketplace-filters-btn"
             onClick={() => setShowFilters(true)}
-            className="h-8 px-3 bg-slate-900 dark:bg-slate-800 text-white rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-lg"
+            className="h-8 px-3 bg-slate-900 dark:bg-slate-800 text-white rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-lg shrink-0"
           >
             <span className="material-symbols-outlined text-[16px]">tune</span>
             {t('filters')}
           </button>
           
-          <div className="relative group">
+          <div className="relative group shrink-0">
             <button className="h-8 px-3 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/5 rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 dark:text-white">
               <span className="material-symbols-outlined text-[16px]">sort</span>
               {sortBy === 'name-asc' ? 'A-Z' : 'Price'}
@@ -573,15 +554,32 @@ function MarketplaceContent() {
           </div>
         </div>
 
-        {selectedProducts.length > 0 && (
-          <button 
-            onClick={() => setShowComparison(true)}
-            className="h-8 px-3 bg-indigo-600 text-white rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 animate-pulse shadow-lg shadow-indigo-500/20"
-          >
-            <span className="material-symbols-outlined text-[16px]">compare_arrows</span>
-            Compare({selectedProducts.length})
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {selectedProducts.length > 0 && (
+            <button 
+              onClick={() => setShowComparison(true)}
+              className="h-8 px-3 bg-indigo-600 text-white rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 animate-pulse shadow-lg shadow-indigo-500/20"
+            >
+              <span className="material-symbols-outlined text-[16px]">compare_arrows</span>
+              Compare({selectedProducts.length})
+            </button>
+          )}
+
+          <div className="flex bg-slate-100 dark:bg-white/5 p-0.5 rounded-lg">
+             <button 
+               onClick={() => setViewMode('grid')}
+               className={`w-7 h-7 flex items-center justify-center rounded-md transition-all ${viewMode === 'grid' ? 'bg-white dark:bg-slate-800 text-primary shadow-sm' : 'text-slate-400'}`}
+             >
+               <span className="material-symbols-outlined text-[18px]">grid_view</span>
+             </button>
+             <button 
+               onClick={() => setViewMode('list')}
+               className={`w-7 h-7 flex items-center justify-center rounded-md transition-all ${viewMode === 'list' ? 'bg-white dark:bg-slate-800 text-primary shadow-sm' : 'text-slate-400'}`}
+             >
+               <span className="material-symbols-outlined text-[18px]">view_list</span>
+             </button>
+          </div>
+        </div>
       </div>
 
       <AnimatePresence>
@@ -653,10 +651,10 @@ function MarketplaceContent() {
         )}
       </AnimatePresence>
 
-      <motion.div variants={containerVariants} className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8">
+      <motion.div variants={containerVariants} className={viewMode === 'grid' ? "grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8" : "flex flex-col gap-4"}>
         {loading ? (
           Array.from({ length: 8 }).map((_, i) => (
-            <motion.div key={i} variants={itemVariants} className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 h-[400px] animate-pulse" />
+            <motion.div key={i} variants={itemVariants} className={`bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 animate-pulse ${viewMode === 'grid' ? 'h-[400px]' : 'h-32'}`} />
           ))
         ) : sortedProducts.length > 0 ? (
           sortedProducts.map((product, index) => (
@@ -664,57 +662,97 @@ function MarketplaceContent() {
               key={product.id}
               variants={itemVariants}
               whileHover={{ y: -5 }}
-              className={index === 0 ? 'product-card-first' : ''}
+              className={`${index === 0 ? 'product-card-first' : ''} ${viewMode === 'list' ? 'bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-100 dark:border-slate-800 flex gap-4' : ''}`}
             >
-              <Link href={`/marketplace/${product.id}`}>
-                <ProductCard product={product}>
-                  <div className="absolute top-4 right-4 flex gap-2">
-                    <button 
-                      onClick={(e) => toggleProductSelection(e, product.id)}
-                      className={`w-10 h-10 backdrop-blur rounded-xl shadow-lg flex items-center justify-center transition-all ${index === 0 ? 'compare-btn-first' : ''} ${selectedProducts.includes(product.id) ? 'bg-indigo-600 text-white' : 'bg-white/90 dark:bg-slate-900/90 text-slate-400 hover:text-indigo-600'}`}
-                      title="Select for comparison"
-                    >
-                      <span className="material-symbols-outlined">{selectedProducts.includes(product.id) ? 'check_circle' : 'add_circle'}</span>
-                    </button>
-                    
-                    {(!product.image_url || product.image_url.includes('picsum.photos')) && (
+              <Link href={`/marketplace/${product.id}`} className={viewMode === 'list' ? 'flex flex-row w-full gap-4' : ''}>
+                {viewMode === 'list' && (
+                   <div className="w-24 h-24 rounded-2xl overflow-hidden shrink-0">
+                      <ResponsiveImage 
+                        src={product.image_url || 'https://picsum.photos/seed/product/200/200'} 
+                        alt={product.name} 
+                        className="w-full h-full object-cover"
+                        baseWidth={200}
+                        baseHeight={200}
+                      />
+                   </div>
+                )}
+                {viewMode === 'grid' ? (
+                  <ProductCard product={product}>
+                    <div className="absolute top-4 right-4 flex gap-2">
                       <button 
-                        onClick={(e) => generateAIImage(e, product.id, product.name)}
-                        disabled={generatingId === product.id}
-                        className={`h-10 px-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur rounded-xl shadow-lg flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed ${index === 0 ? 'ai-image-btn-first' : ''}`}
-                        title="Generate AI Image"
+                        onClick={(e) => toggleProductSelection(e, product.id)}
+                        className={`w-10 h-10 backdrop-blur rounded-xl shadow-lg flex items-center justify-center transition-all ${index === 0 ? 'compare-btn-first' : ''} ${selectedProducts.includes(product.id) ? 'bg-indigo-600 text-white' : 'bg-white/90 dark:bg-slate-900/90 text-slate-400 hover:text-indigo-600'}`}
+                        title="Select for comparison"
                       >
-                        {generatingId === product.id ? (
-                          <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                        ) : (
-                          <div className="flex items-center gap-2">
-                            <span className="material-symbols-outlined text-[18px]">auto_awesome</span>
-                            <span className="text-[10px] font-black uppercase tracking-widest">AI Image</span>
-                          </div>
-                        )}
+                        <span className="material-symbols-outlined">{selectedProducts.includes(product.id) ? 'check_circle' : 'add_circle'}</span>
                       </button>
-                    )}
+                      
+                      {(!product.image_url || product.image_url.includes('picsum.photos')) && (
+                        <button 
+                          onClick={(e) => generateAIImage(e, product.id, product.name)}
+                          disabled={generatingId === product.id}
+                          className={`h-10 px-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur rounded-xl shadow-lg flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed ${index === 0 ? 'ai-image-btn-first' : ''}`}
+                          title="Generate AI Image"
+                        >
+                          {generatingId === product.id ? (
+                            <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <span className="material-symbols-outlined text-[18px]">auto_awesome</span>
+                              <span className="text-[10px] font-black uppercase tracking-widest">AI Image</span>
+                            </div>
+                          )}
+                        </button>
+                      )}
+                    </div>
+                    <div className="absolute inset-x-4 bottom-4 translate-y-12 group-hover:translate-y-0 transition-transform duration-300">
+                      <button 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          addToCart(product, 1);
+                          toast.success(`${product.name} added to cart`, {
+                            action: {
+                              label: 'View Cart',
+                              onClick: () => window.location.href = '/cart'
+                            }
+                          });
+                        }}
+                        className="w-full bg-primary text-white py-3 rounded-xl font-black text-xs shadow-xl shadow-primary/20 flex items-center justify-center gap-2 hover:scale-105 active:scale-95 transition-all"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">shopping_cart</span>
+                        {t('add_to_cart')}
+                      </button>
+                    </div>
+                  </ProductCard>
+                ) : (
+                  <div className="flex-1 flex flex-col justify-between py-1">
+                    <div>
+                      <div className="flex items-center justify-between">
+                         <h4 className="font-black text-sm dark:text-white truncate">{product.name}</h4>
+                         <span className="text-[9px] font-black uppercase tracking-widest text-primary">{product.price.toLocaleString()} CFA</span>
+                      </div>
+                      <p className="text-[10px] text-slate-500 line-clamp-1">{product.description}</p>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1 px-2 py-0.5 bg-slate-100 dark:bg-white/5 rounded-md">
+                         <span className="material-symbols-outlined text-[12px] text-primary">location_on</span>
+                         <span className="text-[9px] font-bold text-slate-600 dark:text-slate-400">{product.location}</span>
+                      </div>
+                      <button 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          addToCart(product, 1);
+                          toast.success(`${product.name} added to cart`);
+                        }}
+                        className="w-8 h-8 bg-primary/10 text-primary rounded-lg flex items-center justify-center hover:bg-primary hover:text-white transition-colors"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">add_shopping_cart</span>
+                      </button>
+                    </div>
                   </div>
-                  <div className="absolute inset-x-4 bottom-4 translate-y-12 group-hover:translate-y-0 transition-transform duration-300">
-                    <button 
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        addToCart(product, 1);
-                        toast.success(`${product.name} added to cart`, {
-                          action: {
-                            label: 'View Cart',
-                            onClick: () => window.location.href = '/cart'
-                          }
-                        });
-                      }}
-                      className="w-full bg-primary text-white py-3 rounded-xl font-black text-xs shadow-xl shadow-primary/20 flex items-center justify-center gap-2 hover:scale-105 active:scale-95 transition-all"
-                    >
-                      <span className="material-symbols-outlined text-[18px]">shopping_cart</span>
-                      {t('add_to_cart')}
-                    </button>
-                  </div>
-                </ProductCard>
+                )}
               </Link>
             </motion.div>
           ))

@@ -215,8 +215,12 @@ const [showCalendar, setShowCalendar] = useState(false);
           await Promise.allSettled(fetchTasks);
         };
 
-        // Fire weather and app data in parallel for maximum speed
-        await Promise.all([fetchWeather(), fetchAppData()]);
+        // Fire weather and app data in parallel
+        // We don't await them combined here, so that whichever finishes first can update the UI
+        fetchWeather();
+        fetchAppData().finally(() => {
+          setDataLoading(false);
+        });
 
         // Smart Logic: Occasionally trigger market/climate insights for farmers
         if (isFarmer && user?.id && isOnline) {
