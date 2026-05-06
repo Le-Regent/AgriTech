@@ -275,23 +275,34 @@ export const supabaseService = {
           title = 'Order Delivered ✅';
           message = `Successfully delivered! Your order #${shortId} has reached its destination. Enjoy your fresh produce!`;
           break;
+        case 'cancelled':
+          title = 'Order Cancelled ❌';
+          message = `Order #${shortId} has been cancelled.`;
+          break;
       }
 
-      await this.createNotification({
-        user_id: orderData.buyer_id,
-        title,
-        message,
-        type: 'order',
-        link: `/orders/${orderId}`,
-        created_at: new Date().toISOString()
-      });
+      // Notify the buyer if the status was updated by the farmer
+      // Or notify the farmer if the status was updated by the buyer (cancellation)
+      const isCancellation = status === 'cancelled';
+      const notificationRecipient = isCancellation ? farmerId : orderData.buyer_id;
 
-      // 2. Send Automated Message to Chat (if farmerId exists)
-      if (farmerId) {
+      if (notificationRecipient) {
+        await this.createNotification({
+          user_id: notificationRecipient,
+          title,
+          message,
+          type: 'order',
+          link: `/orders`,
+          created_at: new Date().toISOString()
+        });
+      }
+
+      // 2. Send Automated Message to Chat
+      if (farmerId && orderData.buyer_id) {
         await this.sendMessage({
-          sender_id: farmerId, // Message appears to come from the farmer/seller
-          receiver_id: orderData.buyer_id,
-          message: `[Logistics Update] ${message}`,
+          sender_id: isCancellation ? orderData.buyer_id : farmerId,
+          receiver_id: isCancellation ? farmerId : orderData.buyer_id,
+          message: `[Order Status Update] ${message}`,
           is_read: false,
           created_at: new Date().toISOString()
         });

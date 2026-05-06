@@ -55,7 +55,7 @@ export interface Product {
 export interface Order {
   id: string;
   buyer_id: string;
-  status: 'pending' | 'processing' | 'shipped' | 'delivered';
+  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
   total_amount: number;
   shipping_address?: string;
   created_at: string;

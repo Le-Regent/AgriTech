@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
 import { useUser } from '@/context/UserContext';
@@ -17,6 +17,10 @@ function OrdersContent() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showSuccess, setShowSuccess] = useState(searchParams.get('success') === 'true');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [sortBy, setSortBy] = useState<'newest' | 'oldest'>('newest');
+  const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (showSuccess) {
@@ -29,7 +33,6 @@ function OrdersContent() {
     const fetchOrders = async () => {
       if (!user) return;
       
-      // Load from cache first for fast UI
       const cacheKey = `orders_${user.id}`;
       const cached = await getFromCache(cacheKey);
       if (cached) {
@@ -53,7 +56,6 @@ function OrdersContent() {
         saveToCache(cacheKey, ordersData);
       } catch (error: any) {
         console.error('Failed to fetch orders:', error);
-        // Error is often "TypeError: Failed to fetch" when network is unstable
         if (error.message?.includes('fetch') || !isOnline) {
           toast.error('Network error while fetching orders. Showing offline data.');
         } else {
@@ -68,6 +70,46 @@ function OrdersContent() {
   }, [user, isOnline, getFromCache, saveToCache]);
 
   const isFarmer = user?.user_type === 'farmer';
+
+  const toggleExpand = (orderId: string) => {
+    setExpandedOrders(prev => {
+      const next = new Set(prev);
+      if (next.has(orderId)) {
+        next.delete(orderId);
+      } else {
+        next.add(orderId);
+      }
+      return next;
+    });
+  };
+
+  const handleCancelOrder = async (orderId: string) => {
+    if (!confirm('Are you sure you want to cancel this order? This action cannot be undone.')) return;
+    
+    try {
+      await supabaseService.updateOrderStatus(orderId, 'cancelled');
+      setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: 'cancelled' } : o));
+      toast.success('Order cancelled successfully');
+    } catch (err) {
+      toast.error('Failed to cancel order');
+    }
+  };
+
+  const filteredAndSortedOrders = useMemo(() => {
+    let result = [...orders];
+    
+    if (statusFilter !== 'all') {
+      result = result.filter(o => o.status === statusFilter);
+    }
+    
+    result.sort((a, b) => {
+      const dateA = new Date(a.created_at).getTime();
+      const dateB = new Date(b.created_at).getTime();
+      return sortBy === 'newest' ? dateB - dateA : dateA - dateB;
+    });
+    
+    return result;
+  }, [orders, statusFilter, sortBy]);
 
   const getStatusStep = (status: string) => {
     const steps = ['pending', 'processing', 'shipped', 'delivered'];
@@ -100,13 +142,45 @@ function OrdersContent() {
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col gap-2">
-        <h2 className="text-3xl font-bold tracking-tight dark:text-white">{isFarmer ? 'Incoming Orders' : 'My Orders'}</h2>
-        <p className="text-slate-500 dark:text-slate-400">
-          {isFarmer 
-            ? 'Manage your sales and fulfill orders to your customers.' 
-            : 'Manage your purchases and track their delivery status.'}
-        </p>
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div className="flex flex-col gap-2">
+          <h2 className="text-3xl font-bold tracking-tight dark:text-white">{isFarmer ? 'Incoming Orders' : 'My Orders'}</h2>
+          <p className="text-slate-500 dark:text-slate-400">
+            {isFarmer 
+              ? 'Manage your sales and fulfill orders to your customers.' 
+              : 'Manage your purchases and track their delivery status.'}
+          </p>
+        </div>
+        
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-2xl">
+            <span className="material-symbols-outlined text-slate-400 text-sm">filter_list</span>
+            <select 
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="bg-transparent text-xs font-bold dark:text-white outline-none border-none cursor-pointer"
+            >
+              <option value="all">All Statuses</option>
+              <option value="pending">Pending</option>
+              <option value="processing">Processing</option>
+              <option value="shipped">Shipped</option>
+              <option value="delivered">Delivered</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+          
+          <div className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-2xl">
+            <span className="material-symbols-outlined text-slate-400 text-sm">sort</span>
+            <select 
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as 'newest' | 'oldest')}
+              className="bg-transparent text-xs font-bold dark:text-white outline-none border-none cursor-pointer"
+            >
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+            </select>
+          </div>
+        </div>
       </div>
 
       <AnimatePresence>
@@ -131,17 +205,20 @@ function OrdersContent() {
         )}
       </AnimatePresence>
 
-      {orders.length > 0 ? (
+      {filteredAndSortedOrders.length > 0 ? (
         <div className="space-y-6">
           <AnimatePresence>
-            {orders.map((order) => (
+            {filteredAndSortedOrders.map((order) => (
               <motion.div
                 key={order.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden"
               >
-                <div className="p-6 sm:p-8 border-b border-slate-50 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div 
+                  className="p-6 sm:p-8 border-b border-slate-50 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors"
+                  onClick={() => toggleExpand(order.id)}
+                >
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-slate-400">
                       <span className="material-symbols-outlined">{isFarmer ? 'person' : 'receipt_long'}</span>
@@ -170,138 +247,200 @@ function OrdersContent() {
                       <p className="text-xs font-black uppercase tracking-widest text-slate-400">Total</p>
                       <p className="font-black text-primary">{order.total_amount.toLocaleString()} CFA</p>
                     </div>
-                    <div>
+                    <div className="flex items-center gap-3">
                       <span className={`px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${getStatusColor(order.status)}`}>
                         {order.status}
+                      </span>
+                      <span className={`material-symbols-outlined text-slate-400 transition-transform ${expandedOrders.has(order.id) ? 'rotate-180' : ''}`}>
+                        expand_more
                       </span>
                     </div>
                   </div>
                 </div>
-                <div className="p-6 sm:p-8 border-b border-slate-50 dark:border-slate-800">
-                  <div className="flex items-center justify-between mb-8">
-                    {['Pending', 'Processing', 'Shipped', 'Delivered'].map((step, idx) => {
-                      const currentStep = getStatusStep(order.status);
-                      const isCompleted = idx <= currentStep;
-                      const isCurrent = idx === currentStep;
-                      
-                      return (
-                        <div key={step} className="flex flex-col items-center gap-2 flex-1 relative">
-                          {idx < 3 && (
-                            <div className={`absolute left-1/2 top-4 w-full h-0.5 ${idx < currentStep ? 'bg-primary' : 'bg-slate-100 dark:bg-slate-800'}`} />
-                          )}
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center z-10 transition-all duration-500 ${
-                            isCompleted ? 'bg-primary text-white scale-110' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'
-                          }`}>
-                            <span className="material-symbols-outlined text-sm">
-                              {isCompleted ? 'check' : 'radio_button_unchecked'}
-                            </span>
+
+                <AnimatePresence>
+                  {expandedOrders.has(order.id) && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="p-6 sm:p-8 border-b border-slate-50 dark:border-slate-800 bg-slate-50/30 dark:bg-white/5">
+                        {order.status !== 'cancelled' ? (
+                          <div className="flex items-center justify-between mb-8">
+                            {['Pending', 'Processing', 'Shipped', 'Delivered'].map((step, idx) => {
+                              const currentStep = getStatusStep(order.status);
+                              const isCompleted = idx <= currentStep;
+                              const isCurrent = idx === currentStep;
+                              
+                              return (
+                                <div key={step} className="flex flex-col items-center gap-2 flex-1 relative">
+                                  {idx < 3 && (
+                                    <div className={`absolute left-1/2 top-4 w-full h-0.5 ${idx < currentStep ? 'bg-primary' : 'bg-slate-100 dark:bg-slate-800'}`} />
+                                  )}
+                                  <div className={`w-8 h-8 rounded-full flex items-center justify-center z-10 transition-all duration-500 ${
+                                    isCompleted ? 'bg-primary text-white scale-110' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'
+                                  }`}>
+                                    <span className="material-symbols-outlined text-sm">
+                                      {isCompleted ? 'check' : 'radio_button_unchecked'}
+                                    </span>
+                                  </div>
+                                  <span className={`text-[10px] font-bold uppercase tracking-wider ${
+                                    isCurrent ? 'text-primary' : isCompleted ? 'text-slate-900 dark:text-white' : 'text-slate-400'
+                                  }`}>
+                                    {step}
+                                  </span>
+                                </div>
+                              );
+                            })}
                           </div>
-                          <span className={`text-[10px] font-bold uppercase tracking-wider ${
-                            isCurrent ? 'text-primary' : isCompleted ? 'text-slate-900 dark:text-white' : 'text-slate-400'
-                          }`}>
-                            {step}
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
+                        ) : (
+                          <div className="flex items-center justify-center gap-2 p-4 bg-red-50 dark:bg-red-500/10 text-red-500 rounded-2xl mb-8">
+                            <span className="material-symbols-outlined">cancel</span>
+                            <span className="text-xs font-black uppercase tracking-widest">This order has been cancelled</span>
+                          </div>
+                        )}
 
-                  {isFarmer && (
-                    <div className="flex flex-col sm:flex-row gap-4">
-                      {order.status === 'pending' && (
-                        <button 
-                          onClick={async () => {
-                            try {
-                              await supabaseService.updateOrderStatus(order.id, 'processing');
-                              setOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: 'processing' } : o));
-                              toast.success('Order accepted!');
-                            } catch (err) {
-                              toast.error('Failed to update order');
-                            }
-                          }}
-                          className="flex-1 bg-primary text-white py-4 rounded-2xl font-black text-sm hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
-                        >
-                          <span className="material-symbols-outlined">check_circle</span>
-                          Accept Order
-                        </button>
-                      )}
-                      {order.status === 'processing' && (
-                        <button 
-                          onClick={async () => {
-                            try {
-                              await supabaseService.updateOrderStatus(order.id, 'shipped');
-                              setOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: 'shipped' } : o));
-                              toast.success('Order marked as shipped!');
-                            } catch (err) {
-                              toast.error('Failed to update order');
-                            }
-                          }}
-                          className="flex-1 bg-indigo-500 text-white py-4 rounded-2xl font-black text-sm hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
-                        >
-                          <span className="material-symbols-outlined">local_shipping</span>
-                          Mark as Shipped
-                        </button>
-                      )}
-                      {order.status === 'shipped' && (
-                        <div className="flex-1 bg-slate-100 dark:bg-slate-800 text-slate-500 py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2">
-                           <span className="material-symbols-outlined">info</span>
-                           Waiting for buyer confirmation
-                        </div>
-                      )}
-                    </div>
-                  )}
+                        <div className="space-y-6">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div>
+                              <h5 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">Order Items</h5>
+                              <div className="space-y-4">
+                                {order.order_items.map((item: any) => (
+                                  <div key={item.id} className="flex items-center gap-4">
+                                    <div className="w-16 h-16 rounded-xl overflow-hidden bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex-shrink-0">
+                                      <ResponsiveImage
+                                        src={item.products?.image_url || 'https://picsum.photos/seed/product/100/100'}
+                                        alt={item.products?.name}
+                                        className="w-full h-full object-cover"
+                                        baseWidth={100}
+                                        baseHeight={100}
+                                      />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <h4 className="font-bold text-sm dark:text-white truncate">{item.products?.name}</h4>
+                                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                                        {item.quantity} {item.products?.unit} x {item.price_at_purchase.toLocaleString()} CFA
+                                      </p>
+                                      {!isFarmer && (
+                                        <p className="text-[10px] text-primary font-bold mt-0.5">
+                                          Seller: {item.products?.profiles?.full_name || 'AgriTech Seller'}
+                                        </p>
+                                      )}
+                                    </div>
+                                    <p className="font-bold text-sm dark:text-white">
+                                      {(item.quantity * item.price_at_purchase).toLocaleString()} CFA
+                                    </p>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                            <div>
+                              <h5 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">Delivery Information</h5>
+                              <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-100 dark:border-slate-700">
+                                <div className="flex items-start gap-3">
+                                  <span className="material-symbols-outlined text-slate-400 mt-1">location_on</span>
+                                  <div>
+                                    <p className="text-xs font-bold dark:text-white">Shipping Address</p>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{order.shipping_address || 'No address provided'}</p>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
 
-                  {!isFarmer && order.status === 'shipped' && (
-                    <div className="flex flex-col sm:flex-row gap-4">
-                      <button className="flex-1 bg-slate-900 dark:bg-white dark:text-slate-900 text-white py-4 rounded-2xl font-black text-sm hover:scale-[1.02] transition-all flex items-center justify-center gap-2">
-                        <span className="material-symbols-outlined">local_shipping</span>
-                        Track Shipment
-                      </button>
-                      <button 
-                        onClick={async () => {
-                          try {
-                            await supabaseService.updateOrderStatus(order.id, 'delivered');
-                            setOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: 'delivered' } : o));
-                            toast.success('Order marked as received!');
-                          } catch (err) {
-                            console.error('Failed to update order status:', err);
-                            toast.error('Failed to update order status');
-                          }
-                        }}
-                        className="flex-1 bg-green-500 text-white py-4 rounded-2xl font-black text-sm hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
-                      >
-                        <span className="material-symbols-outlined">check_circle</span>
-                        Mark as Received
-                      </button>
-                    </div>
-                  )}
-                </div>
-                <div className="p-6 sm:p-8 bg-slate-50/50 dark:bg-slate-900/50">
-                  <div className="space-y-4">
-                    {order.order_items.map((item: any) => (
-                      <div key={item.id} className="flex items-center gap-4">
-                        <div className="w-16 h-16 rounded-xl overflow-hidden bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex-shrink-0">
-                          <ResponsiveImage
-                            src={item.products?.image_url || 'https://picsum.photos/seed/product/100/100'}
-                            alt={item.products?.name}
-                            className="w-full h-full object-cover"
-                            baseWidth={100}
-                            baseHeight={100}
-                          />
+                          {isFarmer ? (
+                            <div className="flex flex-col sm:flex-row gap-4">
+                              {order.status === 'pending' && (
+                                <button 
+                                  onClick={async (e) => {
+                                    e.stopPropagation();
+                                    try {
+                                      await supabaseService.updateOrderStatus(order.id, 'processing');
+                                      setOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: 'processing' } : o));
+                                      toast.success('Order accepted!');
+                                    } catch (err) {
+                                      toast.error('Failed to update order');
+                                    }
+                                  }}
+                                  className="flex-1 bg-primary text-white py-4 rounded-2xl font-black text-sm hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
+                                >
+                                  <span className="material-symbols-outlined">check_circle</span>
+                                  Accept Order
+                                </button>
+                              )}
+                              {order.status === 'processing' && (
+                                <button 
+                                  onClick={async (e) => {
+                                    e.stopPropagation();
+                                    try {
+                                      await supabaseService.updateOrderStatus(order.id, 'shipped');
+                                      setOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: 'shipped' } : o));
+                                      toast.success('Order marked as shipped!');
+                                    } catch (err) {
+                                      toast.error('Failed to update order');
+                                    }
+                                  }}
+                                  className="flex-1 bg-indigo-500 text-white py-4 rounded-2xl font-black text-sm hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
+                                >
+                                  <span className="material-symbols-outlined">local_shipping</span>
+                                  Mark as Shipped
+                                </button>
+                              )}
+                              {order.status === 'shipped' && (
+                                <div className="flex-1 bg-slate-100 dark:bg-slate-800 text-slate-500 py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2">
+                                  <span className="material-symbols-outlined">info</span>
+                                  Waiting for buyer confirmation
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <div className="flex flex-col sm:flex-row gap-4">
+                              {order.status === 'pending' && (
+                                <button 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleCancelOrder(order.id);
+                                  }}
+                                  className="flex-1 bg-red-50 dark:bg-red-900/20 text-red-500 py-4 rounded-2xl font-black text-sm hover:bg-red-100 dark:hover:bg-red-900/40 transition-all flex items-center justify-center gap-2"
+                                >
+                                  <span className="material-symbols-outlined">cancel</span>
+                                  Cancel Order
+                                </button>
+                              )}
+                              {order.status === 'shipped' && (
+                                <>
+                                  <button className="flex-1 bg-slate-900 dark:bg-white dark:text-slate-900 text-white py-4 rounded-2xl font-black text-sm hover:scale-[1.02] transition-all flex items-center justify-center gap-2">
+                                    <span className="material-symbols-outlined">local_shipping</span>
+                                    Track Shipment
+                                  </button>
+                                  <button 
+                                    onClick={async (e) => {
+                                      e.stopPropagation();
+                                      try {
+                                        await supabaseService.updateOrderStatus(order.id, 'delivered');
+                                        setOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: 'delivered' } : o));
+                                        toast.success('Order marked as received!');
+                                      } catch (err) {
+                                        console.error('Failed to update order status:', err);
+                                        toast.error('Failed to update order status');
+                                      }
+                                    }}
+                                    className="flex-1 bg-green-500 text-white py-4 rounded-2xl font-black text-sm hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
+                                  >
+                                    <span className="material-symbols-outlined">check_circle</span>
+                                    Mark as Received
+                                  </button>
+                                </>
+                              )}
+                            </div>
+                          )}
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-bold text-sm dark:text-white truncate">{item.products?.name}</h4>
-                          <p className="text-xs text-slate-500 dark:text-slate-400">
-                            {item.quantity} {item.products?.unit} x {item.price_at_purchase.toLocaleString()} CFA
-                          </p>
-                        </div>
-                        <p className="font-bold text-sm dark:text-white">
-                          {(item.quantity * item.price_at_purchase).toLocaleString()} CFA
-                        </p>
                       </div>
-                    ))}
-                  </div>
-                </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </motion.div>
             ))}
           </AnimatePresence>
@@ -311,10 +450,20 @@ function OrdersContent() {
           <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center text-primary mb-6">
             <span className="material-symbols-outlined text-4xl">shopping_bag</span>
           </div>
-          <h3 className="text-xl font-bold mb-2 dark:text-white">No Orders Yet</h3>
+          <h3 className="text-xl font-bold mb-2 dark:text-white">No Orders Found</h3>
           <p className="text-slate-500 dark:text-slate-400 max-w-md">
-            Explore the marketplace to find high-quality agricultural products and start your first order.
+            {statusFilter !== 'all' 
+              ? `You don't have any orders with status "${statusFilter}".` 
+              : 'Explore the marketplace to find high-quality agricultural products and start your first order.'}
           </p>
+          {statusFilter !== 'all' && (
+            <button 
+              onClick={() => setStatusFilter('all')}
+              className="mt-6 text-primary font-bold hover:underline"
+            >
+              Show all orders
+            </button>
+          )}
         </div>
       )}
     </div>

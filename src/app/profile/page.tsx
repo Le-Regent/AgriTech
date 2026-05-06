@@ -76,6 +76,40 @@ function ProfileContent() {
     fetchDiagnoses();
   }, [isFarmer, user?.id]);
 
+  useEffect(() => {
+    async function fetchOrders() {
+      if (user?.id) {
+        setLoading(true);
+        try {
+          const data = await supabaseService.getOrders(user.id, user.user_type as 'farmer' | 'buyer');
+          setOrders(data || []);
+        } catch (error) {
+          console.error('Failed to fetch orders for profile:', error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    }
+    fetchOrders();
+  }, [user?.id, user?.user_type]);
+
+  const [orders, setOrders] = useState<any[]>([]);
+  const [profileFilter, setProfileFilter] = useState('all');
+  const [profileSort, setProfileSort] = useState<'newest' | 'oldest'>('newest');
+
+  const filteredOrders = React.useMemo(() => {
+    let result = [...orders];
+    if (profileFilter !== 'all') {
+      result = result.filter(o => o.status === profileFilter);
+    }
+    result.sort((a, b) => {
+      const dateA = new Date(a.created_at).getTime();
+      const dateB = new Date(b.created_at).getTime();
+      return profileSort === 'newest' ? dateB - dateA : dateA - dateB;
+    });
+    return result;
+  }, [orders, profileFilter, profileSort]);
+
   const handleSave = async () => {
     if (!user) return;
     setSaving(true);
@@ -160,12 +194,36 @@ function ProfileContent() {
   };
 
   const stats = isFarmer ? [
-    { label: 'Diagnoses', value: '124' },
-    { label: 'Sales', value: '$12.4k' }
+    { label: 'Diagnoses', value: diagnoses.length.toString() },
+    { label: 'Sales', value: `${orders.reduce((acc, o) => acc + (o.status === 'delivered' ? o.total_amount : 0), 0).toLocaleString()} CFA` }
   ] : [
-    { label: 'Orders', value: '42' },
-    { label: 'Spent', value: '$3.2k' }
+    { label: 'Orders', value: orders.length.toString() },
+    { label: 'Spent', value: `${orders.reduce((acc, o) => acc + (o.status !== 'cancelled' ? o.total_amount : 0), 0).toLocaleString()} CFA` }
   ];
+
+  const getStatusClasses = (status: string) => {
+    switch (status) {
+      case 'pending': return 'bg-amber-100 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400';
+      case 'processing': return 'bg-blue-100 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400';
+      case 'shipped': return 'bg-indigo-100 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400';
+      case 'delivered': return 'bg-green-100 text-green-600 dark:bg-green-500/10 dark:text-green-400';
+      case 'cancelled': return 'bg-red-100 text-red-600 dark:bg-red-500/10 dark:text-red-400';
+      default: return 'bg-slate-100 text-slate-600 dark:bg-slate-500/10 dark:text-slate-400';
+    }
+  };
+
+  const getSecurityHealth = () => {
+    const health = [
+      { label: 'Email Verified', status: !!user?.email, icon: 'email_heart' },
+      { label: 'Profile Complete', status: !!user?.full_name && !!user?.bio, icon: 'person_check' },
+      { label: 'Phone Linked', status: !!user?.phone_number, icon: 'phone_callback' },
+      { label: 'Identified as Admin', status: !!user?.is_admin, icon: 'security' },
+    ];
+    const score = Math.round((health.filter(h => h.status).length / health.length) * 100);
+    return { health, score };
+  };
+
+  const { health: securityHealth, score: trustScore } = getSecurityHealth();
 
   const personalFields = [
     { label: 'Full Name', value: formData.full_name, icon: 'person', key: 'full_name' },
@@ -293,6 +351,44 @@ function ProfileContent() {
           </div>
 
           <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-colors">
+            <div className="flex items-center justify-between mb-6">
+              <h4 className="font-bold dark:text-white">Account Security</h4>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Trust Score:</span>
+                <span className={`text-xs font-black ${trustScore > 70 ? 'text-green-500' : trustScore > 40 ? 'text-amber-500' : 'text-red-500'}`}>{trustScore}%</span>
+              </div>
+            </div>
+            
+            <div className="flex gap-2 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full mb-8 overflow-hidden">
+              <div 
+                className={`h-full transition-all duration-1000 ${trustScore > 70 ? 'bg-green-500' : trustScore > 40 ? 'bg-amber-500' : 'bg-red-500'}`} 
+                style={{ width: `${trustScore}%` }}
+              />
+            </div>
+
+            <div className="space-y-4">
+              {securityHealth.map((item, i) => (
+                <div key={i} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-white/5 rounded-2xl border border-slate-100 dark:border-slate-800 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <span className={`material-symbols-outlined text-[20px] ${item.status ? 'text-green-500' : 'text-slate-400'}`}>{item.icon}</span>
+                    <span className="text-xs font-bold dark:text-white">{item.label}</span>
+                  </div>
+                  <span className={`material-symbols-outlined text-[18px] ${item.status ? 'text-green-500' : 'text-amber-400'}`}>
+                    {item.status ? 'verified' : 'error'}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-8 p-4 bg-primary/5 rounded-2xl border border-primary/10">
+              <p className="text-[10px] text-slate-500 leading-relaxed">
+                <span className="font-bold text-primary">Pro Tip:</span> Completing your profile and verifying your contact info increases 
+                visibility and builds stronger trust with the AgriControl community.
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-colors">
             <h4 className="font-bold mb-6 dark:text-white">Account Preferences</h4>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
@@ -364,7 +460,7 @@ function ProfileContent() {
             </div>
 
             <h4 className="font-bold mb-8 dark:text-white pt-4 border-t border-slate-100 dark:border-slate-800">Professional Details</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               {professionalFields.filter(f => !f.farmerOnly || isFarmer).map((field, i) => (
                 <div key={i} className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{field.label}</label>
@@ -381,6 +477,73 @@ function ProfileContent() {
                   </div>
                 </div>
               ))}
+            </div>
+
+            <div className="pt-6 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                <h4 className="font-bold dark:text-white">Order History</h4>
+                <div className="flex items-center gap-2">
+                  <select 
+                    className="text-[10px] font-black uppercase tracking-widest bg-slate-100 dark:bg-white/5 border-none rounded-lg px-2 py-1 outline-none dark:text-white"
+                    onChange={(e) => setProfileFilter(e.target.value)}
+                  >
+                    <option value="all">All</option>
+                    <option value="pending">Pending</option>
+                    <option value="processing">Processing</option>
+                    <option value="shipped">Shipped</option>
+                    <option value="delivered">Delivered</option>
+                    <option value="cancelled">Cancelled</option>
+                  </select>
+                  <button 
+                    onClick={() => setProfileSort(prev => prev === 'newest' ? 'oldest' : 'newest')}
+                    className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-500"
+                    title="Toggle Sort"
+                  >
+                    <span className="material-symbols-outlined text-sm">{profileSort === 'newest' ? 'south' : 'north'}</span>
+                  </button>
+                  <Link href="/orders" className="text-primary text-xs font-bold hover:underline flex items-center gap-1 ml-2">
+                    Full History
+                    <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+                  </Link>
+                </div>
+              </div>
+              <div className="space-y-3">
+                {loading && orders.length === 0 ? (
+                  <div className="flex justify-center py-4">
+                    <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                ) : filteredOrders.length > 0 ? (
+                  filteredOrders.slice(0, 5).map((order) => (
+                    <div key={order.id} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 group hover:border-primary/30 transition-all">
+                      <div className="flex items-center gap-3 overflow-hidden">
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${getStatusClasses(order.status)}`}>
+                          <span className="material-symbols-outlined text-[20px]">
+                            {order.status === 'delivered' ? 'check_circle' : 
+                             order.status === 'pending' ? 'schedule' : 
+                             order.status === 'cancelled' ? 'cancel' : 'local_shipping'}
+                          </span>
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-bold dark:text-white truncate">Order #{order.id.slice(0, 8).toUpperCase()}</p>
+                          <p className="text-[10px] text-slate-500 dark:text-slate-400">{new Date(order.created_at).toLocaleDateString()} · {order.total_amount.toLocaleString()} CFA</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 shrink-0">
+                        <span className={`text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest hidden xs:inline-block ${getStatusClasses(order.status)}`}>
+                          {order.status}
+                        </span>
+                        <Link href="/orders" className="w-8 h-8 rounded-full bg-white dark:bg-white/5 flex items-center justify-center text-slate-400 hover:text-primary transition-colors opacity-0 group-hover:opacity-100">
+                          <span className="material-symbols-outlined text-sm">visibility</span>
+                        </Link>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-6 bg-slate-50 dark:bg-slate-800/30 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">
+                    <p className="text-xs text-slate-500">No matching orders found.</p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
