@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { useUser } from '@/context/UserContext';
 import { motion, AnimatePresence } from 'motion/react';
-import { LogOut, UserSearch, Tractor, ShoppingBasket, CheckCircle2 } from 'lucide-react';
 
 interface RoleSelectionGuardProps {
   children: React.ReactNode;
@@ -61,7 +60,7 @@ export function RoleSelectionGuard({ children }: RoleSelectionGuardProps) {
           onClick={() => useUser().logout()}
           className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border border-white/5 hover:border-white/10"
         >
-          <LogOut size={14} />
+          <span className="material-symbols-outlined text-sm">logout</span>
           Sign Out
         </button>
       </div>
@@ -83,7 +82,7 @@ export function RoleSelectionGuard({ children }: RoleSelectionGuardProps) {
       >
         <div className="text-center mb-12">
           <div className="w-16 h-16 bg-gradient-to-br from-primary to-green-400 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-primary/30 mx-auto mb-6 rotate-6">
-            <UserSearch size={32} strokeWidth={2.5} />
+            <span className="material-symbols-outlined text-3xl font-bold">person_search</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight uppercase italic mb-4">
             Identify Yourself
@@ -105,7 +104,7 @@ export function RoleSelectionGuard({ children }: RoleSelectionGuardProps) {
             <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-all ${
               selectedRole === 'farmer' ? 'bg-primary text-white' : 'bg-slate-800 text-slate-400 group-hover:text-white'
             }`}>
-              <Tractor size={24} strokeWidth={2.5} />
+              <span className="material-symbols-outlined text-2xl font-bold">agriculture</span>
             </div>
             <h3 className="text-xl font-black text-white uppercase italic mb-2 tracking-tight">Farmer</h3>
             <p className="text-slate-500 text-sm font-medium leading-tight">
@@ -113,7 +112,7 @@ export function RoleSelectionGuard({ children }: RoleSelectionGuardProps) {
             </p>
             {selectedRole === 'farmer' && (
               <motion.div layoutId="check" className="absolute top-4 right-4 text-primary">
-                <CheckCircle2 size={24} strokeWidth={2.5} />
+                <span className="material-symbols-outlined font-bold">check_circle</span>
               </motion.div>
             )}
           </button>
@@ -129,7 +128,7 @@ export function RoleSelectionGuard({ children }: RoleSelectionGuardProps) {
             <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-all ${
               selectedRole === 'buyer' ? 'bg-blue-500 text-white' : 'bg-slate-800 text-slate-400 group-hover:text-white'
             }`}>
-              <ShoppingBasket size={24} strokeWidth={2.5} />
+              <span className="material-symbols-outlined text-2xl font-bold">shopping_basket</span>
             </div>
             <h3 className="text-xl font-black text-white uppercase italic mb-2 tracking-tight">Buyer</h3>
             <p className="text-slate-500 text-sm font-medium leading-tight">
@@ -137,7 +136,7 @@ export function RoleSelectionGuard({ children }: RoleSelectionGuardProps) {
             </p>
             {selectedRole === 'buyer' && (
               <motion.div layoutId="check" className="absolute top-4 right-4 text-blue-500">
-                <CheckCircle2 size={24} strokeWidth={2.5} />
+                <span className="material-symbols-outlined font-bold">check_circle</span>
               </motion.div>
             )}
           </button>

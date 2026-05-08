@@ -6,7 +6,6 @@ import { useUser } from '@/context/UserContext';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Sprout, Leaf, Sun, Microscope, Store, Radio } from 'lucide-react';
 
 export default function LandingPage() {
   const { user, isAuthReady } = useUser();
@@ -51,7 +50,7 @@ export default function LandingPage() {
       >
         <div className="flex items-center gap-2 sm:gap-3">
           <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary rounded-lg sm:rounded-xl flex items-center justify-center text-white">
-            <Sprout size={20} />
+            <span className="material-symbols-outlined fill-1 text-sm sm:text-base">potted_plant</span>
           </div>
           <h1 className="font-bold text-lg sm:text-xl tracking-tight dark:text-white">AgriTech Pro</h1>
         </div>
@@ -134,7 +133,7 @@ export default function LandingPage() {
           >
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-green-50 dark:bg-green-900/20 text-primary rounded-xl flex items-center justify-center transition-colors">
-                <Leaf size={20} />
+                <span className="material-symbols-outlined fill-1">eco</span>
               </div>
               <div>
                 <p className="text-sm font-black dark:text-white transition-colors">Crop Health: 94%</p>
@@ -152,7 +151,7 @@ export default function LandingPage() {
             className="hidden sm:block absolute -top-10 -right-10 bg-background-dark text-white p-6 rounded-3xl shadow-2xl max-w-xs space-y-4"
           >
             <div className="flex items-center gap-3">
-              <Sun className="text-yellow-400" size={20} />
+              <span className="material-symbols-outlined text-yellow-400 fill-1">wb_sunny</span>
               <p className="text-sm font-black">24°C - Perfect Conditions</p>
             </div>
           </motion.div>
@@ -172,9 +171,9 @@ export default function LandingPage() {
           </motion.div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
             {[
-              { title: 'AI Diagnosis', desc: 'Instant identification of pests and diseases using advanced computer vision.', icon: Microscope, color: 'bg-blue-500' },
-              { title: 'Marketplace', desc: 'Direct-to-consumer platform with health-verified produce listings.', icon: Store, color: 'bg-green-500' },
-              { title: 'Real-time Monitoring', desc: 'Connect IoT sensors for live soil, moisture, and weather tracking.', icon: Radio, color: 'bg-orange-500' },
+              { title: 'AI Diagnosis', desc: 'Instant identification of pests and diseases using advanced computer vision.', icon: 'biotech', color: 'bg-blue-500' },
+              { title: 'Marketplace', desc: 'Direct-to-consumer platform with health-verified produce listings.', icon: 'storefront', color: 'bg-green-500' },
+              { title: 'Real-time Monitoring', desc: 'Connect IoT sensors for live soil, moisture, and weather tracking.', icon: 'sensors', color: 'bg-orange-500' },
             ].map((feature, i) => (
               <motion.div 
                 key={i} 
@@ -185,7 +184,7 @@ export default function LandingPage() {
                 className="bg-white dark:bg-slate-900 p-8 sm:p-10 rounded-[2rem] sm:rounded-[3rem] border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all group"
               >
                 <div className={`w-12 h-12 sm:w-16 sm:h-16 ${feature.color} text-white rounded-xl sm:rounded-2xl flex items-center justify-center mb-6 sm:mb-8 group-hover:scale-110 transition-transform`}>
-                  <feature.icon size={28} />
+                  <span className="material-symbols-outlined text-2xl sm:text-3xl">{feature.icon}</span>
                 </div>
                 <h4 className="text-xl sm:text-2xl font-black mb-3 sm:mb-4 dark:text-white transition-colors">{feature.title}</h4>
                 <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400 leading-relaxed transition-colors">{feature.desc}</p>

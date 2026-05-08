@@ -10,17 +10,6 @@ import { supabaseService } from '@/services/supabaseService';
 import { motion, AnimatePresence } from 'motion/react';
 import { toast } from 'sonner';
 import { 
-  TrendingUp, 
-  CheckCircle2, 
-  Info, 
-  Sprout, 
-  Download, 
-  Beaker, 
-  ArrowRight, 
-  Droplets, 
-  Thermometer 
-} from 'lucide-react';
-import { 
   AreaChart, 
   Area, 
   XAxis, 
@@ -298,7 +287,7 @@ export default function HistoryContent() {
                   </p>
                 )}
                 <div className="mt-4 flex items-center text-xs text-green-600 font-black">
-                  <TrendingUp size={14} className="mr-1" />
+                  <span className="material-symbols-outlined text-sm mr-1">trending_up</span>
                   <span>+12.5% from last month</span>
                 </div>
               </div>
@@ -311,7 +300,7 @@ export default function HistoryContent() {
                   <p className="text-4xl font-black text-slate-900 dark:text-white mt-3">{history.length}</p>
                 )}
                 <div className="mt-4 flex items-center text-xs text-blue-600 font-black">
-                  <CheckCircle2 size={14} className="mr-1" />
+                  <span className="material-symbols-outlined text-sm mr-1">check_circle</span>
                   <span>All systems operational</span>
                 </div>
               </div>
@@ -324,7 +313,7 @@ export default function HistoryContent() {
                   <p className="text-4xl font-black text-slate-900 dark:text-white mt-3">0</p>
                 )}
                 <div className="mt-4 flex items-center text-xs text-slate-400 font-black">
-                  <Info size={14} className="mr-1" />
+                  <span className="material-symbols-outlined text-sm mr-1">info</span>
                   <span>No pending approvals</span>
                 </div>
               </div>
@@ -456,7 +445,7 @@ export default function HistoryContent() {
                   <div key={diag.id} className="bg-white dark:bg-surface-dark p-8 rounded-[2.5rem] border border-slate-100 dark:border-border-dark shadow-sm hover:shadow-xl hover:shadow-primary/5 transition-all group">
                     <div className="flex justify-between items-start mb-6">
                       <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
-                        <Sprout size={32} />
+                        <span className="material-symbols-outlined text-3xl">potted_plant</span>
                       </div>
                       <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${
                         (diag.confidence || 0) > 0.8 ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
@@ -475,7 +464,7 @@ export default function HistoryContent() {
                         className="flex items-center gap-2 text-primary font-black text-sm hover:gap-3 transition-all"
                       >
                         Report
-                        <Download size={14} />
+                        <span className="material-symbols-outlined text-sm">download</span>
                       </button>
                     </div>
                   </div>
@@ -483,12 +472,12 @@ export default function HistoryContent() {
               </div>
             ) : (
               <div className="bg-white dark:bg-surface-dark p-20 rounded-[3rem] border border-dashed border-slate-200 dark:border-border-dark text-center">
-                <Beaker size={64} className="text-slate-200 mb-6 mx-auto" />
+                <span className="material-symbols-outlined text-6xl text-slate-200 mb-6">biotech</span>
                 <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-2">No Diagnoses Yet</h3>
                 <p className="text-slate-500 dark:text-slate-400 mb-8">Run your first crop health check to see results here.</p>
                 <Link href="/diagnosis" className="inline-flex items-center gap-2 bg-primary text-white px-8 py-3 rounded-2xl font-black shadow-lg shadow-primary/20">
                   Start Diagnosis
-                  <ArrowRight size={20} />
+                  <span className="material-symbols-outlined">arrow_forward</span>
                 </Link>
               </div>
             )}
@@ -509,7 +498,7 @@ export default function HistoryContent() {
                     <p className="text-xs text-slate-500 font-medium">Historical moisture readings across sectors</p>
                   </div>
                   <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center">
-                    <Droplets size={24} />
+                    <span className="material-symbols-outlined">water_drop</span>
                   </div>
                 </div>
                 {loading && sensorHistory.length === 0 ? (
@@ -558,7 +547,7 @@ export default function HistoryContent() {
                     <p className="text-xs text-slate-500 font-medium">Environmental balance over time</p>
                   </div>
                   <div className="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center">
-                    <Thermometer size={24} />
+                    <span className="material-symbols-outlined">thermostat</span>
                   </div>
                 </div>
                 {loading && sensorHistory.length === 0 ? (

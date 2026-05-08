@@ -9,22 +9,7 @@ import { useOffline } from '@/context/OfflineContext';
 import { useUser } from '@/context/UserContext';
 import { MARKETPLACE_NAV } from '@/constants';
 import { useLanguage } from '@/context/LanguageContext';
-import { 
-  Menu, 
-  Search, 
-  Store, 
-  ShoppingCart, 
-  Sprout, 
-  FileText, 
-  MessageSquare, 
-  Moon, 
-  Sun, 
-  User as UserIcon,
-  LogOut,
-  ChevronRight,
-  CloudOff,
-  Leaf
-} from 'lucide-react';
+import { NotificationCenter } from './NotificationCenter';
 
 interface NavbarProps {
   onMenuClick?: () => void;
@@ -88,11 +73,11 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
 
   // Key links for the navbar based on role
   const mainNavLinks = [
-    { label: 'Marketplace', icon: Store, path: '/marketplace' },
-    { label: 'Cart', icon: ShoppingCart, path: '/cart', showBadge: true },
-    { label: 'My Listings', icon: Sprout, path: '/listings', roles: ['farmer'] },
-    { label: 'Orders', icon: FileText, path: '/orders' },
-    { label: 'Messages', icon: MessageSquare, path: '/messages' },
+    { label: 'Marketplace', icon: 'storefront', path: '/marketplace' },
+    { label: 'Cart', icon: 'shopping_cart', path: '/cart', showBadge: true },
+    { label: 'My Listings', icon: 'potted_plant', path: '/listings', roles: ['farmer'] },
+    { label: 'Orders', icon: 'receipt_long', path: '/orders' },
+    { label: 'Messages', icon: 'forum', path: '/messages' },
   ].filter(item => !item.roles || (user && item.roles.includes(user.user_type || '')));
 
   return (
@@ -103,18 +88,18 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
     }`}>
       <div className="max-w-7xl mx-auto h-full px-2 sm:px-8 flex items-center justify-between gap-1 sm:gap-4">
         <div className="flex items-center gap-1 sm:gap-8 flex-1 min-w-0">
-            {onMenuClick && (
-              <button 
-                onClick={onMenuClick}
-                className="lg:hidden w-10 h-10 flex items-center justify-center text-slate-500 hover:text-slate-900 transition-colors"
-              >
-                <Menu size={24} />
-              </button>
-            )}
-            <Link href="/" className="flex items-center gap-2 group shrink-0">
-              <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-primary to-green-400 rounded-lg flex items-center justify-center text-white shadow-lg shadow-primary/20 group-hover:rotate-6 transition-transform">
-                <Leaf size={18} />
-              </div>
+          {onMenuClick && (
+            <button 
+              onClick={onMenuClick}
+              className="lg:hidden w-10 h-10 flex items-center justify-center text-slate-500 hover:text-slate-900 transition-colors"
+            >
+              <span className="material-symbols-outlined text-[24px]">menu</span>
+            </button>
+          )}
+          <Link href="/" className="flex items-center gap-2 group shrink-0">
+            <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-primary to-green-400 rounded-lg flex items-center justify-center text-white shadow-lg shadow-primary/20 group-hover:rotate-6 transition-transform">
+              <span className="material-symbols-outlined text-[18px] md:text-[24px] font-bold">agriculture</span>
+            </div>
             <h1 className="text-sm md:text-xl font-black text-slate-900 dark:text-white tracking-tighter uppercase italic hidden xs:block">
               {title ? '' : 'Agri'}<span className={title ? 'hidden' : 'text-primary tracking-normal'}>Tech</span>
             </h1>
@@ -137,7 +122,7 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
                     : 'text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5'
                 }`}
               >
-                  <item.icon size={20} />
+                <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
                 <span className="hidden xl:inline">{t(item.label.toLowerCase().replace(/\s+/g, '_')) || item.label}</span>
                 {item.showBadge && item.label === 'Cart' && totalItems > 0 && (
                   <span className="absolute top-1 right-1 w-4 h-4 bg-primary text-white text-[8px] font-black rounded-full flex items-center justify-center border border-white dark:border-background-dark">
@@ -151,16 +136,16 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
 
         <div className="flex items-center gap-1 sm:gap-3">
           {/* Mobile Search Icon */}
-            <button 
-              className="lg:hidden w-10 h-10 rounded-full hover:bg-slate-50 dark:hover:bg-white/5 flex items-center justify-center text-slate-500 dark:text-slate-400"
-              onClick={() => router.push('/marketplace')}
-            >
-              <Search size={22} />
-            </button>
+          <button 
+            className="lg:hidden w-10 h-10 rounded-full hover:bg-slate-50 dark:hover:bg-white/5 flex items-center justify-center text-slate-500 dark:text-slate-400"
+            onClick={() => router.push('/marketplace')}
+          >
+            <span className="material-symbols-outlined text-[22px]">search</span>
+          </button>
 
           <div className="hidden lg:flex items-center justify-center flex-1 max-w-md mx-4">
             <div className="relative w-full group">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 transition-colors group-focus-within:text-primary" size={18} />
+              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px] transition-colors group-focus-within:text-primary">search</span>
               <input 
                 type="text" 
                 placeholder={t('search_placeholder') || "Search products..."}
@@ -183,20 +168,22 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
               exit={{ opacity: 0, x: 20 }}
               className="flex items-center gap-2 bg-red-50 dark:bg-red-500/10 text-red-500 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border border-red-100 dark:border-red-500/20"
             >
-              <CloudOff size={14} className="animate-pulse" />
+              <span className="material-symbols-outlined text-sm animate-pulse">cloud_off</span>
               Offline
             </motion.div>
           )}
         </AnimatePresence>
         
-          <button 
-            id="theme-toggle"
-            onClick={handleToggleTheme}
-            className="w-8 h-8 sm:w-10 sm:h-10 rounded-full hover:bg-slate-50 dark:hover:bg-surface-hover-dark flex items-center justify-center text-slate-500 dark:text-slate-400 transition-all active:scale-90"
-            title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
-          >
-            {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
-          </button>
+        <button 
+          id="theme-toggle"
+          onClick={handleToggleTheme}
+          className="w-8 h-8 sm:w-10 sm:h-10 rounded-full hover:bg-slate-50 dark:hover:bg-surface-hover-dark flex items-center justify-center text-slate-500 dark:text-slate-400 transition-all active:scale-90"
+          title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
+        >
+          <span className="material-symbols-outlined text-[20px] sm:text-[22px]">
+            {theme === 'light' ? 'dark_mode' : 'light_mode'}
+          </span>
+        </button>
 
         
         <NotificationCenter />
@@ -267,7 +254,7 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
                     onClick={() => setShowProfileMenu(false)}
                     className="flex items-center gap-3 px-3 py-2 text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-surface-hover-dark rounded-xl transition-colors"
                   >
-                    <UserIcon size={20} />
+                    <span className="material-symbols-outlined text-[20px]">person</span>
                     {t('my_profile')}
                   </Link>
                   
@@ -277,7 +264,7 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
                     onClick={handleLogout}
                     className="w-full flex items-center gap-3 px-3 py-2 text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-colors"
                   >
-                    <LogOut size={20} />
+                    <span className="material-symbols-outlined text-[20px]">logout</span>
                     {t('logout')}
                   </button>
                 </div>

@@ -6,7 +6,6 @@ import { Sidebar } from '@/components/layout/Sidebar';
 import { Navbar } from '@/components/layout/Navbar';
 import { useUser } from '@/context/UserContext';
 import { motion } from 'motion/react';
-import { Lock } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user } = useUser();
@@ -16,7 +15,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className="flex items-center justify-center min-h-screen bg-slate-50 dark:bg-slate-900">
         <div className="text-center p-8 bg-white dark:bg-slate-800 rounded-2xl shadow-xl max-w-md mx-4">
           <div className="w-20 h-20 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Lock className="text-red-600 dark:text-red-400" size={40} />
+            <span className="material-symbols-rounded text-4xl text-red-600 dark:text-red-400">lock</span>
           </div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Access Denied</h1>
           <p className="text-slate-600 dark:text-slate-400 mb-6">

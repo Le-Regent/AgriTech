@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, getDay } from 'date-fns';
-import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface AgriTip {
   date: string;
@@ -46,17 +45,17 @@ export default function AgriCalendar() {
       <div className="p-6 bg-slate-50/50 dark:bg-white/5 border-b border-slate-100 dark:border-white/5 flex items-center justify-between">
         <div>
           <h3 className="text-lg font-black dark:text-white uppercase italic tracking-tighter flex items-center gap-2">
-            <CalendarIcon size={20} className="text-primary" />
+            <span className="material-symbols-outlined text-primary">calendar_month</span>
             Farmer&apos;s Calendar
           </h3>
           <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{format(currentDate, 'MMMM yyyy')}</p>
         </div>
         <div className="flex gap-2 text-slate-400">
           <button onClick={handlePrevMonth} className="hover:text-primary transition-colors">
-            <ChevronLeft size={20} />
+            <span className="material-symbols-outlined">chevron_left</span>
           </button>
           <button onClick={handleNextMonth} className="hover:text-primary transition-colors">
-            <ChevronRight size={20} />
+            <span className="material-symbols-outlined">chevron_right</span>
           </button>
         </div>
       </div>

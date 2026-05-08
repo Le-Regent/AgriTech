@@ -4,7 +4,6 @@ import { SIDEBAR_NAV, MARKETPLACE_NAV, ADMIN_NAV } from '@/constants';
 import { useUser } from '@/context/UserContext';
 import { useLanguage } from '@/context/LanguageContext';
 import ResponsiveImage from '@/components/ui/ResponsiveImage';
-import { Sprout, X, ShieldAlert, ChevronRight } from 'lucide-react';
 
 interface SidebarProps {
   onMobileClose?: () => void;
@@ -29,7 +28,7 @@ export function Sidebar({ onMobileClose }: SidebarProps) {
         ...filteredItems,
         {
           label: 'Admin Panel',
-          icon: ShieldAlert,
+          icon: 'admin_panel_settings',
           path: '/admin',
         }
       ];
@@ -59,7 +58,9 @@ export function Sidebar({ onMobileClose }: SidebarProps) {
               }`}
             >
               <div className="w-6 h-6 flex items-center justify-center">
-                <item.icon size={22} className={`transition-transform duration-200 group-hover:scale-110 ${isActive ? 'text-primary' : ''}`} />
+                <span className={`material-symbols-outlined text-[22px] transition-transform duration-200 group-hover:scale-110 ${isActive ? 'fill-1' : ''}`}>
+                  {item.icon}
+                </span>
               </div>
               <span className="text-sm">{t(labelKey) || item.label}</span>
             </Link>
@@ -74,7 +75,7 @@ export function Sidebar({ onMobileClose }: SidebarProps) {
       <div className="p-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white">
-            <Sprout size={24} />
+            <span className="material-symbols-outlined fill-1">potted_plant</span>
           </div>
           <h1 className="font-bold text-xl tracking-tight dark:text-white">AgriTech Pro</h1>
         </div>
@@ -84,7 +85,7 @@ export function Sidebar({ onMobileClose }: SidebarProps) {
             className="lg:hidden w-10 h-10 flex items-center justify-center text-slate-400 hover:text-slate-900 dark:hover:text-white"
             title={t('close_menu')}
           >
-            <X size={24} />
+            <span className="material-symbols-outlined">close</span>
           </button>
         )}
       </div>
@@ -120,7 +121,7 @@ export function Sidebar({ onMobileClose }: SidebarProps) {
             <p className="text-sm font-black dark:text-white truncate">{user?.full_name || 'Guest'}</p>
             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-tight">{user?.user_type || 'Account'}</p>
           </div>
-          <ChevronRight size={16} className="text-slate-400 group-hover:text-primary transition-colors" />
+          <span className="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">chevron_right</span>
         </Link>
       </div>
     </aside>

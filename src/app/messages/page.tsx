@@ -7,7 +7,6 @@ import { Message } from '@/types';
 import ProtectedRoute from '@/components/layout/ProtectedRoute';
 import ResponsiveImage from '@/components/ui/ResponsiveImage';
 import { useSearchParams } from 'next/navigation';
-import { MessagesSquare, MessageCircle, Send } from 'lucide-react';
 
 function MessagesContent() {
   const { user } = useUser();
@@ -122,7 +121,7 @@ function MessagesContent() {
             ))
           ) : (
             <div className="text-center py-12 px-4">
-              <MessagesSquare size={48} className="text-slate-200 mb-2 mx-auto" />
+              <span className="material-symbols-outlined text-4xl text-slate-200 mb-2">forum</span>
               <p className="text-sm text-slate-400">No conversations yet.</p>
             </div>
           )}
@@ -177,13 +176,13 @@ function MessagesContent() {
                 disabled={!newMessage.trim()}
                 className="w-12 h-12 bg-primary text-white rounded-2xl flex items-center justify-center hover:bg-primary/90 transition-all disabled:opacity-50"
               >
-                <Send size={20} />
+                <span className="material-symbols-outlined">send</span>
               </button>
             </form>
           </>
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center text-slate-300">
-            <MessageCircle size={64} className="mb-4" />
+            <span className="material-symbols-outlined text-6xl mb-4">chat_bubble</span>
             <p className="font-bold">Select a contact to start messaging</p>
           </div>
         )}

@@ -12,22 +12,6 @@ import { useUser } from '@/context/UserContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { toast } from 'sonner';
 
-import { 
-  CloudSun, 
-  Camera, 
-  Upload, 
-  X, 
-  Trash2, 
-  Microscope, 
-  AlertCircle, 
-  CheckCircle2, 
-  Sun, 
-  Focus, 
-  Target,
-  Thermometer,
-  Droplets
-} from 'lucide-react';
-
 function DiagnosisContent() {
   const router = useRouter();
   const { user } = useUser();
@@ -218,7 +202,7 @@ function DiagnosisContent() {
       const prompt = `Analyze this ${selectedCrop} leaf image for diseases or health issues. 
       ${weatherContext}
       Provide a detailed report in JSON format.
-      IMPORTANT: For all "icon" fields, use ONLY valid Lucide React icon names (e.g., 'Scissors' for cutting, 'Droplets' for water/rain, 'Thermometer' for temperature, 'Leaf' for plants, 'Bug' for pests, 'FlaskConical' for chemicals, 'Shield' for protection). Do NOT use generic words if they are not exact Lucide identifier names.`;
+      IMPORTANT: For all "icon" fields, use ONLY valid Material Symbol names (e.g., 'content_cut' for scissors, 'water_drop' for rain, 'thermostat' for temperature, 'eco' for plants, 'bug_report' for pests, 'science' for chemicals). Do NOT use generic words like 'scissor' or 'rain' if they are not exact Material Symbol identifiers.`;
 
       const response = await ai.models.generateContent({
         model,
@@ -367,19 +351,16 @@ function DiagnosisContent() {
           <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-2xl border border-blue-100 dark:border-blue-800 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-white dark:bg-slate-800 rounded-xl flex items-center justify-center text-blue-500">
-                <Thermometer size={20} />
+                <span className="material-symbols-outlined">thermostat</span>
               </div>
               <div>
                 <p className="text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">Local Weather</p>
                 <p className="text-sm font-bold dark:text-white">{weather.temp}°C, {weather.description}</p>
               </div>
             </div>
-            <div className="flex items-center gap-2 text-right">
-              <Droplets className="text-blue-500" size={16} />
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">Humidity</p>
-                <p className="text-sm font-bold dark:text-white">{weather.humidity}%</p>
-              </div>
+            <div className="text-right">
+              <p className="text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">Humidity</p>
+              <p className="text-sm font-bold dark:text-white">{weather.humidity}%</p>
             </div>
           </div>
         )}
@@ -413,7 +394,7 @@ function DiagnosisContent() {
                     onClick={stopCamera}
                     className="w-12 h-12 bg-black/40 backdrop-blur-xl rounded-2xl flex items-center justify-center text-white border border-white/10"
                   >
-                    <X size={24} />
+                    <span className="material-symbols-outlined">close</span>
                   </button>
                 </div>
 
@@ -422,7 +403,7 @@ function DiagnosisContent() {
                     onClick={() => fileInputRef.current?.click()}
                     className="w-14 h-14 bg-white/10 backdrop-blur-xl rounded-2xl flex items-center justify-center text-white border border-white/10"
                   >
-                    <Upload size={24} />
+                    <span className="material-symbols-outlined">photo_library</span>
                   </button>
                   
                   <button 
@@ -451,7 +432,7 @@ function DiagnosisContent() {
                   {!selectedImage ? (
                     <div className="text-center space-y-4">
                       <div className="w-24 h-24 bg-primary/20 backdrop-blur-xl rounded-[2rem] border border-primary/20 flex items-center justify-center mx-auto mb-6">
-                        <Camera className="text-primary animate-pulse" size={40} />
+                        <span className="material-symbols-outlined text-4xl text-primary animate-pulse">photo_camera</span>
                       </div>
                       <h3 className="text-xl font-black text-white italic uppercase tracking-tight">Camera Ready</h3>
                       <p className="text-slate-400 text-sm max-w-[200px] mx-auto">Position the leaf within the frame and ensure good lighting.</p>
@@ -459,7 +440,7 @@ function DiagnosisContent() {
                   ) : (
                     <div className="absolute top-6 right-6">
                        <button onClick={() => setSelectedImage(null)} className="w-10 h-10 bg-black/40 backdrop-blur rounded-xl text-white flex items-center justify-center border border-white/10">
-                          <Trash2 size={20} />
+                          <span className="material-symbols-outlined text-sm">delete</span>
                        </button>
                     </div>
                   )}
@@ -477,7 +458,7 @@ function DiagnosisContent() {
                       onClick={startCamera}
                       className="w-full bg-primary text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl shadow-primary/40 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3"
                     >
-                      <Camera size={20} />
+                      <span className="material-symbols-outlined">camera</span>
                       Take Photo
                     </button>
                     <button 
@@ -536,13 +517,13 @@ function DiagnosisContent() {
       <div className="flex flex-col items-center gap-4 fixed bottom-24 left-4 right-4 z-40 md:static md:bottom-auto">
         {error && (
           <div className="w-full max-w-md bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-4 rounded-2xl border border-red-100 dark:border-red-800 flex items-center gap-3">
-            <AlertCircle size={20} />
+            <span className="material-symbols-outlined">error</span>
             <p className="text-sm font-bold">{error}</p>
           </div>
         )}
         {success && (
           <div className="w-full max-w-md bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 p-4 rounded-2xl border border-green-100 dark:border-green-800 flex items-center gap-3">
-            <CheckCircle2 size={20} />
+            <span className="material-symbols-outlined">check_circle</span>
             <p className="text-sm font-bold">{success}</p>
           </div>
         )}
@@ -551,20 +532,20 @@ function DiagnosisContent() {
           disabled={!selectedImage || !selectedCrop || isAnalyzing}
           className="w-full max-w-md bg-primary text-white py-5 rounded-[2rem] font-black text-xl shadow-2xl shadow-primary/30 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed flex items-center justify-center gap-4"
         >
-          <Microscope className="animate-bounce" size={32} />
+          <span className="material-symbols-outlined text-3xl">biotech</span>
           {isAnalyzing ? t('analyzing') : t('start_analysis')}
         </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {[
-          { icon: Sun, title: 'Good Lighting', desc: 'Ensure the leaf is well-lit but avoid direct glare.' },
-          { icon: Focus, title: 'Steady Focus', desc: 'Keep the camera 10-15cm away from the surface.' },
-          { icon: Target, title: 'Single Leaf', desc: 'Focus on one leaf at a time for better accuracy.' },
+          { icon: 'light_mode', title: 'Good Lighting', desc: 'Ensure the leaf is well-lit but avoid direct glare.' },
+          { icon: 'center_focus_strong', title: 'Steady Focus', desc: 'Keep the camera 10-15cm away from the surface.' },
+          { icon: 'filter_center_focus', title: 'Single Leaf', desc: 'Focus on one leaf at a time for better accuracy.' },
         ].map((tip, i) => (
           <div key={i} className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm flex gap-4 transition-all">
             <div className="w-10 h-10 shrink-0 bg-slate-50 dark:bg-slate-800 text-slate-400 dark:text-slate-500 rounded-xl flex items-center justify-center">
-              <tip.icon size={24} />
+              <span className="material-symbols-outlined">{tip.icon}</span>
             </div>
             <div>
               <h4 className="font-bold text-sm mb-1 dark:text-white">{tip.title}</h4>

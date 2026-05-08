@@ -3,14 +3,13 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useUser } from '@/context/UserContext';
 import { motion } from 'motion/react';
-import { Home, Store, Search, FileText, User } from 'lucide-react';
 
 const MOBILE_NAV = [
-  { label: 'Home', icon: Home, path: '/' },
-  { label: 'Market', icon: Store, path: '/marketplace' },
-  { label: 'Diagnose', icon: Search, path: '/diagnosis', role: 'farmer' },
-  { label: 'Orders', icon: FileText, path: '/orders' },
-  { label: 'Profile', icon: User, path: '/profile' },
+  { label: 'Home', icon: 'home', path: '/' },
+  { label: 'Market', icon: 'storefront', path: '/marketplace' },
+  { label: 'Diagnose', icon: 'biotech', path: '/diagnosis', role: 'farmer' },
+  { label: 'Orders', icon: 'receipt_long', path: '/orders' },
+  { label: 'Profile', icon: 'account_circle', path: '/profile' },
 ];
 
 export function BottomNav() {
@@ -35,7 +34,9 @@ export function BottomNav() {
               <div className={`relative flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-300 ${
                 isActive ? 'text-primary' : 'text-slate-500 group-active:scale-90'
               }`}>
-                <item.icon size={22} />
+                <span className={`material-symbols-outlined text-[24px] ${isActive ? 'fill-1' : ''}`}>
+                  {item.icon}
+                </span>
                 
                 {isActive && (
                   <motion.div 

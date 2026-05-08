@@ -1,7 +1,6 @@
 import React from 'react';
 import ResponsiveImage from '@/components/ui/ResponsiveImage';
 import { Product } from '@/types';
-import { ShieldCheck, Leaf, Package, MapPin, UserCheck } from 'lucide-react';
 
 interface ProductCardProps {
   product: Product;
@@ -36,18 +35,18 @@ export default function ProductCard({
           <div className="absolute top-4 left-4 flex flex-col gap-2">
             {product.is_verified && (
               <div className="bg-white/90 dark:bg-surface-dark/90 backdrop-blur px-2 py-1 rounded-lg shadow-sm flex items-center gap-1 w-fit">
-                <ShieldCheck className="text-primary" size={14} />
+                <span className="material-symbols-outlined text-primary text-[14px] fill-1">verified</span>
                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-900 dark:text-white">Verified</span>
               </div>
             )}
             {product.health_status && product.health_status !== 'N/A' && (
               <div className="bg-primary/90 backdrop-blur px-2 py-1 rounded-lg shadow-sm flex items-center gap-1 text-white w-fit">
-                <Leaf size={14} />
+                <span className="material-symbols-outlined text-[14px] fill-1">eco</span>
                 <span className="text-[10px] font-black uppercase tracking-widest">{product.health_status}</span>
               </div>
             )}
             <div className="bg-emerald-500/90 backdrop-blur px-2 py-1 rounded-lg shadow-sm flex items-center gap-1 text-white w-fit">
-              <Package size={14} />
+              <span className="material-symbols-outlined text-[14px] fill-1">inventory</span>
               <span className="text-[10px] font-black uppercase tracking-widest">{product.stock_quantity > 0 ? `${product.stock_quantity} ${product.unit}` : 'Out of Stock'}</span>
             </div>
           </div>
@@ -62,13 +61,13 @@ export default function ProductCard({
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
             <div className="flex items-center gap-1 text-slate-400 dark:text-slate-500">
-              <MapPin size={14} />
+              <span className="material-symbols-outlined text-[14px] sm:text-[16px]">location_on</span>
               <span className="text-[10px] sm:text-xs font-bold truncate">{product.location}</span>
             </div>
             <div className="flex items-center gap-1 sm:gap-1.5">
               <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 truncate max-w-[60px] sm:max-w-[80px]">{product.profiles?.full_name?.split(' ')[0] || 'Farmer'}</span>
               {product.profiles?.is_verified && (
-                <UserCheck className="text-blue-500" size={14} title="Verified Farmer" />
+                <span className="material-symbols-outlined text-blue-500 text-[12px] sm:text-[14px] fill-1" title="Verified Farmer">verified_user</span>
               )}
             </div>
           </div>

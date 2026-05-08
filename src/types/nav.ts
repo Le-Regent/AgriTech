@@ -1,8 +1,6 @@
-import React from 'react';
-
 export interface NavItem {
   label: string;
-  icon: any;
+  icon: string;
   path: string;
   roles?: string[];
 }

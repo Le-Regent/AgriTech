@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { useUser } from '@/context/UserContext';
 import { toast } from 'sonner';
 import { motion } from 'motion/react';
-import { LockReset, Mail, ArrowLeft } from 'lucide-react';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -37,7 +36,7 @@ export default function ForgotPasswordPage() {
       >
         <div className="flex flex-col items-center text-center mb-10">
           <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-6">
-            <LockReset size={32} />
+            <span className="material-symbols-outlined text-3xl fill-1">lock_reset</span>
           </div>
           <h1 className="text-3xl font-black tracking-tight dark:text-white mb-3">Forgot Password?</h1>
           <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
@@ -52,7 +51,7 @@ export default function ForgotPasswordPage() {
             <div className="space-y-2">
               <label className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">Email Address</label>
               <div className="relative group">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={20} />
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">mail</span>
                 <input 
                   type="email" 
                   value={email}
@@ -90,7 +89,7 @@ export default function ForgotPasswordPage() {
 
         <div className="mt-10 text-center">
           <Link href="/login" className="text-sm font-bold text-slate-400 hover:text-primary transition-colors flex items-center justify-center gap-2">
-            <ArrowLeft size={16} />
+            <span className="material-symbols-outlined text-sm">arrow_back</span>
             Back to Login
           </Link>
         </div>

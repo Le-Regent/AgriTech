@@ -7,17 +7,6 @@ import { useEffect, useState } from 'react';
 import ProtectedRoute from '@/components/layout/ProtectedRoute';
 import { downloadDiagnosisReport } from '@/lib/diagnosisUtils';
 
-import * as LucideIcons from 'lucide-react';
-import { 
-  ArrowLeft, 
-  Share2, 
-  Download, 
-  Info, 
-  Brain, 
-  MessageSquare,
-  ChevronRight
-} from 'lucide-react';
-
 function DiagnosisResultContent() {
   const router = useRouter();
   const [report, setReport] = useState<any>(null);
@@ -48,34 +37,31 @@ function DiagnosisResultContent() {
     }
   };
 
-  const getLucideIcon = (iconName: string) => {
-    // If the iconName is already a valid Lucide icon name from the AI (e.g., 'Scissors')
-    const Icon = (LucideIcons as any)[iconName];
-    if (Icon) return <Icon size={20} />;
-
-    // Fallback mapping for older cached results or generic names
-    const mapping: Record<string, keyof typeof LucideIcons> = {
-      'content_cut': 'Scissors',
-      'water_drop': 'Droplets',
-      'light_mode': 'Sun',
-      'thermostat': 'Thermometer',
-      'humidity_percentage': 'Droplets',
-      'air': 'Wind',
-      'bug_report': 'Bug',
-      'microbiology': 'FlaskConical',
-      'eco': 'Leaf',
-      'science': 'FlaskConical',
-      'info': 'Info',
-      'psychology': 'Brain'
+  const mapIcon = (iconName: string) => {
+    const mapping: Record<string, string> = {
+      'scissor': 'content_cut',
+      'scissors': 'content_cut',
+      'rain': 'water_drop',
+      'rainy': 'water_drop',
+      'sun': 'light_mode',
+      'sunny': 'light_mode',
+      'cloud': 'cloudy',
+      'temp': 'thermostat',
+      'temperature': 'thermostat',
+      'humidity': 'humidity_percentage',
+      'wind': 'air',
+      'pest': 'bug_report',
+      'pests': 'bug_report',
+      'bug': 'bug_report',
+      'fungus': 'microbiology',
+      'bacteria': 'microbiology',
+      'virus': 'microbiology',
+      'plant': 'eco',
+      'leaf': 'eco',
+      'chemical': 'science',
+      'fertilizer': 'science',
     };
-
-    const mappedName = mapping[iconName.toLowerCase()];
-    if (mappedName) {
-      const MappedIcon = (LucideIcons as any)[mappedName];
-      if (MappedIcon) return <MappedIcon size={20} />;
-    }
-
-    return <Info size={20} />;
+    return mapping[iconName.toLowerCase()] || iconName;
   };
 
   const handleDownload = () => {
@@ -86,19 +72,19 @@ function DiagnosisResultContent() {
     <div className="max-w-5xl mx-auto space-y-8">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <Link href="/diagnosis" className="flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary font-bold transition-colors">
-          <ArrowLeft size={20} />
+          <span className="material-symbols-outlined">arrow_back</span>
           Back to Analysis
         </Link>
         <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
           <button className="flex-1 sm:flex-none bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-            <Share2 size={18} />
+            <span className="material-symbols-outlined text-[18px] sm:text-[20px]">share</span>
             Share
           </button>
           <button 
             onClick={handleDownload}
             className="flex-1 sm:flex-none bg-primary text-white px-3 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
           >
-            <Download size={18} />
+            <span className="material-symbols-outlined text-[18px] sm:text-[20px]">download</span>
             Download
           </button>
         </div>
@@ -141,7 +127,7 @@ function DiagnosisResultContent() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-4">
                 <h4 className="font-bold flex items-center gap-2 dark:text-white">
-                  <Info className="text-primary" size={20} />
+                  <span className="material-symbols-outlined text-primary">info</span>
                   Symptoms Observed
                 </h4>
                 <ul className="space-y-3">
@@ -155,7 +141,7 @@ function DiagnosisResultContent() {
               </div>
               <div className="space-y-4">
                 <h4 className="font-bold flex items-center gap-2 dark:text-white">
-                  <Brain className="text-primary" size={20} />
+                  <span className="material-symbols-outlined text-primary">psychology</span>
                   AI Recommendations
                 </h4>
                 <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl space-y-3 transition-colors">
@@ -177,9 +163,7 @@ function DiagnosisResultContent() {
                     <h4 className="font-bold text-sm dark:text-white">{item.title}</h4>
                     <p className="text-sm text-slate-500 dark:text-slate-400">{item.desc}</p>
                   </div>
-                  <div className="text-slate-300 dark:text-slate-700 group-hover:text-primary transition-colors">
-                    {getLucideIcon(item.icon)}
-                  </div>
+                  <span className="material-symbols-outlined text-slate-300 dark:text-slate-700 group-hover:text-primary transition-colors">{mapIcon(item.icon)}</span>
                 </div>
               ))}
             </div>
@@ -222,7 +206,7 @@ function DiagnosisResultContent() {
                 <div key={i} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-slate-50 dark:bg-slate-800 rounded-xl flex items-center justify-center text-slate-400 dark:text-slate-500 transition-colors">
-                      {getLucideIcon(env.icon)}
+                      <span className="material-symbols-outlined">{mapIcon(env.icon)}</span>
                     </div>
                     <div>
                       <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">{env.label}</p>
@@ -241,7 +225,7 @@ function DiagnosisResultContent() {
               Connect with a certified agronomist for a professional consultation and personalized treatment plan.
             </p>
             <button className="w-full bg-white text-primary py-3 rounded-2xl font-bold hover:bg-slate-50 transition-colors flex items-center justify-center gap-2">
-              <MessageSquare size={20} />
+              <span className="material-symbols-outlined">chat</span>
               Talk to Expert
             </button>
           </div>

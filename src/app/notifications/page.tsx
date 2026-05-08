@@ -8,16 +8,6 @@ import { supabaseService } from '@/services/supabaseService';
 import { AppNotification, NotificationCategory } from '@/types';
 import { format } from 'date-fns';
 import Link from 'next/link';
-import { 
-  Bell, 
-  ShoppingBag, 
-  TrendingUp, 
-  CloudSun, 
-  Package, 
-  Settings, 
-  Info,
-  BellOff
-} from 'lucide-react';
 
 export default function NotificationsPage() {
   const { user } = useUser();
@@ -70,13 +60,13 @@ export default function NotificationsPage() {
 
   const getCategoryIcon = (category: NotificationCategory) => {
     switch (category) {
-      case 'primary': return <Bell size={24} />;
-      case 'proposition': return <ShoppingBag size={24} />;
-      case 'market': return <TrendingUp size={24} />;
-      case 'climate': return <CloudSun size={24} />;
-      case 'order': return <Package size={24} />;
-      case 'system': return <Settings size={24} />;
-      default: return <Info size={24} />;
+      case 'primary': return 'notifications_active';
+      case 'proposition': return 'local_mall';
+      case 'market': return 'trending_up';
+      case 'climate': return 'partly_cloudy_day';
+      case 'order': return 'package_2';
+      case 'system': return 'settings';
+      default: return 'info';
     }
   };
 
@@ -138,7 +128,7 @@ export default function NotificationsPage() {
           ) : filteredNotifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center p-20 text-center space-y-4">
               <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center">
-                <BellOff size={40} className="text-slate-300" />
+                <span className="material-symbols-outlined text-4xl text-slate-300">notifications_off</span>
               </div>
               <div className="space-y-1">
                 <p className="text-xl font-black dark:text-white">{t('all_caught_up')}</p>
@@ -155,7 +145,9 @@ export default function NotificationsPage() {
                   className={`p-6 sm:p-8 hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors flex gap-6 ${!n.is_read ? 'bg-primary/[0.01]' : ''}`}
                 >
                   <div className={`w-14 h-14 shrink-0 rounded-3xl flex items-center justify-center ${getCategoryColor(n.category)} shadow-sm`}>
-                    {getCategoryIcon(n.category)}
+                    <span className="material-symbols-outlined text-2xl">
+                      {getCategoryIcon(n.category)}
+                    </span>
                   </div>
                   <div className="flex-1 space-y-2">
                     <div className="flex items-start justify-between gap-4">

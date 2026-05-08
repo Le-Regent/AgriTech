@@ -32,44 +32,7 @@ const Bar = dynamic(() => import('recharts').then(mod => mod.Bar), { ssr: false 
 import LandingPage from '@/app/welcome/page';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  Plus, 
-  Map as MapIcon, 
-  Calendar, 
-  Camera, 
-  X, 
-  Droplets, 
-  Leaf, 
-  Agriculture, 
-  Package, 
-  Clock, 
-  TrendingUp, 
-  TrendingDown, 
-  Info, 
-  ArrowRight, 
-  ShoppingCart, 
-  Search, 
-  Flame, 
-  PackageOpen, 
-  History, 
-  Lightbulb, 
-  Zap, 
-  ListRestart, 
-  Headset, 
-  Bell, 
-  Settings,
-  User as UserIcon,
-  ChevronRight,
-  Eye,
-  Microscope,
-  CreditCard,
-  Download,
-  Edit,
-  Wind,
-  Sprout,
-  ShoppingBag as StoreIcon,
-  ShoppingBag
-} from 'lucide-react';
+import Skeleton from '@/components/ui/Skeleton';
 import { supabase } from '@/lib/supabase';
 import AgriCalendar from '@/components/ui/AgriCalendar';
 
@@ -303,17 +266,17 @@ const [showCalendar, setShowCalendar] = useState(false);
   const stats = useMemo(() => {
     if (isFarmer) {
       return [
-        { label: t('crop_health'), value: diagnoses.length > 0 ? (diagnoses.filter(d => d.result_label === 'healthy' || d.status === 'healthy').length / diagnoses.length * 100).toFixed(0) + '%' : '--', icon: Leaf, color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-500/10' },
-        { label: t('total_inventory'), value: myProducts.reduce((sum, p) => sum + p.stock_quantity, 0).toLocaleString(), icon: Package, color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-500/10' },
-        { label: t('pending_orders'), value: sellerOrders.filter(o => o.status === 'pending').length.toString(), icon: ShoppingCart, color: 'text-orange-500', bg: 'bg-orange-50 dark:bg-orange-500/10' },
-        { label: t('total_revenue'), value: sellerOrders.filter(o => o.status === 'delivered').reduce((sum, o) => sum + o.total_amount, 0).toLocaleString() + ' CFA', icon: CreditCard, color: 'text-primary', bg: 'bg-primary/10' }
+        { label: t('crop_health'), value: diagnoses.length > 0 ? (diagnoses.filter(d => d.result_label === 'healthy' || d.status === 'healthy').length / diagnoses.length * 100).toFixed(0) + '%' : '--', icon: 'potted_plant', color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-500/10' },
+        { label: t('total_inventory'), value: myProducts.reduce((sum, p) => sum + p.stock_quantity, 0).toLocaleString(), icon: 'inventory_2', color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-500/10' },
+        { label: t('pending_orders'), value: sellerOrders.filter(o => o.status === 'pending').length.toString(), icon: 'shopping_cart', color: 'text-orange-500', bg: 'bg-orange-50 dark:bg-orange-500/10' },
+        { label: t('total_revenue'), value: sellerOrders.filter(o => o.status === 'delivered').reduce((sum, o) => sum + o.total_amount, 0).toLocaleString() + ' CFA', icon: 'payments', color: 'text-primary', bg: 'bg-primary/10' }
       ];
     }
     return [
-      { label: t('active_orders'), value: sellerOrders.filter(o => o.status !== 'delivered' && o.status !== 'cancelled').length.toString(), icon: ShoppingCart, color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-500/10' },
-      { label: t('notifications'), value: notifications.filter(n => !n.is_read).length.toString(), icon: Bell, color: 'text-orange-500', bg: 'bg-orange-50 dark:bg-orange-500/10' },
-      { label: t('total_spent'), value: sellerOrders.reduce((sum, o) => sum + (o.total_amount || 0), 0).toLocaleString() + ' CFA', icon: CreditCard, color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-500/10' },
-      { label: t('purchase_history'), value: sellerOrders.length.toString(), icon: History, color: 'text-purple-500', bg: 'bg-purple-50 dark:bg-purple-500/10' }
+      { label: t('active_orders'), value: sellerOrders.filter(o => o.status !== 'delivered' && o.status !== 'cancelled').length.toString(), icon: 'shopping_bag', color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-500/10' },
+      { label: t('notifications'), value: notifications.filter(n => !n.is_read).length.toString(), icon: 'notifications', color: 'text-orange-500', bg: 'bg-orange-50 dark:bg-orange-500/10' },
+      { label: t('total_spent'), value: sellerOrders.reduce((sum, o) => sum + (o.total_amount || 0), 0).toLocaleString() + ' CFA', icon: 'payments', color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-500/10' },
+      { label: t('purchase_history'), value: sellerOrders.length.toString(), icon: 'history', color: 'text-purple-500', bg: 'bg-purple-50 dark:bg-purple-500/10' }
     ];
   }, [isFarmer, diagnoses, myProducts, sellerOrders, notifications, t]);
 
@@ -366,7 +329,7 @@ const [showCalendar, setShowCalendar] = useState(false);
           </div>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <form onSubmit={handleSearch} className="relative group min-w-[240px]">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
               <input type="text" placeholder={t('search')} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest focus:ring-2 focus:ring-primary/20 transition-all outline-none dark:text-white" />
             </form>
@@ -381,7 +344,7 @@ const [showCalendar, setShowCalendar] = useState(false);
             <motion.div key={i} variants={itemVariants}
               className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-[1.5rem] sm:rounded-[2rem] border border-slate-100 dark:border-white/5 shadow-sm hover:shadow-xl transition-all group">
               <div className={`w-8 h-8 sm:w-10 sm:h-10 ${stat.bg} ${stat.color} rounded-xl flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-110 transition-transform`}>
-                <stat.icon size={20} />
+                <span className="material-symbols-outlined fill-1 text-lg sm:text-xl">{stat.icon}</span>
               </div>
               <p className="text-[8px] sm:text-[9px] font-black text-slate-500 dark:text-slate-500 uppercase tracking-widest mb-1 leading-none">{stat.label}</p>
               <p className="text-sm sm:text-lg font-black dark:text-white tracking-tighter truncate">{stat.value}</p>
@@ -394,7 +357,7 @@ const [showCalendar, setShowCalendar] = useState(false);
             <section className="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm">
               <div className="flex items-center justify-between mb-8">
                 <h3 className="text-xl font-bold dark:text-white flex items-center gap-2">
-                  <Flame size={20} className="text-primary" /> {t('featured_products')}
+                  <span className="material-symbols-outlined text-primary">local_fire_department</span> {t('featured_products')}
                 </h3>
                 <Link href="/marketplace" className="text-primary text-sm font-bold hover:underline">{t('view_all')}</Link>
               </div>
@@ -414,7 +377,7 @@ const [showCalendar, setShowCalendar] = useState(false);
                   </Link>
                 )) : (
                   <div className="col-span-2 py-12 text-center text-slate-500">
-                    <Store size={40} className="mx-auto opacity-20 mb-2" />
+                    <span className="material-symbols-outlined text-4xl opacity-20 mb-2">storefront</span>
                     <p>No products featured today.</p>
                   </div>
                 )}
@@ -423,14 +386,14 @@ const [showCalendar, setShowCalendar] = useState(false);
 
             <section className="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm">
               <h3 className="text-xl font-bold mb-8 dark:text-white flex items-center gap-2">
-                <Package size={20} className="text-primary" /> {t('recent_orders')}
+                <span className="material-symbols-outlined text-primary">order_play</span> {t('recent_orders')}
               </h3>
               <div className="space-y-4">
                 {sellerOrders.length > 0 ? sellerOrders.slice(0, 5).map((order) => (
           <div key={order.id} className="flex items-center justify-between p-5 bg-slate-50 dark:bg-muted-dark/50 rounded-2xl hover:bg-slate-100 dark:hover:bg-surface-hover-dark transition-colors border border-transparent hover:border-slate-200 dark:hover:border-border-dark">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-white dark:bg-surface-dark rounded-xl flex items-center justify-center border border-slate-100 dark:border-border-dark shadow-sm">
-                        <PackageOpen size={24} className="text-primary" />
+                        <span className="material-symbols-outlined text-primary">package_2</span>
                       </div>
                       <div>
                         <h4 className="font-bold text-sm dark:text-white tracking-tight leading-none mb-1">ORD-{order.id.slice(0, 6).toUpperCase()}</h4>
@@ -464,7 +427,7 @@ const [showCalendar, setShowCalendar] = useState(false);
             <div className={`bg-gradient-to-br ${isFarmer ? 'from-emerald-600 to-teal-700' : 'from-primary to-primary-dark'} text-white p-8 rounded-[2rem] shadow-2xl relative overflow-hidden group`}>
               <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/20 rounded-full blur-3xl group-hover:scale-125 transition-transform duration-700"></div>
               <h3 className="text-xl font-bold mb-4 relative z-10 flex items-center gap-2">
-                <Lightbulb size={20} className="text-white/50" /> 
+                <span className="material-symbols-outlined text-white/50">{isFarmer ? 'lightbulb' : 'trending_up'}</span> 
                 {isFarmer ? t('smart_insights') : t('market_trends')}
               </h3>
               
@@ -489,7 +452,7 @@ const [showCalendar, setShowCalendar] = useState(false);
                       <div key={i} className="flex items-center justify-between text-xs font-bold bg-white/10 p-3 rounded-xl border border-white/10 backdrop-blur-sm">
                         <span className="tracking-tight">{item.name}</span>
                         <span className={`flex items-center gap-1 ${item.color}`}>
-                           {item.trend.startsWith('+') ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+                          <span className="material-symbols-outlined text-sm">{item.trend.startsWith('+') ? 'trending_up' : 'trending_down'}</span>
                         </span>
                       </div>
                     ))}
@@ -498,23 +461,23 @@ const [showCalendar, setShowCalendar] = useState(false);
               </div>
               
               <Link href={isFarmer ? "/insights" : "/marketplace"} className="mt-8 w-full bg-white text-slate-900 text-[10px] font-black uppercase tracking-widest py-3 rounded-xl transition-all flex items-center justify-center gap-2 relative z-10">
-                {t('view_details')} <ArrowRight size={14} />
+                {t('view_details')} <span className="material-symbols-outlined text-sm">arrow_forward</span>
               </Link>
             </div>
 
             <section className="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm">
               <h3 className="text-xl font-bold mb-6 dark:text-white flex items-center gap-2">
-                <Zap size={20} className="text-primary" /> {t('quick_actions')}
+                <span className="material-symbols-outlined text-primary">electric_bolt</span> {t('quick_actions')}
               </h3>
               <div className="grid grid-cols-2 gap-4">
                 {[
-                  { label: 'reorder', icon: ListRestart, path: '/orders', color: 'bg-blue-50 text-blue-500' },
-                  { label: 'support', icon: Headset, path: '/support', color: 'bg-orange-50 text-orange-500' },
-                  { label: 'notifications', icon: Bell, path: '/notifications', color: 'bg-purple-50 text-purple-500' },
-                  { label: 'settings', icon: Settings, path: '/settings', color: 'bg-slate-100 text-slate-600' },
+                  { label: 'reorder', icon: 'reorder', path: '/orders', color: 'bg-blue-50 text-blue-500' },
+                  { label: 'support', icon: 'support_agent', path: '/support', color: 'bg-orange-50 text-orange-500' },
+                  { label: 'notifications', icon: 'notifications', path: '/notifications', color: 'bg-purple-50 text-purple-500' },
+                  { label: 'settings', icon: 'settings', path: '/settings', color: 'bg-slate-100 text-slate-600' },
                 ].map((action, i) => (
                   <Link key={i} href={action.path} className="flex flex-col items-center gap-3 p-5 bg-slate-50 dark:bg-slate-800 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-all border border-transparent hover:scale-105 active:scale-95 duration-200 group">
-                    <action.icon size={24} className={`${action.color} group-hover:scale-110 transition-transform`} />
+                    <span className={`material-symbols-outlined ${action.color} group-hover:scale-110 transition-transform`}>{action.icon}</span>
                     <span className="text-[10px] font-black uppercase tracking-widest dark:text-slate-300">{t(action.label)}</span>
                   </Link>
                 ))}
@@ -531,14 +494,14 @@ const [showCalendar, setShowCalendar] = useState(false);
       title: 'Diagnosis Completed',
       time: formatDistanceToNow(new Date(d.created_at), { addSuffix: true }),
       desc: `${d.crop_type} - ${d.result_label || d.status}.`,
-      icon: Microscope,
+      icon: 'biotech',
       color: 'bg-blue-50 dark:bg-blue-500/10 text-blue-500'
     })),
     ...sellerOrders.slice(0, 3).map(o => ({
       title: 'Order Received',
       time: formatDistanceToNow(new Date(o.created_at), { addSuffix: true }),
       desc: `New order from ${o.profiles?.full_name || 'a buyer'} for ${o.order_items?.[0]?.products?.name || 'products'}.`,
-      icon: ShoppingCart,
+      icon: 'shopping_cart',
       color: 'bg-green-50 dark:bg-green-500/10 text-green-500'
     })),
   ].sort((a, b) => b.time.localeCompare(a.time)).slice(0, 5);
@@ -548,7 +511,7 @@ const [showCalendar, setShowCalendar] = useState(false);
       title: 'Welcome to AgriTech',
       time: 'Just now',
       desc: 'Start by listing products or scanning your crops for health checks.',
-      icon: Info,
+      icon: 'info',
       color: 'bg-primary/10 text-primary'
     });
   }
@@ -573,7 +536,7 @@ const [showCalendar, setShowCalendar] = useState(false);
             onClick={() => setShowCalendar(true)}
             className="flex-1 sm:flex-none bg-white dark:bg-white/5 dark:text-white px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/10 transition-all shadow-sm group"
           >
-            <Calendar size={18} className="group-hover:scale-110 transition-transform" />
+            <span className="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform">calendar_month</span>
             Calendar
           </button>
           
@@ -582,7 +545,7 @@ const [showCalendar, setShowCalendar] = useState(false);
             href="/diagnosis" 
             className="flex-1 sm:flex-none bg-primary text-white px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 group"
           >
-            <Camera size={18} className="group-hover:rotate-12 transition-transform" />
+            <span className="material-symbols-outlined text-[18px] group-hover:rotate-12 transition-transform">add_a_photo</span>
             {t('diagnose') || 'Diagnose'}
           </Link>
         </div>
@@ -610,7 +573,7 @@ const [showCalendar, setShowCalendar] = useState(false);
                   onClick={() => setShowCalendar(false)}
                   className="w-8 h-8 rounded-full bg-slate-100 dark:bg-white/10 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-white/20 transition-all"
                 >
-                  <X size={14} />
+                  <span className="material-symbols-outlined text-sm">close</span>
                 </button>
               </div>
               <div className="h-[500px]">
@@ -626,29 +589,29 @@ const [showCalendar, setShowCalendar] = useState(false);
         className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-6"
       >
         {[
-          { label: 'Soil Moisture', value: '42%', icon: Droplets, color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-500/10' },
+          { label: 'Soil Moisture', value: '42%', icon: 'water_drop', color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-500/10' },
           { 
             label: 'Crop Health', 
             value: diagnoses.length > 0 ? (diagnoses[0].status === 'healthy' ? '98%' : diagnoses[0].status === 'warning' ? '75%' : '45%') : '94%', 
-            icon: Leaf, 
+            icon: 'eco', 
             color: 'text-green-500', 
             bg: 'bg-green-50 dark:bg-green-500/10',
             healthStatus: diagnoses.length > 0 ? diagnoses[0].status : 'healthy'
           },
-          { label: 'Est. Harvest', value: '12.4t', icon: Agriculture, color: 'text-orange-500', bg: 'bg-orange-50 dark:bg-orange-500/10' },
+          { label: 'Est. Harvest', value: '12.4t', icon: 'agriculture', color: 'text-orange-500', bg: 'bg-orange-50 dark:bg-orange-500/10' },
           { 
             label: 'Total Inventory', 
             value: myProducts.length > 0 
               ? `${myProducts.reduce((sum, p) => sum + (p.stock_quantity || 0), 0)} units` 
               : '0 units', 
-            icon: Package, 
+            icon: 'inventory_2', 
             color: 'text-purple-500', 
             bg: 'bg-purple-50 dark:bg-purple-500/10' 
           },
           { 
             label: 'Pending Orders', 
             value: sellerOrders.filter(o => o.status === 'pending' || o.status === 'processing').length.toString(), 
-            icon: Clock, 
+            icon: 'pending_actions', 
             color: 'text-amber-500', 
             bg: 'bg-amber-50 dark:bg-amber-500/10' 
           },
@@ -662,7 +625,7 @@ const [showCalendar, setShowCalendar] = useState(false);
             )}
             <div className="flex items-center justify-between mb-3 sm:mb-4">
               <div className={`w-8 h-8 sm:w-10 sm:h-10 ${stat.bg} ${stat.color} rounded-xl flex items-center justify-center relative`}>
-                <stat.icon size={18} />
+                <span className="material-symbols-outlined fill-1 text-sm sm:text-lg">{stat.icon}</span>
               </div>
               <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-lg ${
                 stat.label === 'Crop Health' ? (
@@ -723,7 +686,7 @@ const [showCalendar, setShowCalendar] = useState(false);
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-white dark:bg-surface-dark rounded-xl flex items-center justify-center text-slate-400 border border-slate-100 dark:border-border-dark">
-                          <UserIcon size={18} />
+                          <span className="material-symbols-outlined text-sm">person</span>
                         </div>
                         <div>
                           <h4 className="font-bold text-sm dark:text-white">{order.profiles?.full_name || 'Buyer'}</h4>
@@ -814,7 +777,7 @@ const [showCalendar, setShowCalendar] = useState(false);
               <div className="flex gap-4">
                 <Link href="/history?tab=diagnoses" className="text-slate-400 hover:text-primary text-xs font-black uppercase tracking-widest transition-colors flex items-center gap-1">
                   {t('view_all')}
-                  <ArrowRight size={12} />
+                  <span className="material-symbols-outlined text-xs">arrow_forward</span>
                 </Link>
                 <Link href="/diagnosis" className="text-primary text-xs font-black uppercase tracking-widest border-b-2 border-primary/20 hover:border-primary transition-all">{t('new_scan')}</Link>
               </div>
@@ -849,14 +812,12 @@ const [showCalendar, setShowCalendar] = useState(false);
                   <div className="flex items-center gap-2">
                     <button 
                       onClick={() => downloadDiagnosisReport(diagnosis)}
-                      className="text-slate-400 hover:text-primary transition-colors"
+                      className="material-symbols-outlined text-slate-400 hover:text-primary transition-colors"
                       title="Download Report"
                     >
-                      <Download size={20} />
+                      download
                     </button>
-                    <Link href={`/diagnosis/result?id=${diagnosis.id}`} className="text-slate-400 hover:text-primary transition-colors">
-                      <ChevronRight size={20} />
-                    </Link>
+                    <Link href={`/diagnosis/result?id=${diagnosis.id}`} className="material-symbols-outlined text-slate-400 hover:text-primary transition-colors">chevron_right</Link>
                   </div>
                 </div>
               )) : (
@@ -877,7 +838,7 @@ const [showCalendar, setShowCalendar] = useState(false);
               </div>
               <Link href="/listings" className="text-slate-400 hover:text-primary text-xs font-black uppercase tracking-widest transition-colors flex items-center gap-1">
                 {t('manage_all')}
-                <ArrowRight size={14} />
+                <span className="material-symbols-outlined text-xs">arrow_forward</span>
               </Link>
             </div>
             <div className="space-y-4">
@@ -905,9 +866,7 @@ const [showCalendar, setShowCalendar] = useState(false);
                       </div>
                       <p className="text-[10px] text-slate-500 dark:text-slate-400">{product.price.toLocaleString()} CFA / {product.unit}</p>
                     </div>
-                    <Link href={`/marketplace/${product.id}`} className="text-slate-400 hover:text-primary transition-colors">
-                      <Edit size={18} />
-                    </Link>
+                    <Link href={`/marketplace/${product.id}`} className="material-symbols-outlined text-slate-400 hover:text-primary transition-colors">edit</Link>
                   </div>
                 ))
               ) : (
@@ -925,7 +884,7 @@ const [showCalendar, setShowCalendar] = useState(false);
               {recentActivities.map((item, i) => (
                 <div key={i} className="flex gap-3 sm:gap-4">
                   <div className={`w-8 h-8 sm:w-10 sm:h-10 shrink-0 rounded-lg sm:rounded-xl flex items-center justify-center ${item.color}`}>
-                    <item.icon size={20} />
+                    <span className="material-symbols-outlined text-[18px] sm:text-[20px]">{item.icon}</span>
                   </div>
                   <div className="flex-1 border-b border-slate-50 dark:border-slate-800 pb-4">
                     <div className="flex items-center justify-between mb-1">
@@ -972,14 +931,14 @@ const [showCalendar, setShowCalendar] = useState(false);
                 </div>
                 <div className="grid grid-cols-2 gap-4 relative z-10 mb-8">
                   <div className="flex items-center gap-2 bg-white/5 p-3 rounded-xl">
-                    <Droplets size={18} className="text-blue-400" />
+                    <span className="material-symbols-outlined text-blue-400">water_drop</span>
                     <div>
                       <p className="text-[10px] text-slate-500 font-bold uppercase">{t('humidity')}</p>
                       <p className="text-sm font-black">{weather.humidity}%</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 bg-white/5 p-3 rounded-xl">
-                    <Wind size={18} className="text-emerald-400" />
+                    <span className="material-symbols-outlined text-emerald-400">air</span>
                     <div>
                       <p className="text-[10px] text-slate-500 font-bold uppercase">{t('wind')}</p>
                       <p className="text-sm font-black">{weather.windSpeed} m/s</p>
@@ -1065,7 +1024,7 @@ export default function DashboardPage() {
           <div className="absolute inset-0 border-4 border-primary/20 rounded-full"></div>
           <div className="absolute inset-0 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
           <div className="absolute inset-0 flex items-center justify-center">
-            <Sprout size={32} className="text-primary animate-pulse" />
+            <span className="material-symbols-outlined text-primary text-3xl animate-pulse">potted_plant</span>
           </div>
         </div>
         <h2 className="text-xl font-black tracking-tight dark:text-white mb-2">AgriTech Pro</h2>
