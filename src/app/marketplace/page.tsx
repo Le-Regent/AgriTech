@@ -6,7 +6,6 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'motion/react';
 import { useSearchParams } from 'next/navigation';
 import { Joyride, Step, STATUS } from 'react-joyride';
-import { GoogleGenAI } from "@google/genai";
 import ResponsiveImage from '@/components/ui/ResponsiveImage';
 import { INITIAL_PRODUCTS } from '@/constants';
 import { useOffline } from '@/context/OfflineContext';
@@ -193,34 +192,28 @@ function MarketplaceContent() {
     e.preventDefault();
     e.stopPropagation();
     
-    const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
-    if (!apiKey) {
-      alert('Gemini API key is missing. Please add it to your environment variables.');
-      return;
-    }
-
     setGeneratingId(productId);
     try {
-      const ai = new GoogleGenAI({ apiKey });
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash-image',
-        contents: {
-          parts: [{ text: `A high-quality, professional food photography of fresh ${productName} on a wooden table, natural lighting, rustic style.` }]
-        },
-        config: {
-          imageConfig: { aspectRatio: "4:3" }
-        }
+      const response = await fetch('/api/ai/generate-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productName })
       });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to generate image');
+      }
+
+      const { image } = await response.json();
       
-      const imagePart = response.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
-      if (imagePart?.inlineData) {
-        const imageUrl = `data:image/png;base64,${imagePart.inlineData.data}`;
-        setAllProducts(prev => prev.map(p => p.id === productId ? { ...p, image_url: imageUrl } : p));
+      if (image) {
+        setAllProducts(prev => prev.map(p => p.id === productId ? { ...p, image_url: image } : p));
         toast.success(`AI image generated for ${productName}`);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Image generation failed:', error);
-      toast.error('Failed to generate AI image');
+      toast.error(error.message || 'Failed to generate AI image');
     } finally {
       setGeneratingId(null);
     }

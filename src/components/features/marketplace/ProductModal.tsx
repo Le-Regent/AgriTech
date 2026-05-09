@@ -1,7 +1,6 @@
 import React, { useState, useRef } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'motion/react';
-import { GoogleGenAI } from "@google/genai";
 import { Product } from '@/types';
 import { supabaseService } from '@/services/supabaseService';
 import { toast } from 'sonner';
@@ -113,12 +112,6 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, far
   };
 
   const generateAIImage = async () => {
-    const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
-    if (!apiKey) {
-      toast.error('Gemini API key is missing. Please add it to your environment variables.');
-      return;
-    }
-
     if (!formData.name) {
       toast.error('Please enter a product name first to generate an image.');
       return;
@@ -127,29 +120,29 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, far
     setGeneratingImage(true);
     setAiProgress(10);
     try {
-      const ai = new GoogleGenAI({ apiKey });
       setAiProgress(30);
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash-image',
-        contents: {
-          parts: [{ text: `A high-quality, professional food photography of fresh ${formData.name} on a wooden table, natural lighting, rustic style.` }]
-        },
-        config: {
-          imageConfig: { aspectRatio: "4:3" }
-        }
+      const response = await fetch('/api/ai/generate-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productName: formData.name })
       });
-      
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to generate image');
+      }
+
       setAiProgress(80);
-      const imagePart = response.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
-      if (imagePart?.inlineData) {
-        const imageUrl = `data:image/png;base64,${imagePart.inlineData.data}`;
-        setFormData(prev => ({ ...prev, image_url: imageUrl }));
+      const { image } = await response.json();
+      
+      if (image) {
+        setFormData(prev => ({ ...prev, image_url: image }));
         setAiProgress(100);
         toast.success('AI Image generated successfully!');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Image generation failed:', error);
-      toast.error('Failed to generate image. Please try again.');
+      toast.error(error.message || 'Failed to generate image. Please try again.');
     } finally {
       setTimeout(() => {
         setGeneratingImage(false);

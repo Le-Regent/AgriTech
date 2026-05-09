@@ -89,28 +89,69 @@ function CheckoutContent() {
       const order = await supabaseService.createOrder(orderData, orderItems);
 
       if (order) {
-        // 3. Update Product Stock (Parallelized for speed)
-        await Promise.all(cart.map(item => {
-          const baseQuantity = convertQuantity(item.quantity, item.unit, item.baseUnit);
-          return supabaseService.updateProductStock(item.id, baseQuantity)
-            .catch(err => console.error(`Failed to update stock for ${item.id}:`, err));
-        }));
+        // 3. Initiate Campay Payment
+        setPaymentStatus('processing');
+        const paymentPhone = formData.paymentMethod === 'm-pesa' ? formData.mpesaNumber : user.phone_number;
+        
+        if (!paymentPhone && formData.paymentMethod === 'm-pesa') {
+          throw new Error('Please provide a phone number for Mobile Money payment');
+        }
 
-        // 4. Create a simulated payment record
+        const campayResult = await supabaseService.initiateCampayPayment(
+          total, 
+          paymentPhone || '', 
+          order.id
+        );
+
+        // 4. Create Payment Record (Pending)
         await supabaseService.createPayment({
           order_id: order.id,
-          stripe_payment_id: `sim_${Math.random().toString(36).substring(7)}`,
+          campay_reference: campayResult.reference,
           amount: Number(total),
           currency: 'XAF',
-          status: 'succeeded',
+          status: 'pending',
+          method: formData.paymentMethod,
           created_at: new Date().toISOString()
         });
 
-        // 5. Clear Cart
-        clearCart();
-        toast.success('Order placed successfully!', { id: loadingToast });
-        setOrderSuccess(order.id);
-        setProcessingPayment(false);
+        // 5. Update Product Stock
+        await Promise.all(cart.map(item => {
+          const baseQuantity = convertQuantity(item.quantity, item.unit, item.baseUnit);
+          return supabaseService.updateProductStock(item.id, baseQuantity)
+            .catch(err => console.error(`Failed to update stock:`, err));
+        }));
+
+        // 6. Polling for status (optional, but good for UX)
+        let pollCount = 0;
+        const maxPolls = 15; // 15 * 2s = 30s
+        const pollInterval = setInterval(async () => {
+          pollCount++;
+          try {
+            const statusResult = await supabaseService.checkCampayStatus(campayResult.reference);
+            if (statusResult.status === 'SUCCESSFUL') {
+              clearInterval(pollInterval);
+              setPaymentStatus('finalizing');
+              clearCart();
+              toast.success('Order placed successfully!', { id: loadingToast });
+              setOrderSuccess(order.id);
+              setProcessingPayment(false);
+            } else if (statusResult.status === 'FAILED' || pollCount >= maxPolls) {
+              clearInterval(pollInterval);
+              // Webhook might still pick it up if it was a timeout
+              if (pollCount >= maxPolls) {
+                 clearCart();
+                 setOrderSuccess(order.id);
+                 setProcessingPayment(false);
+              } else {
+                toast.error('Payment failed. Please try again.');
+                setProcessingPayment(false);
+              }
+            }
+          } catch (e) {
+            console.error('Polling error:', e);
+          }
+        }, 3000);
+
       } else {
         throw new Error('Order creation returned no data');
       }

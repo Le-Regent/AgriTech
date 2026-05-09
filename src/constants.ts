@@ -21,9 +21,9 @@ export const MARKETPLACE_NAV: NavItem[] = [
 
 export const ADMIN_NAV: NavItem[] = [
   { label: 'Command Center', icon: 'terminal', path: '/admin/dashboard' },
+  { label: 'Escrow Vault', icon: 'shield_with_heart', path: '/admin/escrow' },
   { label: 'User Directory', icon: 'group', path: '/admin/users' },
   { label: 'Market Ledger', icon: 'account_balance_wallet', path: '/admin/transactions' },
-  { label: 'System Health', icon: 'analytics', path: '/admin/health' },
   { label: 'Exit Admin', icon: 'logout', path: '/' },
 ];
 

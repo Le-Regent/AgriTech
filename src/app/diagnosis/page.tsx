@@ -4,7 +4,6 @@ import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
 import ResponsiveImage from '@/components/ui/ResponsiveImage';
-import { GoogleGenAI, Type } from "@google/genai";
 import ProtectedRoute from '@/components/layout/ProtectedRoute';
 import { getWeatherData, getCurrentPosition, WeatherData } from '@/lib/weatherService';
 import { supabaseService } from '@/services/supabaseService';
@@ -183,12 +182,6 @@ function DiagnosisContent() {
     setError(null);
     try {
       const compressedData = await compressImage(base64Data);
-      const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
-      if (!apiKey) {
-        throw new Error('Gemini API key is missing.');
-      }
-      const ai = new GoogleGenAI({ apiKey });
-      const model = "gemini-flash-latest";
       
       const weatherContext = weather ? `
       Current Environmental Context:
@@ -199,95 +192,22 @@ function DiagnosisContent() {
       - Rain (last 1h): ${weather.rain || 0}mm
       ` : '';
 
-      const prompt = `Analyze this ${selectedCrop} leaf image for diseases or health issues. 
-      ${weatherContext}
-      Provide a detailed report in JSON format.
-      IMPORTANT: For all "icon" fields, use ONLY valid Material Symbol names (e.g., 'content_cut' for scissors, 'water_drop' for rain, 'thermostat' for temperature, 'eco' for plants, 'bug_report' for pests, 'science' for chemicals). Do NOT use generic words like 'scissor' or 'rain' if they are not exact Material Symbol identifiers.`;
-
-      const response = await ai.models.generateContent({
-        model,
-        contents: {
-          parts: [
-            { text: prompt },
-            {
-              inlineData: {
-                mimeType: "image/jpeg",
-                data: compressedData.split(',')[1]
-              }
-            }
-          ]
-        },
-        config: {
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-              diseaseName: { type: Type.STRING },
-              scientificName: { type: Type.STRING },
-              confidence: { type: Type.NUMBER },
-              status: { type: Type.STRING, enum: ["healthy", "warning", "critical"] },
-              description: { type: Type.STRING },
-              symptoms: { type: Type.ARRAY, items: { type: Type.STRING } },
-              recommendations: { type: Type.STRING },
-              treatmentSteps: {
-                type: Type.ARRAY,
-                items: {
-                  type: Type.OBJECT,
-                  properties: {
-                    title: { type: Type.STRING },
-                    desc: { type: Type.STRING },
-                    icon: { type: Type.STRING }
-                  },
-                  required: ["title", "desc", "icon"]
-                }
-              },
-              causes: {
-                type: Type.ARRAY,
-                items: {
-                  type: Type.OBJECT,
-                  properties: {
-                    title: { type: Type.STRING },
-                    desc: { type: Type.STRING }
-                  },
-                  required: ["title", "desc"]
-                }
-              },
-              preventions: {
-                type: Type.ARRAY,
-                items: {
-                  type: Type.OBJECT,
-                  properties: {
-                    title: { type: Type.STRING },
-                    desc: { type: Type.STRING }
-                  },
-                  required: ["title", "desc"]
-                }
-              },
-              environmentalContext: {
-                type: Type.ARRAY,
-                items: {
-                  type: Type.OBJECT,
-                  properties: {
-                    label: { type: Type.STRING },
-                    value: { type: Type.STRING },
-                    status: { type: Type.STRING },
-                    color: { type: Type.STRING },
-                    icon: { type: Type.STRING }
-                  },
-                  required: ["label", "value", "status", "color", "icon"]
-                }
-              }
-            },
-            required: ["diseaseName", "confidence", "status", "description", "symptoms", "recommendations", "treatmentSteps", "causes", "preventions", "environmentalContext"]
-          }
-        }
+      const response = await fetch('/api/ai/diagnose', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          image: compressedData.split(',')[1],
+          cropType: selectedCrop,
+          weatherContext
+        })
       });
 
-      if (!response.text) {
-        throw new Error('AI returned an empty response.');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to analyze image');
       }
 
-      const report = JSON.parse(response.text);
+      const report = await response.json();
       report.cropType = selectedCrop; // Add crop type to report
       setSuccess('Analysis complete! Redirecting to results...');
       

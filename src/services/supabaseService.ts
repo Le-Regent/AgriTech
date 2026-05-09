@@ -534,6 +534,107 @@ export const supabaseService = {
     if (error) throw new Error(error.message);
   },
 
+  // Escrow & Campay Logic
+  async initiateCampayPayment(amount: number, phoneNumber: string, orderId: string) {
+    const response = await fetch('/api/payment/collect', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount, phoneNumber, externalId: orderId })
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Payment initiation failed');
+    }
+
+    return response.json();
+  },
+
+  async checkCampayStatus(reference: string) {
+    const response = await fetch(`/api/payment/status?reference=${reference}`);
+    if (!response.ok) throw new Error('Status check failed');
+    return response.json();
+  },
+
+  async verifyOrderOTP(orderId: string, otp: string) {
+    const { data: order, error: fetchError } = await supabase
+      .from('orders')
+      .select('otp_code, status, buyer_id')
+      .eq('id', orderId)
+      .single();
+
+    if (fetchError) throw new Error(fetchError.message);
+    if (order.otp_code !== otp) throw new Error('Invalid OTP code. Please verify with the buyer.');
+
+    const { error: updateError } = await supabase
+      .from('orders')
+      .update({ status: 'delivered' })
+      .eq('id', orderId);
+
+    if (updateError) throw new Error(updateError.message);
+
+    // Notify buyer
+    await this.createNotification({
+      user_id: order.buyer_id,
+      title: 'Handshake Success! ✅',
+      message: 'The seller has verified your delivery code. Your payout to the farmer is now being prepared.',
+      type: 'order',
+      link: '/orders'
+    });
+
+    return true;
+  },
+
+  async uploadOrderEvidence(orderId: string, file: File) {
+    const url = await this.uploadImage(file, 'evidence');
+    const { error } = await supabase
+      .from('orders')
+      .update({ evidence_url: url, status: 'shipped' })
+      .eq('id', orderId);
+
+    if (error) throw new Error(error.message);
+    return url;
+  },
+
+  async approveEscrowPayout(orderId: string) {
+    // This is typically called by an admin
+    const { data: order, error: fetchError } = await supabase
+      .from('orders')
+      .select('*, order_items(products(profiles(phone_number, full_name)))')
+      .eq('id', orderId)
+      .single();
+
+    if (fetchError) throw new Error(fetchError.message);
+    
+    // In a real app, you'd calculate commissions here
+    const payoutAmount = order.total_amount * 0.95; // 5% platform fee
+    const farmerPhone = order.order_items?.[0]?.products?.profiles?.phone_number;
+
+    if (!farmerPhone) throw new Error('Farmer phone number not found for payout');
+
+    // Call Withdrawal API (server-side for security)
+    const response = await fetch('/api/payment/withdraw', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        amount: payoutAmount, 
+        phoneNumber: farmerPhone, 
+        externalId: orderId 
+      })
+    });
+
+    if (!response.ok) throw new Error('Payout failed. Please check platform balance.');
+
+    const { error: updateError } = await supabase
+      .from('orders')
+      .update({ status: 'COMPLETED' })
+      .eq('id', orderId);
+
+    if (updateError) throw new Error(updateError.message);
+
+    return true;
+  },
+
   /**
    * Broadcasts a notification to multiple users.
    * Useful for market trends or new product propositions.

@@ -55,9 +55,11 @@ export interface Product {
 export interface Order {
   id: string;
   buyer_id: string;
-  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  status: 'pending' | 'ESCROW_HELD' | 'processing' | 'shipped' | 'delivered' | 'COMPLETED' | 'cancelled';
   total_amount: number;
   shipping_address?: string;
+  otp_code?: string;
+  evidence_url?: string;
   created_at: string;
 }
 
@@ -109,10 +111,12 @@ export interface Message {
 export interface Payment {
   id: string;
   order_id?: string;
-  stripe_payment_id?: string;
+  campay_reference?: string;
+  campay_id?: string;
   amount: number;
   currency: string;
-  status: 'pending' | 'succeeded' | 'failed';
+  status: 'pending' | 'succeeded' | 'failed' | 'escrow_held';
+  method?: string;
   created_at: string;
 }
 
