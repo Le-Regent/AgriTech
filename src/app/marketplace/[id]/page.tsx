@@ -386,6 +386,62 @@ function ProductDetailContent() {
               ))}
             </div>
           </div>
+          
+          {product.is_perishable && product.expiry_date && (
+            <div className="bg-slate-50 dark:bg-muted-dark p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] space-y-6 transition-colors border border-slate-100 dark:border-border-dark">
+              <div className="flex items-center justify-between">
+                <h4 className="font-black text-base sm:text-lg dark:text-white">Freshness Level</h4>
+                <div className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
+                  product.health_status === 'Critical' ? 'bg-red-100 text-red-600' :
+                  product.health_status === 'Warning' ? 'bg-amber-100 text-amber-600' :
+                  'bg-green-100 text-green-600'
+                }`}>
+                  {product.health_status === 'Critical' ? 'Short Shelf Life' : 
+                   product.health_status === 'Warning' ? 'Moderate Freshness' : 'Peak Freshness'}
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="relative h-4 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ 
+                      width: `${Math.max(0, Math.min(100, 
+                        ((new Date(product.expiry_date).getTime() - Date.now()) / 
+                        (new Date(product.expiry_date).getTime() - new Date(product.created_at).getTime())) * 100
+                      ))}%` 
+                    }}
+                    className={`h-full transition-all duration-1000 ${
+                      product.health_status === 'Critical' ? 'bg-red-500' :
+                      product.health_status === 'Warning' ? 'bg-amber-500' :
+                      'bg-primary'
+                    }`}
+                  />
+                  <div className="absolute inset-0 flex justify-between px-2 items-center pointer-events-none">
+                    <div className="w-1 h-2 bg-white/50 rounded-full" />
+                    <div className="w-1 h-2 bg-white/50 rounded-full" />
+                    <div className="w-1 h-2 bg-white/50 rounded-full" />
+                  </div>
+                </div>
+                <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-slate-400">
+                  <span>Expired</span>
+                  <span>Good</span>
+                  <span>Freshly Picked</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Listed On</p>
+                  <p className="text-sm font-bold dark:text-white">{new Date(product.created_at).toLocaleDateString()}</p>
+                </div>
+                <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Best Before</p>
+                  <p className="text-sm font-bold dark:text-white">{new Date(product.expiry_date).toLocaleDateString()}</p>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="bg-slate-50 dark:bg-muted-dark p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] space-y-4 sm:space-y-6 transition-colors">
             <h4 className="font-black text-base sm:text-lg dark:text-white">Diagnostic History</h4>

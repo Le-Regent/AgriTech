@@ -17,6 +17,7 @@ function ProfileContent() {
   const { theme, toggleTheme } = useTheme();
   const { user, updateProfile } = useUser();
   const [diagnoses, setDiagnoses] = useState<CropDiagnosis[]>([]);
+  const [farmerProducts, setFarmerProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -95,21 +96,32 @@ function ProfileContent() {
   );
 
   useEffect(() => {
-    async function fetchDiagnoses() {
+    async function fetchFarmerData() {
       if (isFarmer && user?.id) {
         setLoading(true);
         try {
-          const data = await supabaseService.getDiagnoses(user.id);
-          setDiagnoses(data);
+          const [diagnosisData, productData] = await Promise.all([
+            supabaseService.getDiagnoses(user.id),
+            supabaseService.getProductsByFarmerId(user.id)
+          ]);
+          setDiagnoses(diagnosisData);
+          setFarmerProducts(productData || []);
         } catch (error) {
-          console.error('Failed to fetch diagnoses for profile:', error);
+          console.error('Failed to fetch farmer data:', error);
         } finally {
           setLoading(false);
         }
       }
     }
-    fetchDiagnoses();
+    fetchFarmerData();
   }, [isFarmer, user?.id]);
+
+  const expiringProducts = React.useMemo(() => {
+    return farmerProducts.filter(p => 
+      p.is_perishable && 
+      (p.health_status === 'Critical' || p.health_status === 'Warning')
+    );
+  }, [farmerProducts]);
 
   useEffect(() => {
     async function fetchOrders() {
@@ -672,6 +684,38 @@ function ProfileContent() {
               </div>
             </div>
           </div>
+
+          {isFarmer && expiringProducts.length > 0 && (
+            <div className="bg-amber-50 dark:bg-amber-900/10 p-8 rounded-[2.5rem] border border-amber-100 dark:border-amber-900/30 shadow-sm transition-colors">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-amber-600 animate-bounce">warning</span>
+                  <h4 className="font-black text-amber-900 dark:text-amber-400 uppercase text-xs tracking-widest">Freshness Alert</h4>
+                </div>
+                <Link href="/inventory" className="text-[10px] font-black uppercase text-amber-600 hover:underline">Manage All</Link>
+              </div>
+              <div className="space-y-3">
+                {expiringProducts.map(p => (
+                  <div key={p.id} className="bg-white dark:bg-slate-900/50 p-3 rounded-2xl flex items-center justify-between border border-amber-200 dark:border-amber-800/30">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0">
+                        <ResponsiveImage src={p.image_url} alt={p.name} className="w-full h-full object-cover" baseWidth={100} baseHeight={100} />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold dark:text-white truncate max-w-[120px]">{p.name}</p>
+                        <p className={`text-[9px] font-black uppercase tracking-widest ${p.health_status === 'Critical' ? 'text-red-500' : 'text-amber-500'}`}>
+                          {p.health_status === 'Critical' ? 'Expires in < 24h' : 'Expiring Soon'}
+                        </p>
+                      </div>
+                    </div>
+                    <Link href={`/marketplace/${p.id}`} className="bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-amber-200 transition-colors">
+                      Update Price
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {isFarmer && (
             <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-colors">

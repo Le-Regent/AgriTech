@@ -323,32 +323,76 @@ function OrdersContent() {
                     >
                       <div className="p-6 sm:p-8 border-b border-slate-50 dark:border-slate-800 bg-slate-50/30 dark:bg-white/5">
                         {order.status !== 'cancelled' ? (
-                          <div className="flex items-center justify-between mb-8 overflow-x-auto pb-4 gap-4 no-scrollbar">
-                            {['Pending', 'Escrow', 'Processing', 'Shipped', 'Handshake', 'Done'].map((step, idx) => {
-                              const currentStep = getStatusStep(order.status);
-                              const isCompleted = idx <= currentStep;
-                              const isCurrent = idx === currentStep;
-                              
-                              return (
-                                <div key={step} className="flex flex-col items-center gap-2 flex-1 min-w-[70px] relative">
-                                  {idx < 5 && (
-                                    <div className={`absolute left-1/2 top-4 w-full h-0.5 ${idx < currentStep ? 'bg-primary' : 'bg-slate-100 dark:bg-slate-800'}`} />
-                                  )}
-                                  <div className={`w-8 h-8 rounded-full flex items-center justify-center z-10 transition-all duration-500 ${
-                                    isCompleted ? 'bg-primary text-white scale-110' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'
-                                  }`}>
-                                    <span className="material-symbols-outlined text-sm">
-                                      {isCompleted ? 'check' : 'radio_button_unchecked'}
-                                    </span>
+                          <div className="space-y-8">
+                            <div className="flex items-center justify-between overflow-x-auto pb-4 gap-4 no-scrollbar">
+                              {['Pending', 'Escrow', 'Processing', 'Shipped', 'Handshake', 'Done'].map((step, idx) => {
+                                const currentStep = getStatusStep(order.status);
+                                const isCompleted = idx <= currentStep;
+                                const isCurrent = idx === currentStep;
+                                
+                                // Map steps to actual database timestamps
+                                const getStepTime = (index: number) => {
+                                  if (index === 0) return order.created_at;
+                                  if (index === 1) return order.created_at; // Escrow usually immediate
+                                  if (index === 3) return order.shipped_at;
+                                  if (index === 4) return order.delivered_at;
+                                  if (index === 5) return order.delivered_at;
+                                  return null;
+                                };
+
+                                const stepTime = getStepTime(idx);
+                                
+                                return (
+                                  <div key={step} className="flex flex-col items-center gap-2 flex-1 min-w-[70px] relative">
+                                    {idx < 5 && (
+                                      <div className={`absolute left-1/2 top-4 w-full h-0.5 ${idx < currentStep ? 'bg-primary' : 'bg-slate-100 dark:bg-slate-800'}`} />
+                                    )}
+                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center z-10 transition-all duration-500 ${
+                                      isCompleted ? 'bg-primary text-white scale-110 shadow-lg shadow-primary/20' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'
+                                    }`}>
+                                      <span className="material-symbols-outlined text-sm">
+                                        {isCompleted ? 'check' : 'radio_button_unchecked'}
+                                      </span>
+                                    </div>
+                                    <div className="text-center">
+                                      <p className={`text-[10px] font-black uppercase tracking-widest ${
+                                        isCurrent ? 'text-primary' : isCompleted ? 'text-slate-900 dark:text-white' : 'text-slate-400'
+                                      }`}>
+                                        {step}
+                                      </p>
+                                      {isCompleted && stepTime && (
+                                        <p className="text-[8px] text-slate-400 font-bold mt-1">
+                                          {new Date(stepTime).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                                          <br />
+                                          {new Date(stepTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        </p>
+                                      )}
+                                    </div>
                                   </div>
-                                  <span className={`text-[10px] font-black uppercase tracking-widest text-center ${
-                                    isCurrent ? 'text-primary' : isCompleted ? 'text-slate-900 dark:text-white' : 'text-slate-400'
-                                  }`}>
-                                    {step}
-                                  </span>
+                                );
+                              })}
+                            </div>
+
+                            {/* Trust Badge if Shipped */}
+                            {order.status === 'shipped' && order.evidence_url && (
+                              <div className="bg-indigo-50 dark:bg-indigo-500/5 border border-indigo-100 dark:border-indigo-500/20 p-4 rounded-2xl flex items-center gap-4">
+                                <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-500/20 rounded-xl flex items-center justify-center text-indigo-600">
+                                  <span className="material-symbols-outlined">image</span>
                                 </div>
-                              );
-                            })}
+                                <div className="flex-1">
+                                  <p className="text-xs font-black uppercase tracking-widest text-indigo-700">Digital Waybill Verified</p>
+                                  <p className="text-[10px] text-indigo-600/70">The farmer has uploaded shipment evidence.</p>
+                                </div>
+                                <a 
+                                  href={order.evidence_url} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="text-[10px] font-black uppercase tracking-widest text-indigo-600 hover:underline"
+                                >
+                                  View Proof
+                                </a>
+                              </div>
+                            )}
                           </div>
                         ) : (
                           <div className="flex items-center justify-center gap-2 p-4 bg-red-50 dark:bg-red-500/10 text-red-500 rounded-2xl mb-8">

@@ -701,10 +701,10 @@ function MarketplaceContent() {
         )}
       </AnimatePresence>
 
-      <motion.div variants={containerVariants} className={viewMode === 'grid' ? "grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8" : "flex flex-col gap-4"}>
+      <motion.div variants={containerVariants} className={viewMode === 'grid' ? "grid grid-cols-1 xs:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 md:gap-8" : "flex flex-col gap-4"}>
         {loading ? (
           Array.from({ length: 8 }).map((_, i) => (
-            <motion.div key={i} variants={itemVariants} className={`bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 animate-pulse ${viewMode === 'grid' ? 'h-[400px]' : 'h-32'}`} />
+            <motion.div key={i} variants={itemVariants} className={`bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 animate-pulse ${viewMode === 'grid' ? 'h-[420px]' : 'h-32'}`} />
           ))
         ) : sortedProducts.length > 0 ? (
           sortedProducts.map((product, index) => (
@@ -712,9 +712,9 @@ function MarketplaceContent() {
               key={product.id}
               variants={itemVariants}
               whileHover={{ y: -5 }}
-              className={`${index === 0 ? 'product-card-first' : ''} ${viewMode === 'list' ? 'bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-100 dark:border-slate-800 flex gap-4' : ''}`}
+              className={`${index === 0 ? 'product-card-first' : ''} ${viewMode === 'list' ? 'bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-100 dark:border-slate-800 flex gap-4' : ''} h-full`}
             >
-              <Link href={`/marketplace/${product.id}`} className={viewMode === 'list' ? 'flex flex-row w-full gap-4' : ''}>
+              <Link href={`/marketplace/${product.id}`} className={`${viewMode === 'list' ? 'flex flex-row w-full gap-4' : 'flex flex-col h-full'}`}>
                 {viewMode === 'list' && (
                    <div className="w-24 h-24 rounded-2xl overflow-hidden shrink-0">
                       <ResponsiveImage 
@@ -755,7 +755,7 @@ function MarketplaceContent() {
                         </button>
                       )}
                     </div>
-                    <div className="absolute inset-x-4 bottom-4 translate-y-12 group-hover:translate-y-0 transition-transform duration-300">
+                    <div className="absolute inset-x-4 bottom-4 translate-y-0 sm:translate-y-12 sm:group-hover:translate-y-0 transition-transform duration-300">
                       <button 
                         onClick={(e) => {
                           e.preventDefault();
@@ -768,10 +768,11 @@ function MarketplaceContent() {
                             }
                           });
                         }}
-                        className="w-full bg-primary text-white py-3 rounded-xl font-black text-xs shadow-xl shadow-primary/20 flex items-center justify-center gap-2 hover:scale-105 active:scale-95 transition-all"
+                        className="w-full bg-primary text-white py-2.5 sm:py-3 rounded-xl font-black text-[10px] sm:text-xs shadow-xl shadow-primary/20 flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-95 transition-all"
                       >
-                        <span className="material-symbols-outlined text-[18px]">shopping_cart</span>
-                        {t('add_to_cart')}
+                        <span className="material-symbols-outlined text-[16px] sm:text-[18px]">shopping_cart</span>
+                        <span className="hidden xs:inline">{t('add_to_cart')}</span>
+                        <span className="xs:hidden">Add</span>
                       </button>
                     </div>
                   </ProductCard>
