@@ -1,6 +1,6 @@
 {
-  "name": "Sustainable AgriTech Ecosystem",
-  "description": "A comprehensive agricultural ecosystem featuring a farmer marketplace, AI crop diagnosis, real-time sensor monitoring, and a powerful Admin Command Center for system-wide transparency.",
+  "name": "AgriFlow: Smart Agriculture Marketplace",
+  "description": "Connecting farmers directly with buyers via AI-powered quality tracking, secure escrow payments, and real-time logistics transparency.",
   "requestFramePermissions": [
     "camera",
     "geolocation"

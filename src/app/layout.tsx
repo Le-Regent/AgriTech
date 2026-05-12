@@ -10,8 +10,29 @@ import { Suspense } from 'react';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'AgriTech Pro',
-  description: 'Smart Agriculture Platform',
+  title: {
+    default: 'AgriFlow | Direct Farmer Marketplace',
+    template: '%s | AgriFlow'
+  },
+  description: 'The premier smart agriculture platform connecting farmers directly to buyers. Featuring AI-powered crop diagnosis, real-time freshness tracking, and secure escrow payments.',
+  keywords: ['agriculture', 'farmers market', 'agritech', 'AI crop diagnosis', 'direct trade', 'fresh produce', 'agriflow'],
+  authors: [{ name: 'AgriFlow Team' }],
+  creator: 'AgriFlow',
+  publisher: 'AgriFlow',
+  robots: 'index, follow',
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: 'https://agriflow.app',
+    title: 'AgriFlow | Direct Farmer Marketplace',
+    description: 'Transforming agricultural trade with AI and transparency.',
+    siteName: 'AgriFlow',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'AgriFlow | Direct Farmer Marketplace',
+    description: 'Smart agriculture for a better future.',
+  },
 };
 
 export default function RootLayout({

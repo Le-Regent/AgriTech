@@ -1,6 +1,6 @@
-# AgriTech Pro - Codebase Documentation
+# AgriFlow - Codebase Documentation
 
-This document provides an overview of the folder structure and the role of each key file in the AgriTech Pro application.
+This document provides an overview of the folder structure and the role of each key file in the AgriFlow application.
 
 ## Folder Structure
 

@@ -1,10 +1,10 @@
-# AgriTech Pro - Project Progress Documentation
+# AgriFlow - Project Progress Documentation
 
 **Date:** March 25, 2026
 **Status:** In Development
 
 ## Overview
-AgriTech Pro is a full-stack agricultural marketplace and farm management platform. Recent updates have focused on empowering farmers with product management tools and enhancing the discovery experience for all users through integrated search.
+AgriFlow is a full-stack agricultural marketplace and farm management platform. Recent updates have focused on empowering farmers with product management tools and enhancing the discovery experience for all users through integrated search.
 
 ---
 

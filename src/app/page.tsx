@@ -1027,7 +1027,7 @@ export default function DashboardPage() {
             <span className="material-symbols-outlined text-primary text-3xl animate-pulse">potted_plant</span>
           </div>
         </div>
-        <h2 className="text-xl font-black tracking-tight dark:text-white mb-2">AgriTech Pro</h2>
+        <h2 className="text-xl font-black tracking-tight dark:text-white mb-2">AgriFlow</h2>
         <p className="text-sm text-slate-500 dark:text-slate-400 animate-pulse">Initializing smart farm dashboard...</p>
       </div>
     );

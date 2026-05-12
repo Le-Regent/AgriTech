@@ -1,6 +1,6 @@
-# AgriTech Pro - Folder Structure and File Roles
+# AgriFlow - Folder Structure and File Roles
 
-This document outlines the directory structure of the AgriTech Pro application and describes the role of each key file.
+This document outlines the directory structure of the AgriFlow application and describes the role of each key file.
 
 ## Directory Structure
 

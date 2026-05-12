@@ -52,7 +52,7 @@ export default function LandingPage() {
           <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary rounded-lg sm:rounded-xl flex items-center justify-center text-white">
             <span className="material-symbols-outlined fill-1 text-sm sm:text-base">potted_plant</span>
           </div>
-          <h1 className="font-bold text-lg sm:text-xl tracking-tight dark:text-white">AgriTech Pro</h1>
+          <h1 className="font-bold text-lg sm:text-xl tracking-tight dark:text-white">AgriFlow</h1>
         </div>
         <div className="hidden lg:flex items-center gap-8">
           <a href="#features" className="text-sm font-bold text-slate-500 dark:text-slate-400 hover:text-primary transition-colors">Features</a>

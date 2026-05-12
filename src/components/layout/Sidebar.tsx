@@ -77,7 +77,7 @@ export function Sidebar({ onMobileClose }: SidebarProps) {
           <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white">
             <span className="material-symbols-outlined fill-1">potted_plant</span>
           </div>
-          <h1 className="font-bold text-xl tracking-tight dark:text-white">AgriTech Pro</h1>
+          <h1 className="font-bold text-xl tracking-tight dark:text-white">AgriFlow</h1>
         </div>
         {onMobileClose && (
           <button 
