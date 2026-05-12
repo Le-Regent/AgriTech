@@ -230,7 +230,8 @@ function ProfileContent() {
 
   const stats = isFarmer ? [
     { label: 'Diagnoses', value: diagnoses.length.toString() },
-    { label: 'Sales', value: `${orders.reduce((acc, o) => acc + (o.status === 'delivered' ? o.total_amount : 0), 0).toLocaleString()} CFA` }
+    { label: 'Sales', value: `${orders.reduce((acc, o) => acc + (o.status === 'delivered' ? o.total_amount : 0), 0).toLocaleString()} CFA` },
+    { label: 'Waste Logs', value: 'View Logs', link: '/profile/waste-logs' }
   ] : [
     { label: 'Orders', value: orders.length.toString() },
     { label: 'Spent', value: `${orders.reduce((acc, o) => acc + (o.status !== 'cancelled' ? o.total_amount : 0), 0).toLocaleString()} CFA` }
@@ -377,10 +378,17 @@ function ProfileContent() {
             <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm mb-4 sm:mb-6 capitalize">{user?.user_type} · Premium Member since 2024</p>
             <div className="grid grid-cols-2 gap-3 sm:gap-4">
               {stats.map((stat, i) => (
-                <div key={i} className="bg-slate-50 dark:bg-slate-800 p-2 sm:p-3 rounded-xl sm:rounded-2xl transition-colors">
-                  <p className="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{stat.label}</p>
-                  <p className="text-base sm:text-lg font-black dark:text-white">{stat.value}</p>
-                </div>
+                stat.link ? (
+                  <Link key={i} href={stat.link} className="bg-slate-50 dark:bg-slate-800 p-2 sm:p-3 rounded-xl sm:rounded-2xl transition-colors hover:bg-red-50 dark:hover:bg-red-500/10 group">
+                    <p className="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover:text-red-500 mb-1">{stat.label}</p>
+                    <p className="text-base sm:text-lg font-black dark:text-white group-hover:text-red-600">{stat.value}</p>
+                  </Link>
+                ) : (
+                  <div key={i} className="bg-slate-50 dark:bg-slate-800 p-2 sm:p-3 rounded-xl sm:rounded-2xl transition-colors">
+                    <p className="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{stat.label}</p>
+                    <p className="text-base sm:text-lg font-black dark:text-white">{stat.value}</p>
+                  </div>
+                )
               ))}
             </div>
           </div>

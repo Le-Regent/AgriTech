@@ -26,6 +26,7 @@ interface FilterState {
   origin: string;
   certification: string[];
   season: string;
+  healthStatus: string;
 }
 
 function MarketplaceContent() {
@@ -108,6 +109,7 @@ function MarketplaceContent() {
     origin: 'All',
     certification: [],
     season: 'All',
+    healthStatus: 'All',
   });
   const [showFilters, setShowFilters] = useState(false);
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
@@ -223,6 +225,7 @@ function MarketplaceContent() {
     if (filters.category !== 'All Produce' && p.category !== filters.category) return false;
     if (filters.origin !== 'All' && p.location !== filters.origin) return false;
     if (filters.season !== 'All' && p.harvest_season !== filters.season) return false;
+    if (filters.healthStatus !== 'All' && p.health_status !== filters.healthStatus) return false;
     if (filters.certification.length > 0 && !filters.certification.every(c => p.certifications.includes(c))) return false;
     
     if (searchTerm) {
@@ -383,7 +386,7 @@ function MarketplaceContent() {
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
           exit={{ opacity: 0, height: 0 }}
-          className="bg-white dark:bg-surface-dark p-6 rounded-[2rem] border border-slate-100 dark:border-border-dark shadow-sm grid grid-cols-1 md:grid-cols-3 gap-8 transition-all overflow-hidden"
+          className="bg-white dark:bg-surface-dark p-6 rounded-[2rem] border border-slate-100 dark:border-border-dark shadow-sm grid grid-cols-1 md:grid-cols-4 gap-8 transition-all overflow-hidden"
         >
           <div className="space-y-4">
             <button 
@@ -446,6 +449,28 @@ function MarketplaceContent() {
                     className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${filters.season === season ? 'bg-primary text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
                   >
                     {season === 'All' ? t('all') : season}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          <div className="space-y-4">
+            <button 
+              onClick={() => toggleFilterCollapse('healthStatus')}
+              className="flex items-center justify-between w-full text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 hover:text-primary transition-colors"
+            >
+              Health Status
+              <span className={`material-symbols-outlined text-[18px] transition-transform ${collapsedFilters.includes('healthStatus') ? 'rotate-180' : ''}`}>expand_more</span>
+            </button>
+            {!collapsedFilters.includes('healthStatus') && (
+              <div className="flex flex-wrap gap-2">
+                {['All', 'Perfect', 'Good', 'Warning'].map(status => (
+                  <button
+                    key={status}
+                    onClick={() => setFilters({ ...filters, healthStatus: status })}
+                    className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${filters.healthStatus === status ? 'bg-primary text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+                  >
+                    {status === 'All' ? t('all') : status}
                   </button>
                 ))}
               </div>
@@ -602,33 +627,65 @@ function MarketplaceContent() {
                   </button>
                 </div>
 
-                <div className="space-y-4">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 italic">Origin Region</p>
-                  <div className="flex flex-wrap gap-2">
-                    {['All', 'Littoral', 'South West', 'West', 'North West', 'Centre'].map(country => (
-                      <button
-                        key={country}
-                        onClick={() => setFilters({ ...filters, origin: country })}
-                        className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${filters.origin === country ? 'bg-primary text-white' : 'bg-slate-100 dark:bg-white/5 dark:text-slate-400'}`}
-                      >
-                        {country}
-                      </button>
-                    ))}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-4">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 italic">Origin Region</p>
+                    <div className="flex flex-wrap gap-2">
+                      {['All', 'Littoral', 'South West', 'West', 'North West', 'Centre'].map(country => (
+                        <button
+                          key={country}
+                          onClick={() => setFilters({ ...filters, origin: country })}
+                          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${filters.origin === country ? 'bg-primary text-white' : 'bg-slate-100 dark:bg-white/5 dark:text-slate-400'}`}
+                        >
+                          {country}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
 
-                <div className="space-y-4">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 italic">Certifications</p>
-                  <div className="flex flex-wrap gap-2">
-                    {['Organic', 'Fair Trade', 'G-GAP'].map(cert => (
-                      <button
-                        key={cert}
-                        onClick={() => toggleCertification(cert)}
-                        className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${filters.certification.includes(cert) ? 'bg-primary text-white' : 'bg-slate-100 dark:bg-white/5 dark:text-slate-400'}`}
-                      >
-                        {cert}
-                      </button>
-                    ))}
+                  <div className="space-y-4">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 italic">Health Status</p>
+                    <div className="flex flex-wrap gap-2">
+                      {['All', 'Perfect', 'Good', 'Warning'].map(status => (
+                        <button
+                          key={status}
+                          onClick={() => setFilters({ ...filters, healthStatus: status })}
+                          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${filters.healthStatus === status ? 'bg-primary text-white' : 'bg-slate-100 dark:bg-white/5 dark:text-slate-400'}`}
+                        >
+                          {status}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 italic">Certifications</p>
+                    <div className="flex flex-wrap gap-2">
+                      {['Organic', 'Fair Trade', 'G-GAP'].map(cert => (
+                        <button
+                          key={cert}
+                          onClick={() => toggleCertification(cert)}
+                          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${filters.certification.includes(cert) ? 'bg-primary text-white' : 'bg-slate-100 dark:bg-white/5 dark:text-slate-400'}`}
+                        >
+                          {cert}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 italic">Harvest Season</p>
+                    <div className="flex flex-wrap gap-2">
+                      {['All', 'Raining', 'Dry', 'Year round'].map(season => (
+                        <button
+                          key={season}
+                          onClick={() => setFilters({ ...filters, season: season })}
+                          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${filters.season === season ? 'bg-primary text-white' : 'bg-slate-100 dark:bg-white/5 dark:text-slate-400'}`}
+                        >
+                          {season}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
 

@@ -40,9 +40,20 @@ export default function ProductCard({
               </div>
             )}
             {product.health_status && product.health_status !== 'N/A' && (
-              <div className="bg-primary/90 backdrop-blur px-2 py-1 rounded-lg shadow-sm flex items-center gap-1 text-white w-fit">
-                <span className="material-symbols-outlined text-[14px] fill-1">eco</span>
-                <span className="text-[10px] font-black uppercase tracking-widest">{product.health_status}</span>
+              <div className={`backdrop-blur px-2 py-1 rounded-lg shadow-sm flex items-center gap-1 text-white w-fit ${
+                product.health_status === 'Critical' ? 'bg-red-600/90 animate-pulse' : 
+                product.health_status === 'Warning' ? 'bg-amber-500/90' : 
+                'bg-primary/90'
+              }`}>
+                <span className="material-symbols-outlined text-[14px] fill-1">
+                  {product.health_status === 'Critical' ? 'timer_off' : 
+                   product.health_status === 'Warning' ? 'warning' : 'eco'}
+                </span>
+                <span className="text-[10px] font-black uppercase tracking-widest">
+                  {product.health_status === 'Critical' ? 'Last Chance' : 
+                   product.health_status === 'Warning' ? 'Expiring Soon' : 
+                   product.health_status}
+                </span>
               </div>
             )}
             <div className="bg-emerald-500/90 backdrop-blur px-2 py-1 rounded-lg shadow-sm flex items-center gap-1 text-white w-fit">

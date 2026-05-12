@@ -116,6 +116,24 @@ function OrdersContent() {
     return steps.indexOf(status);
   };
 
+  const getEstimatedDelivery = (order: any) => {
+    if (order.estimated_delivery_date) {
+      return new Date(order.estimated_delivery_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+
+    const created = new Date(order.created_at);
+    let daysToAdd = 3; // Base delivery is 3 days
+    
+    // Adjust based on status
+    if (order.status === 'shipped') daysToAdd = 1;
+    if (order.status === 'delivered' || order.status === 'COMPLETED') return 'Delivered';
+    if (order.status === 'cancelled') return 'N/A';
+    
+    const estimated = new Date(created);
+    estimated.setDate(created.getDate() + daysToAdd);
+    return estimated.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending': return 'bg-amber-100 text-amber-600';
@@ -278,6 +296,12 @@ function OrdersContent() {
                       <p className="text-xs font-black uppercase tracking-widest text-slate-400">Total</p>
                       <p className="font-black text-primary">{order.total_amount.toLocaleString()} CFA</p>
                     </div>
+                    {!isFarmer && order.status !== 'cancelled' && order.status !== 'COMPLETED' && (
+                      <div className="hidden sm:block">
+                        <p className="text-xs font-black uppercase tracking-widest text-slate-400">Est. Delivery</p>
+                        <p className="font-bold text-indigo-600 dark:text-indigo-400">{getEstimatedDelivery(order)}</p>
+                      </div>
+                    )}
                     <div className="flex items-center gap-3">
                       <span className={`px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${getStatusColor(order.status)}`}>
                         {order.status}

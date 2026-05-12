@@ -27,4 +27,43 @@ export const ADMIN_NAV: NavItem[] = [
   { label: 'Exit Admin', icon: 'logout', path: '/' },
 ];
 
-export const INITIAL_PRODUCTS: Product[] = [];
+export const INITIAL_PRODUCTS: Product[] = [
+  {
+    id: 'seed-product-1',
+    farmer_id: 'sample-farmer',
+    name: 'Fresh Strawberries',
+    description: 'Freshly picked organic strawberries from the West region.',
+    category: 'Fruits',
+    price: 1500,
+    unit: 'kg',
+    image_url: 'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?w=800&q=80',
+    stock_quantity: 50,
+    initial_stock_quantity: 100,
+    is_verified: true,
+    location: 'Bafoussam',
+    is_perishable: true,
+    health_status: 'Perfect',
+    certifications: ['Organic'],
+    created_at: new Date().toISOString(),
+    expiry_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 'seed-product-2',
+    farmer_id: 'sample-farmer',
+    name: 'Farm Fresh Milk',
+    description: 'Unpasteurized fresh morning milk.',
+    category: 'Foodstuff',
+    price: 800,
+    unit: 'liter',
+    image_url: 'https://images.unsplash.com/photo-1550583724-125581cc2532?w=800&q=80',
+    stock_quantity: 20,
+    initial_stock_quantity: 50,
+    is_verified: true,
+    location: 'Bamenda',
+    is_perishable: true,
+    health_status: 'Critical',
+    certifications: [],
+    created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    expiry_date: new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString(), // Expiring in 12h
+  }
+];

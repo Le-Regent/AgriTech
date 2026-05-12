@@ -32,6 +32,8 @@ const DEFAULT_FORM_DATA: Partial<Product> = {
   location: '',
   image_url: '',
   is_verified: false,
+  is_perishable: false,
+  expiry_date: '',
 };
 
 export default function ProductModal({ isOpen, onClose, onSave, initialData, farmerId }: ProductModalProps) {
@@ -355,6 +357,49 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, far
                     {HEALTH_STATUSES.map(h => <option key={h} value={h}>{h}</option>)}
                   </select>
                 </div>
+              </div>
+
+              <div className="bg-slate-50 dark:bg-white/5 p-6 rounded-[2rem] border border-slate-100 dark:border-white/5 space-y-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${formData.is_perishable ? 'bg-amber-100 text-amber-600' : 'bg-slate-100 text-slate-400'}`}>
+                      <span className="material-symbols-outlined">{formData.is_perishable ? 'timer' : 'hourglass_disabled'}</span>
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-black dark:text-white">Perishable Item</h4>
+                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Requires freshness tracking</p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setFormData(prev => ({ ...prev, is_perishable: !prev.is_perishable }))}
+                    className={`w-12 h-6 rounded-full transition-all relative ${formData.is_perishable ? 'bg-primary' : 'bg-slate-300 dark:bg-slate-700'}`}
+                  >
+                    <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${formData.is_perishable ? 'right-1' : 'left-1'}`} />
+                  </button>
+                </div>
+
+                {formData.is_perishable && (
+                  <motion.div 
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    className="space-y-4 pt-4 border-t border-slate-200 dark:border-white/5"
+                  >
+                    <div className="space-y-2">
+                      <label className="text-xs font-black uppercase tracking-widest text-slate-400">Expiration Date</label>
+                      <input
+                        type="datetime-local"
+                        name="expiry_date"
+                        value={formData.expiry_date || ''}
+                        onChange={handleChange}
+                        className={`w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-800 border ${errors.expiry_date ? 'border-red-500' : 'border-slate-100 dark:border-slate-700'} focus:border-primary outline-none transition-all dark:text-white`}
+                      />
+                      <p className="text-[9px] text-slate-500 font-bold uppercase leading-relaxed">
+                        Note: Perishable items are automatically removed from the shop once they reach their expiry date.
+                      </p>
+                    </div>
+                  </motion.div>
+                )}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">

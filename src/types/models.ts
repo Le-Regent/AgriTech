@@ -47,6 +47,8 @@ export interface Product {
   certifications: string[];
   country?: string;
   location?: string;
+  is_perishable?: boolean;
+  expiry_date?: string;
   created_at: string;
   // Join fields
   profiles?: User;
@@ -60,6 +62,10 @@ export interface Order {
   shipping_address?: string;
   otp_code?: string;
   evidence_url?: string;
+  tracking_number?: string;
+  estimated_delivery_date?: string;
+  shipped_at?: string;
+  delivered_at?: string;
   created_at: string;
 }
 
@@ -131,5 +137,17 @@ export interface AppNotification {
   category: NotificationCategory;
   link?: string;
   is_read: boolean;
+  created_at: string;
+}
+
+export interface WasteAnalytics {
+  id: string;
+  farmer_id: string;
+  product_name: string;
+  category: string;
+  quantity_wasted: number;
+  estimated_loss: number;
+  reason: string;
+  expiry_date: string;
   created_at: string;
 }

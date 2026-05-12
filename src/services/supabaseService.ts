@@ -58,19 +58,65 @@ export const supabaseService = {
   async createProduct(product: Partial<Product>) {
     const { data, error } = await supabase
       .from('products')
-      .insert([product]);
+      .insert([product])
+      .select()
+      .single();
     
     if (error) throw new Error(error.message);
+
+    // Broadcast notification to buyers
+    try {
+      await this.broadcastNotification({
+        title: 'New Produce Available! 🥦',
+        message: `A new batch of ${data.name} has just been listed in ${data.location || 'your area'}.`,
+        type: 'market',
+        category: 'market',
+        link: `/marketplace/${data.id}`
+      }, 'buyer');
+    } catch (notifyError) {
+      console.error('Failed to broadcast new product notification:', notifyError);
+    }
+
     return data;
   },
 
   async updateProduct(id: string, product: Partial<Product>) {
+    // Get existing product to compare price
+    const { data: existing, error: fetchError } = await supabase
+      .from('products')
+      .select('*')
+      .eq('id', id)
+      .single();
+    
+    if (fetchError) throw new Error(fetchError.message);
+
     const { data, error } = await supabase
       .from('products')
       .update(product)
-      .eq('id', id);
+      .eq('id', id)
+      .select()
+      .single();
     
     if (error) throw new Error(error.message);
+
+    // Price Trend Notification
+    if (product.price && product.price < existing.price) {
+      const dropPercentage = Math.round(((existing.price - product.price) / existing.price) * 100);
+      if (dropPercentage >= 5) { // Only notify for 5% or more drop
+        try {
+          await this.broadcastNotification({
+            title: '🔥 Price Drop Alert!',
+            message: `The price of ${data.name} just dropped by ${dropPercentage}%! Now only ${data.price.toLocaleString()} CFA.`,
+            type: 'market',
+            category: 'market',
+            link: `/marketplace/${data.id}`
+          }, 'buyer');
+        } catch (notifyError) {
+          console.error('Failed to broadcast price drop notification:', notifyError);
+        }
+      }
+    }
+
     return data;
   },
 
@@ -242,9 +288,19 @@ export const supabaseService = {
   },
 
   async updateOrderStatus(orderId: string, status: Order['status']) {
+    const updateData: any = { status };
+    
+    // Auto-populate tracking timestamps
+    if (status === 'shipped') {
+      updateData.shipped_at = new Date().toISOString();
+      updateData.estimated_delivery_date = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(); // +2 days
+    } else if (status === 'delivered') {
+      updateData.delivered_at = new Date().toISOString();
+    }
+
     const { data: orderData, error: updateError } = await supabase
       .from('orders')
-      .update({ status })
+      .update(updateData)
       .eq('id', orderId)
       .select('*, order_items(products(farmer_id, name))')
       .single();
@@ -568,7 +624,7 @@ export const supabaseService = {
 
     const { error: updateError } = await supabase
       .from('orders')
-      .update({ status: 'delivered' })
+      .update({ status: 'delivered', delivered_at: new Date().toISOString() })
       .eq('id', orderId);
 
     if (updateError) throw new Error(updateError.message);
@@ -589,7 +645,12 @@ export const supabaseService = {
     const url = await this.uploadImage(file, 'evidence');
     const { error } = await supabase
       .from('orders')
-      .update({ evidence_url: url, status: 'shipped' })
+      .update({ 
+        evidence_url: url, 
+        status: 'shipped',
+        shipped_at: new Date().toISOString(),
+        estimated_delivery_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString()
+      })
       .eq('id', orderId);
 
     if (error) throw new Error(error.message);
@@ -740,6 +801,17 @@ export const supabaseService = {
       .eq('id', userId)
       .select()
       .single();
+    
+    if (error) throw new Error(error.message);
+    return data;
+  },
+
+  async getWasteLogs(farmerId: string) {
+    const { data, error } = await supabase
+      .from('waste_analytics')
+      .select('*')
+      .eq('farmer_id', farmerId)
+      .order('created_at', { ascending: false });
     
     if (error) throw new Error(error.message);
     return data;

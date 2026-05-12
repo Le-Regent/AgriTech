@@ -6,41 +6,17 @@ import { motion, AnimatePresence } from 'motion/react';
 import { supabaseService } from '@/services/supabaseService';
 import { useUser } from '@/context/UserContext';
 import { useLanguage } from '@/context/LanguageContext';
+import { useNotifications } from '@/context/NotificationContext';
 import { AppNotification, NotificationCategory } from '@/types';
 import { format } from 'date-fns';
 
 export function NotificationCenter() {
   const { user } = useUser();
   const { t } = useLanguage();
-  const [notifications, setNotifications] = useState<AppNotification[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const { notifications, unreadCount, loading, markAsRead, markAllAsRead } = useNotifications();
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<NotificationCategory | 'all'>('primary');
-  const [loading, setLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  const fetchNotifications = async () => {
-    if (!user) return;
-    setLoading(true);
-    try {
-      const data = await supabaseService.getNotifications(user.id);
-      setNotifications(data);
-      setUnreadCount(data.filter((n: AppNotification) => !n.is_read).length);
-    } catch (error) {
-      console.error('Failed to fetch notifications:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (user) {
-      fetchNotifications();
-      // Polling for new notifications every 60 seconds
-      const interval = setInterval(fetchNotifications, 60000);
-      return () => clearInterval(interval);
-    }
-  }, [user]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -52,35 +28,11 @@ export function NotificationCenter() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const markAsRead = async (id: string) => {
-    try {
-      await supabaseService.markNotificationAsRead(id);
-      setNotifications(prev => 
-        prev.map(n => n.id === id ? { ...n, is_read: true } : n)
-      );
-      setUnreadCount(prev => Math.max(0, prev - 1));
-    } catch (error) {
-      console.error('Failed to mark read:', error);
-    }
-  };
-
-  const markAllAsRead = async () => {
-    try {
-      const unreadIds = notifications.filter(n => !n.is_read).map(n => n.id);
-      await Promise.all(unreadIds.map(id => supabaseService.markNotificationAsRead(id)));
-      setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
-      setUnreadCount(0);
-    } catch (error) {
-      console.error('Failed to mark all read:', error);
-    }
-  };
-
   const filteredNotifications = notifications.filter(n => {
     if (activeTab === 'all') return true;
     return n.category === activeTab;
   });
 
-  // Smart limitation: Show most recent, but keep rest in "background" (available via 'all')
   const displayedNotifications = activeTab === 'all' 
     ? filteredNotifications 
     : filteredNotifications.slice(0, 5);

@@ -40,6 +40,21 @@ CREATE TABLE products (
   certifications TEXT[],
   country TEXT,
   location TEXT,
+  is_perishable BOOLEAN DEFAULT false,
+  expiry_date TIMESTAMP WITH TIME ZONE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- 12. Waste Analytics (Archived Expired Produce)
+CREATE TABLE waste_analytics (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  farmer_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+  product_name TEXT NOT NULL,
+  category TEXT NOT NULL,
+  quantity_wasted NUMERIC NOT NULL,
+  estimated_loss NUMERIC NOT NULL,
+  reason TEXT DEFAULT 'expired',
+  expiry_date TIMESTAMP WITH TIME ZONE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
@@ -60,9 +75,13 @@ CREATE TABLE diagnoses (
 CREATE TABLE orders (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   buyer_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
-  status TEXT CHECK (status IN ('pending', 'processing', 'shipped', 'delivered')) DEFAULT 'pending',
+  status TEXT CHECK (status IN ('pending', 'processing', 'shipped', 'delivered', 'COMPLETED', 'cancelled')) DEFAULT 'pending',
   total_amount NUMERIC NOT NULL,
   shipping_address TEXT,
+  tracking_number TEXT,
+  estimated_delivery_date TIMESTAMP WITH TIME ZONE,
+  shipped_at TIMESTAMP WITH TIME ZONE,
+  delivered_at TIMESTAMP WITH TIME ZONE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
@@ -161,6 +180,7 @@ ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE product_reviews ENABLE ROW LEVEL SECURITY;
 ALTER TABLE payments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
+ALTER TABLE waste_analytics ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies
 
@@ -257,6 +277,10 @@ CREATE POLICY "Admins can manage all payments" ON payments FOR ALL USING (
 -- Notifications: Users can manage their own notifications.
 CREATE POLICY "Users can manage their own notifications" ON notifications FOR ALL USING (auth.uid() = user_id);
 CREATE POLICY "System can create notifications" ON notifications FOR INSERT WITH CHECK (true);
+
+-- Waste Analytics: Farmers can view their own, admins manage all.
+CREATE POLICY "Farmers can view their own waste logs" ON waste_analytics FOR SELECT USING (auth.uid() = farmer_id);
+CREATE POLICY "Admins can manage all waste logs" ON waste_analytics FOR ALL USING (check_is_admin());
 
 -- 8. Schema Permissions
 -- Ensure the public schema is accessible to all necessary roles.
