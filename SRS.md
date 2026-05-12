@@ -1,12 +1,12 @@
-# Software Requirements Specification (SRS) - AgriFlow
+# Software Requirements Specification (SRS) - KamerFresh
 
 ## 1. Introduction
 
 ### 1.1 Purpose
-This document provides a comprehensive description of the AgriFlow platform. It outlines the functional and non-functional requirements for the peer-to-peer agricultural marketplace, designed to connect farmers directly with buyers while ensuring produce quality and reliable logistics.
+This document provides a comprehensive description of the KamerFresh platform. It outlines the functional and non-functional requirements for the peer-to-peer agricultural marketplace, designed to connect farmers directly with buyers while ensuring produce quality and reliable logistics.
 
 ### 1.2 Scope
-AgriFlow is a full-stack web application that facilitates the trade of agricultural products. It includes features for product listing, AI-powered quality assessment (Crop Diagnosis), inventory management with freshness tracking, secure escrow payments, and real-time delivery tracking.
+KamerFresh is a full-stack web application that facilitates the trade of agricultural products. It includes features for product listing, AI-powered quality assessment (Crop Diagnosis), inventory management with freshness tracking, secure escrow payments, and real-time delivery tracking.
 
 ### 1.3 Intended Audience
 - Developers and contributors to the project.

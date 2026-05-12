@@ -1,10 +1,10 @@
-# AgriFlow - Project Progress Documentation
+# KamerFresh - Project Progress Documentation
 
 **Date:** March 25, 2026
 **Status:** In Development
 
 ## Overview
-AgriFlow is a full-stack agricultural marketplace and farm management platform. Recent updates have focused on empowering farmers with product management tools and enhancing the discovery experience for all users through integrated search.
+KamerFresh is a full-stack agricultural marketplace and farm management platform. Recent updates have focused on empowering farmers with product management tools and enhancing the discovery experience for all users through integrated search.
 
 ---
 

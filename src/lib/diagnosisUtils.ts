@@ -113,7 +113,7 @@ export const downloadDiagnosisReport = (report: any) => {
     doc.setPage(i);
     doc.setFontSize(8);
     doc.setTextColor(150);
-    doc.text(`AgriFlow - AI Diagnosis System | Page ${i} of ${pageCount}`, pageWidth / 2, doc.internal.pageSize.getHeight() - 10, { align: 'center' });
+    doc.text(`KamerFresh - AI Diagnosis System | Page ${i} of ${pageCount}`, pageWidth / 2, doc.internal.pageSize.getHeight() - 10, { align: 'center' });
   }
 
   doc.save(`diagnosis_${cropType.toLowerCase().replace(/\s+/g, '_')}_${new Date().getTime()}.pdf`);

@@ -11,27 +11,27 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: {
-    default: 'AgriFlow | Direct Farmer Marketplace',
-    template: '%s | AgriFlow'
+    default: 'KamerFresh | Direct Farm-to-Table Cameroon',
+    template: '%s | KamerFresh'
   },
-  description: 'The premier smart agriculture platform connecting farmers directly to buyers. Featuring AI-powered crop diagnosis, real-time freshness tracking, and secure escrow payments.',
-  keywords: ['agriculture', 'farmers market', 'agritech', 'AI crop diagnosis', 'direct trade', 'fresh produce', 'agriflow'],
-  authors: [{ name: 'AgriFlow Team' }],
-  creator: 'AgriFlow',
-  publisher: 'AgriFlow',
+  description: 'The premier smart agriculture platform connecting Cameroon farmers directly to buyers. Featuring AI-powered crop diagnosis, real-time freshness tracking, and secure escrow payments.',
+  keywords: ['agriculture', 'Cameroon', 'farmers market', 'agritech', 'AI crop diagnosis', 'fresh produce', 'KamerFresh', 'direct trade'],
+  authors: [{ name: 'KamerFresh Team' }],
+  creator: 'KamerFresh',
+  publisher: 'KamerFresh',
   robots: 'index, follow',
   openGraph: {
     type: 'website',
-    locale: 'en_US',
-    url: 'https://agriflow.app',
-    title: 'AgriFlow | Direct Farmer Marketplace',
-    description: 'Transforming agricultural trade with AI and transparency.',
-    siteName: 'AgriFlow',
+    locale: 'en_CM',
+    url: 'https://kamerfresh.app',
+    title: 'KamerFresh | Direct Farm-to-Table Cameroon',
+    description: 'Transforming Cameroon agricultural trade with AI and transparency.',
+    siteName: 'KamerFresh',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'AgriFlow | Direct Farmer Marketplace',
-    description: 'Smart agriculture for a better future.',
+    title: 'KamerFresh | Direct Farm-to-Table Cameroon',
+    description: 'Fresh from the soil of 237. Smart agriculture for a better future.',
   },
 };
 

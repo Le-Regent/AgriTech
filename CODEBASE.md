@@ -1,6 +1,6 @@
-# AgriFlow - Codebase Documentation
+# KamerFresh - Codebase Documentation
 
-This document provides an overview of the folder structure and the role of each key file in the AgriFlow application.
+This document provides an overview of the folder structure and the role of each key file in the KamerFresh application.
 
 ## Folder Structure
 
