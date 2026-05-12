@@ -8,7 +8,6 @@ import { motion } from 'motion/react';
 import { Trash2, AlertCircle, TrendingDown, Clock, ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
 import { format } from 'date-fns';
-import ResponsiveImage from '@/components/ui/ResponsiveImage';
 
 export default function WasteLogsPage() {
   const { user } = useUser();

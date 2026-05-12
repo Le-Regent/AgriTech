@@ -44,8 +44,8 @@ export const INITIAL_PRODUCTS: Product[] = [
     is_perishable: true,
     health_status: 'Perfect',
     certifications: ['Organic'],
-    created_at: new Date().toISOString(),
-    expiry_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    created_at: '2024-03-20T10:00:00Z',
+    expiry_date: '2024-03-27T10:00:00Z',
   },
   {
     id: 'seed-product-2',
@@ -63,7 +63,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     is_perishable: true,
     health_status: 'Critical',
     certifications: [],
-    created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-    expiry_date: new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString(), // Expiring in 12h
+    created_at: '2024-03-18T08:00:00Z',
+    expiry_date: '2024-03-20T20:00:00Z', // Expiring soon
   }
 ];

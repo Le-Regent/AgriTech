@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase';
+import { getSupabaseAdmin } from '@/lib/supabase';
 import { Product } from '@/types';
 
 export async function GET(req: NextRequest) {
@@ -8,6 +8,11 @@ export async function GET(req: NextRequest) {
 
   if (secret !== process.env.INVENTORY_SCAN_SECRET) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const supabaseAdmin = getSupabaseAdmin();
+  if (!supabaseAdmin) {
+    return NextResponse.json({ error: 'Supabase Admin Key not configured' }, { status: 500 });
   }
 
   try {
@@ -99,6 +104,9 @@ export async function GET(req: NextRequest) {
 }
 
 async function archiveProduct(product: Product) {
+  const supabaseAdmin = getSupabaseAdmin();
+  if (!supabaseAdmin) return;
+  
   const estimatedLoss = product.stock_quantity * product.price;
 
   // 1. Log to waste analytics
