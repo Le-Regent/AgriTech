@@ -34,10 +34,22 @@ export default function AdminAuthGuard({ children }: AdminAuthGuardProps) {
     }
     
     const fetchConfig = async () => {
+      if (!user?.id || !user?.is_admin) {
+        setLoading(false);
+        return;
+      }
+
       try {
-        const dbPassword = await supabaseService.getSystemConfig('admin_protocol_password');
-        if (dbPassword) {
-          setAdminProtocolPassword(dbPassword);
+        // First try to get the individual password for this admin
+        const personalPassword = await supabaseService.getAdminPassword(user.id);
+        if (personalPassword) {
+          setAdminProtocolPassword(personalPassword);
+        } else {
+          // Fallback to global config if no personal password set
+          const dbPassword = await supabaseService.getSystemConfig('admin_protocol_password');
+          if (dbPassword) {
+            setAdminProtocolPassword(dbPassword);
+          }
         }
       } catch (e) {
         console.error('Failed to fetch admin protocol password from DB, using fallback');
@@ -47,7 +59,7 @@ export default function AdminAuthGuard({ children }: AdminAuthGuardProps) {
     };
 
     fetchConfig();
-  }, []);
+  }, [user]);
 
   // Inactivity timeout logic (5 minutes)
   useEffect(() => {

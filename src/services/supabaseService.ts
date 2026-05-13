@@ -828,6 +828,17 @@ export const supabaseService = {
     return data;
   },
 
+  async getAdminPassword(userId: string) {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('admin_password_v2')
+      .eq('id', userId)
+      .single();
+    
+    if (error) return null;
+    return data.admin_password_v2;
+  },
+
   // System Config
   async getSystemConfig(key: string) {
     try {
