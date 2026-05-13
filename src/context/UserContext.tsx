@@ -62,6 +62,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
       // 2. Set preliminary user from metadata
       const metadata = sessionUser.user_metadata;
+      console.log('Auth Metadata:', metadata);
       const preliminaryUser: User = {
         id: sessionUser.id,
         full_name: metadata?.full_name || 'User',
@@ -72,17 +73,24 @@ export function UserProvider({ children }: { children: ReactNode }) {
       };
       
       // Only set preliminary if we don't have a better one from cache
-      setUser(prev => (prev?.user_type ? prev : preliminaryUser));
+      setUser(prev => {
+        const next = (prev?.user_type ? prev : preliminaryUser);
+        console.log('Setting Preliminary User:', next);
+        return next;
+      });
 
       // If we have user_type in metadata, we can show the UI immediately
       if (preliminaryUser.user_type) {
+        console.log('User identity found in metadata, readying auth');
         setIsAuthReady(true);
         clearTimeout(timeout);
       }
 
       // 2. Fetch full profile in background
       try {
+        console.log('Fetching full profile for:', sessionUser.id);
         const profile = await profileService.getProfile(sessionUser.id);
+        console.log('Full Profile Data:', profile);
         if (profile) {
           setUser(profile);
           // Cache full profile for offline access

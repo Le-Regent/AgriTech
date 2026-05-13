@@ -3,11 +3,23 @@ const CAMPAY_BASE_URL = process.env.CAMPAY_ENVIRONMENT === 'prod'
   : 'https://demo.campay.net/api';
 
 export async function getCampayToken() {
+  console.log(`[Campay] Using environment: ${process.env.CAMPAY_ENVIRONMENT === 'prod' ? 'PRODUCTION' : 'DEMO'} (URL: ${CAMPAY_BASE_URL})`);
+
   // If a permanent token is provided, use it directly
-  if (process.env.CAMPAY_PERMANENT_TOKEN) {
-    return process.env.CAMPAY_PERMANENT_TOKEN;
+  const permanentToken = process.env.CAMPAY_PERMANENT_TOKEN;
+  if (permanentToken && permanentToken.trim() !== '' && permanentToken !== 'your_permanent_access_token') {
+    console.log(`[Campay] Using CAMPAY_PERMANENT_TOKEN (Starts with: ${permanentToken.substring(0, 4)}...)`);
+    return permanentToken;
   }
 
+  const username = process.env.CAMPAY_APP_USERNAME;
+  const password = process.env.CAMPAY_APP_PASSWORD;
+
+  if (!username || !password || username === 'your_app_username') {
+    throw new Error('Campay credentials missing. Please set CAMPAY_APP_USERNAME and CAMPAY_APP_PASSWORD in settings.');
+  }
+
+  console.log('[Campay] Fetching session token using credentials...');
   const response = await fetch(`${CAMPAY_BASE_URL}/token/`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -19,10 +31,11 @@ export async function getCampayToken() {
   
   if (!response.ok) {
     const err = await response.text();
-    console.error('Campay Auth Error:', err);
-    throw new Error('Failed to get Campay token');
+    console.error('Campay Auth Error (Token Generation Failed):', err);
+    throw new Error(`Campay Authentication Failed: ${err}. Please check your CAMPAY_APP_USERNAME and PASSWORD.`);
   }
   const data = await response.json();
+  console.log('[Campay] Session token generated successfully');
   return data.token;
 }
 

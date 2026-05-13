@@ -18,9 +18,9 @@ export function RoleSelectionGuard({ children }: RoleSelectionGuardProps) {
     return false;
   });
 
-  // Only show if user is logged in but has no user_type set
-  // AND either they are a new user OR they haven't dismissed it this session
-  const needsRole = isAuthReady && user && !user.user_type && !isDismissed;
+  // Skip guard for admins - they have their own dashboard and might not need a persona
+  // Also skip if already dismissed (e.g. clicked "Skip for now")
+  const needsRole = isAuthReady && user && !user.user_type && !user.is_admin && !isDismissed;
 
   const handleRoleSelect = async () => {
     if (!selectedRole) return;
@@ -90,6 +90,11 @@ export function RoleSelectionGuard({ children }: RoleSelectionGuardProps) {
           <p className="text-slate-400 font-medium text-lg">
             How do you plan to use <span className="text-primary italic">AgriTech</span>?
           </p>
+          {user?.is_admin && (
+            <p className="mt-4 text-emerald-400 text-xs font-black uppercase tracking-widest bg-emerald-500/10 py-2 px-4 rounded-full inline-block">
+              Admin Status Detected
+            </p>
+          )}
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-12">
@@ -148,6 +153,16 @@ export function RoleSelectionGuard({ children }: RoleSelectionGuardProps) {
           className="w-full py-5 bg-gradient-to-r from-primary to-green-500 hover:to-green-400 text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-2xl shadow-primary/20 transition-all active:scale-[0.98] disabled:opacity-50 disabled:grayscale"
         >
           {loading ? 'Processing Identity...' : 'Confirm Identity'}
+        </button>
+
+        <button
+          onClick={() => {
+            setIsDismissed(true);
+            localStorage.setItem('agritech_role_dismissed', 'true');
+          }}
+          className="w-full mt-6 py-2 text-slate-500 hover:text-white text-[10px] font-black uppercase tracking-widest transition-colors"
+        >
+          Skip for now (Defaults to Marketplace)
         </button>
       </motion.div>
     </div>
