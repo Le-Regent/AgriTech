@@ -95,35 +95,53 @@ export function Sidebar({ onMobileClose }: SidebarProps) {
         {renderNavItems(MARKETPLACE_NAV, 'marketplace_title')}
       </nav>
 
-      <div className="p-4 space-y-4 border-t border-slate-100 dark:border-border-dark">
-        <div className="bg-slate-50 dark:bg-slate-900 rounded-2xl p-4 transition-colors">
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">{t('pro_plan')}</p>
-          <p className="text-xs text-slate-600 dark:text-slate-400 mb-3">{t('upgrade_msg')}</p>
-          <button className="w-full bg-primary text-white py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-primary/90 transition-colors shadow-lg shadow-primary/10">
-            {t('upgrade_now')}
-          </button>
-        </div>
+      {!isAdminRoute && (
+        <div className="p-4 space-y-4 border-t border-slate-100 dark:border-border-dark">
+          <div className="bg-slate-50 dark:bg-slate-900 rounded-2xl p-4 transition-colors">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">{t('pro_plan')}</p>
+            <p className="text-xs text-slate-600 dark:text-slate-400 mb-3">{t('upgrade_msg')}</p>
+            <button className="w-full bg-primary text-white py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-primary/90 transition-colors shadow-lg shadow-primary/10">
+              {t('upgrade_now')}
+            </button>
+          </div>
 
-        <Link 
-          href="/profile"
-          className="flex items-center gap-3 p-2 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-900 transition-all group"
-        >
-          <div className="w-10 h-10 rounded-xl overflow-hidden border-2 border-primary/20 group-hover:border-primary transition-colors">
-            <ResponsiveImage
-              src={user?.avatar_url || "https://picsum.photos/seed/guest/100/100"}
-              alt={user?.full_name || 'Guest'}
-              className="w-full h-full"
-              baseWidth={100}
-              baseHeight={100}
-            />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-black dark:text-white truncate">{user?.full_name || 'Guest'}</p>
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-tight">{user?.user_type || 'Account'}</p>
-          </div>
-          <span className="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">chevron_right</span>
-        </Link>
-      </div>
+          <Link 
+            href="/profile"
+            className="flex items-center gap-3 p-2 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-900 transition-all group"
+          >
+            <div className="w-10 h-10 rounded-xl overflow-hidden border-2 border-primary/20 group-hover:border-primary transition-colors">
+              <ResponsiveImage
+                src={user?.avatar_url || "https://picsum.photos/seed/guest/100/100"}
+                alt={user?.full_name || 'Guest'}
+                className="w-full h-full"
+                baseWidth={100}
+                baseHeight={100}
+              />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-black dark:text-white truncate">{user?.full_name || 'Guest'}</p>
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-tight">{user?.user_type || 'Account'}</p>
+            </div>
+            <span className="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">chevron_right</span>
+          </Link>
+        </div>
+      )}
+
+      {isAdminRoute && (
+        <div className="p-6 border-t border-slate-100 dark:border-border-dark space-y-4">
+           <div className="flex items-center gap-3">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Secure Session</span>
+           </div>
+           <Link 
+              href="/"
+              className="flex items-center gap-3 p-3 bg-red-50 dark:bg-red-900/10 text-red-600 rounded-2xl hover:bg-red-100 transition-all group"
+           >
+              <span className="material-symbols-outlined text-[20px]">logout</span>
+              <span className="text-xs font-black uppercase tracking-widest">Exit Admin</span>
+           </Link>
+        </div>
+      )}
     </aside>
   );
 }

@@ -69,6 +69,7 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
   };
 
   const pathname = usePathname();
+  const isAdminRoute = pathname.startsWith('/admin');
   const isDashboard = pathname === '/';
 
   // Key links for the navbar based on role
@@ -78,7 +79,10 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
     { label: 'My Listings', icon: 'potted_plant', path: '/listings', roles: ['farmer'] },
     { label: 'Orders', icon: 'receipt_long', path: '/orders' },
     { label: 'Messages', icon: 'forum', path: '/messages' },
-  ].filter(item => !item.roles || (user && item.roles.includes(user.user_type || '')));
+  ].filter(item => {
+    if (isAdminRoute) return false; // Hide all standard nav in admin
+    return !item.roles || (user && item.roles.includes(user.user_type || ''));
+  });
 
   return (
     <header className={`h-16 md:h-20 bg-white/70 dark:bg-background-dark/70 backdrop-blur-xl border-b transition-all duration-500 sticky top-0 z-[100] ${
@@ -135,29 +139,43 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
         </div>
 
         <div className="flex items-center gap-1 sm:gap-3">
-          {/* Mobile Search Icon */}
-          <button 
-            className="lg:hidden w-10 h-10 rounded-full hover:bg-slate-50 dark:hover:bg-white/5 flex items-center justify-center text-slate-500 dark:text-slate-400"
-            onClick={() => router.push('/marketplace')}
-          >
-            <span className="material-symbols-outlined text-[22px]">search</span>
-          </button>
+          {isAdminRoute && (
+            <Link 
+              href="/"
+              className="bg-red-500 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-600 transition-all flex items-center gap-2 shadow-lg shadow-red-500/20"
+            >
+              <span className="material-symbols-outlined text-sm">logout</span>
+              Exit Admin
+            </Link>
+          )}
 
-          <div className="hidden lg:flex items-center justify-center flex-1 max-w-md mx-4">
-            <div className="relative w-full group">
-              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px] transition-colors group-focus-within:text-primary">search</span>
-              <input 
-                type="text" 
-                placeholder={t('search_placeholder') || "Search products..."}
-                onChange={(e) => {
-                  if (pathname !== '/marketplace') {
-                     // Simple redirect for now, or could be real shared search
-                  }
-                }}
-                className="w-full bg-slate-100 dark:bg-white/5 border-none rounded-xl py-2 pl-10 pr-4 text-[10px] font-black uppercase tracking-widest outline-none focus:ring-2 focus:ring-primary/20 transition-all dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600"
-              />
+          {/* Mobile Search Icon */}
+          {!isAdminRoute && (
+            <button 
+              className="lg:hidden w-10 h-10 rounded-full hover:bg-slate-50 dark:hover:bg-white/5 flex items-center justify-center text-slate-500 dark:text-slate-400"
+              onClick={() => router.push('/marketplace')}
+            >
+              <span className="material-symbols-outlined text-[22px]">search</span>
+            </button>
+          )}
+
+          {!isAdminRoute && (
+            <div className="hidden lg:flex items-center justify-center flex-1 max-w-md mx-4">
+              <div className="relative w-full group">
+                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px] transition-colors group-focus-within:text-primary">search</span>
+                <input 
+                  type="text" 
+                  placeholder={t('search_placeholder') || "Search products..."}
+                  onChange={(e) => {
+                    if (pathname !== '/marketplace') {
+                       // Simple redirect for now, or could be real shared search
+                    }
+                  }}
+                  className="w-full bg-slate-100 dark:bg-white/5 border-none rounded-xl py-2 pl-10 pr-4 text-[10px] font-black uppercase tracking-widest outline-none focus:ring-2 focus:ring-primary/20 transition-all dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600"
+                />
+              </div>
             </div>
-          </div>
+          )}
           
           <div className="flex items-center gap-1 md:gap-3">
         <AnimatePresence>

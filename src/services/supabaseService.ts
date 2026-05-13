@@ -826,5 +826,32 @@ export const supabaseService = {
     
     if (error) throw new Error(error.message);
     return data;
+  },
+
+  // System Config
+  async getSystemConfig(key: string) {
+    try {
+      const { data, error } = await supabase
+        .from('system_config')
+        .select('value')
+        .eq('config_key', key)
+        .single();
+      
+      if (error) return null;
+      return data.value;
+    } catch (e) {
+      return null;
+    }
+  },
+
+  async updateSystemConfig(key: string, value: string) {
+    const { data, error } = await supabase
+      .from('system_config')
+      .upsert({ config_key: key, value, updated_at: new Date().toISOString() })
+      .select()
+      .single();
+    
+    if (error) throw new Error(error.message);
+    return data;
   }
 };
