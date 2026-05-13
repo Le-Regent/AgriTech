@@ -98,10 +98,10 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
           )}
           <Link href="/" className="flex items-center gap-2 group shrink-0">
             <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-primary to-green-400 rounded-lg flex items-center justify-center text-white shadow-lg shadow-primary/20 group-hover:rotate-6 transition-transform">
-              <span className="material-symbols-outlined text-[18px] md:text-[24px] font-bold">agriculture</span>
+              <span className="material-symbols-outlined text-[18px] md:text-[24px] font-bold">eco</span>
             </div>
             <h1 className="text-sm md:text-xl font-black text-slate-900 dark:text-white tracking-tighter uppercase italic hidden xs:block">
-              {title ? '' : 'Agri'}<span className={title ? 'hidden' : 'text-primary tracking-normal'}>Tech</span>
+              {title ? '' : 'Kamer'}<span className={title ? 'hidden' : 'text-primary tracking-normal'}>Fresh</span>
             </h1>
           </Link>
 

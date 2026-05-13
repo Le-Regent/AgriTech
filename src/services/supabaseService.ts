@@ -815,5 +815,16 @@ export const supabaseService = {
     
     if (error) throw new Error(error.message);
     return data;
+  },
+
+  async createWasteLog(waste: any) {
+    const { data, error } = await supabase
+      .from('waste_analytics')
+      .insert([waste])
+      .select()
+      .single();
+    
+    if (error) throw new Error(error.message);
+    return data;
   }
 };

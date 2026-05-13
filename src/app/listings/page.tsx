@@ -9,6 +9,7 @@ import { supabaseService } from '@/services/supabaseService';
 import { Product } from '@/types';
 import ProductModal from '@/components/features/marketplace/ProductModal';
 import ProductCard from '@/components/features/marketplace/ProductCard';
+import WasteLogModal from '@/components/features/marketplace/WasteLogModal';
 import ResponsiveImage from '@/components/ui/ResponsiveImage';
 import ProtectedRoute from '@/components/layout/ProtectedRoute';
 import { toast } from 'sonner';
@@ -19,7 +20,9 @@ function ListingsContent() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isWasteModalOpen, setIsWasteModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | undefined>(undefined);
+  const [selectedWasteProduct, setSelectedWasteProduct] = useState<Product | null>(null);
 
   const productsRef = useRef<Product[]>(products);
   useEffect(() => { productsRef.current = products; }, [products]);
@@ -200,6 +203,17 @@ function ListingsContent() {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
+                      setSelectedWasteProduct(product);
+                      setIsWasteModalOpen(true);
+                    }}
+                    className="w-10 h-10 bg-white/90 dark:bg-slate-900/90 backdrop-blur rounded-xl shadow-lg flex items-center justify-center text-slate-600 dark:text-white/70 hover:text-amber-500 transition-colors"
+                    title="Log Waste"
+                  >
+                    <span className="material-symbols-outlined text-[20px]">delete_sweep</span>
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
                       handleDeleteProduct(product.id);
                     }}
                     className="w-10 h-10 bg-white/90 dark:bg-slate-900/90 backdrop-blur rounded-xl shadow-lg flex items-center justify-center text-slate-600 dark:text-white/70 hover:text-red-500 transition-colors"
@@ -236,13 +250,21 @@ function ListingsContent() {
       )}
 
       {user && (
-        <ProductModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onSave={handleSaveProduct}
-          initialData={editingProduct}
-          farmerId={user.id}
-        />
+        <>
+          <ProductModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            onSave={handleSaveProduct}
+            initialData={editingProduct}
+            farmerId={user.id}
+          />
+          <WasteLogModal
+            isOpen={isWasteModalOpen}
+            onClose={() => setIsWasteModalOpen(false)}
+            product={selectedWasteProduct}
+            onSuccess={fetchProducts}
+          />
+        </>
       )}
     </motion.div>
   );

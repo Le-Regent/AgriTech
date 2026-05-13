@@ -9,6 +9,7 @@ import { supabaseService } from '@/services/supabaseService';
 import { profileService } from '@/services/profileService';
 import { CropDiagnosis } from '@/types';
 import { downloadDiagnosisReport } from '@/lib/diagnosisUtils';
+import ProfileSmartCard from '@/components/features/profile/ProfileSmartCard';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'motion/react';
@@ -388,7 +389,7 @@ function ProfileContent() {
               </div>
             <h3 className="text-lg sm:text-xl font-black dark:text-white">{user?.full_name}</h3>
             <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm mb-4 sm:mb-6 capitalize">{user?.user_type} · Premium Member since 2024</p>
-            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-8">
               {stats.map((stat, i) => (
                 stat.link ? (
                   <Link key={i} href={stat.link} className="bg-slate-50 dark:bg-slate-800 p-2 sm:p-3 rounded-xl sm:rounded-2xl transition-colors hover:bg-red-50 dark:hover:bg-red-500/10 group">
@@ -403,6 +404,12 @@ function ProfileContent() {
                 )
               ))}
             </div>
+            
+            {user && (
+              <div className="pt-8 border-t border-slate-100 dark:border-slate-800">
+                <ProfileSmartCard user={user} />
+              </div>
+            )}
           </div>
 
           <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-colors">

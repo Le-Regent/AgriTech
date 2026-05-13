@@ -32,6 +32,7 @@ function InsightsContent() {
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<any[]>([]);
+  const [wasteLogs, setWasteLogs] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -42,19 +43,26 @@ function InsightsContent() {
       if (cached) {
         setProducts(cached.products);
         setOrders(cached.orders);
+        setWasteLogs(cached.wasteLogs || []);
         setLoading(false);
       }
 
       try {
         if (isOnline) {
-          const [productsData, ordersData] = await Promise.all([
+          const [productsData, ordersData, wasteData] = await Promise.all([
             supabaseService.getProductsByFarmerId(user.id),
-            supabaseService.getOrders(user.id, 'farmer')
+            supabaseService.getOrders(user.id, 'farmer'),
+            supabaseService.getWasteLogs(user.id)
           ]);
           
           setProducts(productsData || []);
           setOrders(ordersData || []);
-          saveToCache(cacheKey, { products: productsData, orders: ordersData });
+          setWasteLogs(wasteData || []);
+          saveToCache(cacheKey, { 
+            products: productsData, 
+            orders: ordersData, 
+            wasteLogs: wasteData 
+          });
         }
       } catch (error) {
         console.error('Failed to fetch insights data:', error);
@@ -80,7 +88,16 @@ function InsightsContent() {
     }));
   }, [products]);
 
+  const wasteByReason = useMemo(() => {
+    const reasons: Record<string, number> = {};
+    wasteLogs.forEach(log => {
+      reasons[log.reason] = (reasons[log.reason] || 0) + Number(log.estimated_loss);
+    });
+    return Object.entries(reasons).map(([name, value]) => ({ name, value }));
+  }, [wasteLogs]);
+
   const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'];
+  const WASTE_COLORS = ['#ef4444', '#f59e0b', '#8b5cf6', '#3b82f6', '#64748b'];
 
   if (loading && products.length === 0) {
     return (
@@ -118,7 +135,7 @@ function InsightsContent() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
           { label: 'Total Revenue', value: '2.4M CFA', change: '+12%', icon: 'payments', color: 'text-green-600', bg: 'bg-green-50' },
-          { label: 'Active Listings', value: products.length.toString(), change: 'Stable', icon: 'inventory_2', color: 'text-blue-600', bg: 'bg-blue-50' },
+          { label: 'Total Waste Loss', value: `${wasteLogs.reduce((acc, log) => acc + Number(log.estimated_loss), 0).toLocaleString()} CFA`, change: 'Loss', icon: 'delete_sweep', color: 'text-red-600', bg: 'bg-red-50' },
           { label: 'Total Orders', value: orders.length.toString(), change: '+5%', icon: 'shopping_bag', color: 'text-amber-600', bg: 'bg-amber-50' },
           { label: 'Market Demand', value: 'High', change: 'Trending', icon: 'trending_up', color: 'text-indigo-600', bg: 'bg-indigo-50' },
         ].map((stat, i) => (
@@ -235,8 +252,48 @@ function InsightsContent() {
         </motion.div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <motion.div variants={itemVariants} className="lg:col-span-2 bg-white dark:bg-surface-dark p-8 rounded-[2.5rem] border border-slate-100 dark:border-border-dark shadow-sm">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <motion.div variants={itemVariants} className="bg-white dark:bg-surface-dark p-8 rounded-[2.5rem] border border-slate-100 dark:border-border-dark shadow-sm">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h3 className="text-xl font-black dark:text-white">Waste Analytics</h3>
+              <p className="text-xs text-slate-500 font-medium">Estimated loss by waste reason</p>
+            </div>
+            <div className="w-10 h-10 bg-red-50 text-red-600 rounded-xl flex items-center justify-center">
+              <span className="material-symbols-outlined">delete_sweep</span>
+            </div>
+          </div>
+          <div className="h-[300px] w-full flex items-center justify-center">
+            {wasteByReason.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={wasteByReason}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={100}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {wasteByReason.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={WASTE_COLORS[index % WASTE_COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(value) => value ? `${value.toLocaleString()} CFA` : '0 CFA'} />
+                  <Legend verticalAlign="bottom" height={36}/>
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="text-center space-y-2">
+                <span className="material-symbols-outlined text-4xl text-slate-200">auto_delete</span>
+                <p className="text-xs text-slate-400 font-bold font-mono">No waste data reported yet</p>
+              </div>
+            )}
+          </div>
+        </motion.div>
+
+        <motion.div variants={itemVariants} className="bg-white dark:bg-surface-dark p-8 rounded-[2.5rem] border border-slate-100 dark:border-border-dark shadow-sm">
           <h3 className="text-xl font-black mb-6 dark:text-white">Market Intelligence</h3>
           <div className="space-y-6">
             {[

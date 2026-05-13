@@ -12,6 +12,7 @@ import { useUser } from '@/context/UserContext';
 import { supabaseService } from '@/services/supabaseService';
 import { Product, ProductReview } from '@/types';
 import ProtectedRoute from '@/components/layout/ProtectedRoute';
+import NFCVerificationModal from '@/components/features/marketplace/NFCVerificationModal';
 import { toast } from 'sonner';
 import { convertQuantity, getAvailableUnits, Unit, formatUnit } from '@/lib/unitUtils';
 
@@ -111,6 +112,7 @@ function ProductDetailContent() {
 
   const [newReview, setNewReview] = useState({ rating: 5, comment: '' });
   const [submittingReview, setSubmittingReview] = useState(false);
+  const [isNFCOpen, setIsNFCOpen] = useState(false);
 
   const ratingStats = useMemo(() => {
     const total = reviews.length;
@@ -278,6 +280,15 @@ function ProductDetailContent() {
                   <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest">{product.health_status} Grade</span>
                 </div>
               )}
+            </div>
+            <div className="absolute bottom-6 right-6">
+                <button 
+                  onClick={() => setIsNFCOpen(true)}
+                  className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl w-14 h-14 rounded-2xl shadow-2xl flex items-center justify-center text-primary hover:scale-110 active:scale-95 transition-all group"
+                  title="Verify Authenticity"
+                >
+                    <span className="material-symbols-outlined text-3xl group-hover:animate-pulse">nfc</span>
+                </button>
             </div>
           </div>
           <div className="grid grid-cols-4 gap-2 sm:gap-4">
@@ -742,6 +753,13 @@ function ProductDetailContent() {
           </button>
         </div>
       </div>
+      {product && (
+        <NFCVerificationModal 
+          isOpen={isNFCOpen}
+          onClose={() => setIsNFCOpen(false)}
+          product={product}
+        />
+      )}
     </div>
   );
 }

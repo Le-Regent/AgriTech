@@ -140,10 +140,24 @@ function DiagnosisResultContent() {
                 </ul>
               </div>
               <div className="space-y-4">
-                <h4 className="font-bold flex items-center gap-2 dark:text-white">
-                  <span className="material-symbols-outlined text-primary">psychology</span>
-                  AI Recommendations
-                </h4>
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-bold flex items-center gap-2 dark:text-white">
+                    <span className="material-symbols-outlined text-primary">psychology</span>
+                    AI Recommendations
+                  </h4>
+                  <button 
+                    onClick={() => {
+                      const utterance = new SpeechSynthesisUtterance(report.recommendations);
+                      utterance.lang = 'en-US';
+                      window.speechSynthesis.speak(utterance);
+                    }}
+                    className="p-2 bg-primary/10 text-primary rounded-xl hover:bg-primary/20 transition-all flex items-center gap-2 group"
+                    title="Read aloud"
+                  >
+                    <span className="material-symbols-outlined text-[18px] group-active:scale-90 transition-transform">volume_up</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest hidden sm:inline">Voice Assistant</span>
+                  </button>
+                </div>
                 <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl space-y-3 transition-colors">
                   <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                     {report.recommendations}
