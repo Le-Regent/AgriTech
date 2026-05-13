@@ -27,7 +27,7 @@ function CheckoutContent() {
     zip: '',
     paymentMethod: 'card',
     cardNumber: '',
-    mpesaNumber: '',
+    mobileNumber: '',
     bankAccount: ''
   });
 
@@ -91,9 +91,9 @@ function CheckoutContent() {
       if (order) {
         // 3. Initiate Campay Payment
         setPaymentStatus('processing');
-        const paymentPhone = formData.paymentMethod === 'm-pesa' ? formData.mpesaNumber : user.phone_number;
+        const paymentPhone = formData.paymentMethod === 'mobile-money' ? formData.mobileNumber : user.phone_number;
         
-        if (!paymentPhone && formData.paymentMethod === 'm-pesa') {
+        if (!paymentPhone && formData.paymentMethod === 'mobile-money') {
           throw new Error('Please provide a phone number for Mobile Money payment');
         }
 
@@ -209,7 +209,7 @@ function CheckoutContent() {
           <div className="absolute inset-0 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
           <div className="absolute inset-0 flex items-center justify-center">
             <span className="material-symbols-outlined text-primary text-3xl animate-pulse">
-              {formData.paymentMethod === 'card' ? 'credit_card' : formData.paymentMethod === 'm-pesa' ? 'smartphone' : 'account_balance'}
+              {formData.paymentMethod === 'card' ? 'credit_card' : formData.paymentMethod === 'mobile-money' ? 'smartphone' : 'account_balance'}
             </span>
           </div>
         </div>
@@ -218,8 +218,8 @@ function CheckoutContent() {
             {paymentStatus === 'processing' ? 'Processing Payment' : paymentStatus === 'verifying' ? 'Verifying Transaction' : 'Finalizing Order'}
           </h2>
           <p className="text-slate-500 dark:text-slate-400">
-            {paymentStatus === 'processing' && formData.paymentMethod === 'm-pesa' 
-              ? 'Please check your phone for the M-Pesa prompt...' 
+            {paymentStatus === 'processing' && formData.paymentMethod === 'mobile-money' 
+              ? 'Please check your phone for the Mobile Money prompt...' 
               : paymentStatus === 'verifying' 
                 ? 'Confirming payment with the provider...'
                 : 'Securing your items and creating your order...'}
@@ -337,7 +337,7 @@ function CheckoutContent() {
                 <div className="space-y-4">
                   {[
                     { id: 'card', label: 'Credit / Debit Card', icon: 'credit_card' },
-                    { id: 'm-pesa', label: 'Mobile Money (M-Pesa)', icon: 'smartphone' },
+                    { id: 'mobile-money', label: 'Mobile Money (MTN/Orange)', icon: 'smartphone' },
                     { id: 'bank', label: 'Bank Transfer', icon: 'account_balance' }
                   ].map((method) => (
                     <button
@@ -353,9 +353,14 @@ function CheckoutContent() {
                         <span className={`material-symbols-outlined text-2xl ${formData.paymentMethod === method.id ? 'text-primary' : 'text-slate-400'}`}>
                           {method.icon}
                         </span>
-                        <span className={`font-bold ${formData.paymentMethod === method.id ? 'text-primary' : 'dark:text-white'}`}>
-                          {method.label}
-                        </span>
+                        <div className="text-left">
+                          <span className={`font-bold block ${formData.paymentMethod === method.id ? 'text-primary' : 'dark:text-white'}`}>
+                            {method.label}
+                          </span>
+                          {method.id === 'mobile-money' && (
+                            <span className="text-[10px] text-slate-400 font-medium tracking-tight">KamerPay Secured Checkout</span>
+                          )}
+                        </div>
                       </div>
                       <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
                         formData.paymentMethod === method.id ? 'border-primary' : 'border-slate-200'
@@ -365,6 +370,26 @@ function CheckoutContent() {
                     </button>
                   ))}
                 </div>
+
+                {formData.paymentMethod === 'mobile-money' && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-900/30 p-4 rounded-2xl"
+                  >
+                    <div className="flex gap-3">
+                      <span className="material-symbols-outlined text-yellow-600 text-lg">info</span>
+                      <div className="space-y-1">
+                        <p className="text-[11px] font-bold text-yellow-800 dark:text-yellow-400 uppercase tracking-wider">Sandbox Test Instructions</p>
+                        <p className="text-xs text-yellow-700 dark:text-yellow-500/80 leading-relaxed">
+                          For testing purposes, you can use these numbers (Max 25 XAF): <br />
+                          • <strong>237677777777</strong> (MTN Success) <br />
+                          • <strong>237699999999</strong> (Orange Success)
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
                 <div className="flex justify-between pt-4">
                   <button onClick={handleBack} className="text-slate-400 font-bold hover:text-slate-600">Back</button>
                   <button 
@@ -386,7 +411,7 @@ function CheckoutContent() {
                 className="space-y-6"
               >
                 <h3 className="text-2xl font-black dark:text-white">
-                  {formData.paymentMethod === 'card' ? 'Card Details' : formData.paymentMethod === 'm-pesa' ? 'Mobile Number' : 'Bank Details'}
+                  {formData.paymentMethod === 'card' ? 'Card Details' : formData.paymentMethod === 'mobile-money' ? 'Mobile Number' : 'Bank Details'}
                 </h3>
                 <div className="space-y-4">
                   {formData.paymentMethod === 'card' && (
@@ -413,13 +438,13 @@ function CheckoutContent() {
                       </div>
                     </>
                   )}
-                  {formData.paymentMethod === 'm-pesa' && (
+                  {formData.paymentMethod === 'mobile-money' && (
                     <div className="space-y-2">
                       <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Phone Number</label>
                       <input 
                         type="text" 
-                        value={formData.mpesaNumber}
-                        onChange={(e) => setFormData({...formData, mpesaNumber: e.target.value})}
+                        value={formData.mobileNumber}
+                        onChange={(e) => setFormData({...formData, mobileNumber: e.target.value})}
                         placeholder="e.g. 677 00 00 00"
                         className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-2xl px-6 py-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none dark:text-white"
                       />

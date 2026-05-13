@@ -100,9 +100,12 @@ export function Sidebar({ onMobileClose }: SidebarProps) {
           <div className="bg-slate-50 dark:bg-slate-900 rounded-2xl p-4 transition-colors">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">{t('pro_plan')}</p>
             <p className="text-xs text-slate-600 dark:text-slate-400 mb-3">{t('upgrade_msg')}</p>
-            <button className="w-full bg-primary text-white py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-primary/90 transition-colors shadow-lg shadow-primary/10">
+            <Link 
+              href="/pro"
+              className="w-full bg-primary text-white py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-primary/90 transition-colors shadow-lg shadow-primary/10 block text-center"
+            >
               {t('upgrade_now')}
-            </button>
+            </Link>
           </div>
 
           <Link 
