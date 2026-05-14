@@ -463,13 +463,41 @@ export const supabaseService = {
   },
 
   // Payments
-  async createPayment(payment: Partial<Payment>) {
-    const { data, error } = await supabase
-      .from('payments')
-      .insert([payment]);
+  async createPayment(paymentData: Partial<Payment>) {
+    // Try to insert with the payload provided. 
+    // We attempt a few variations to handle schema mismatches gracefully.
+    const { campay_reference, ...rest } = paymentData;
     
-    if (error) throw new Error(error.message);
-    return data;
+    try {
+      const { data, error } = await supabase
+        .from('payments')
+        .insert([{ ...paymentData }])
+        .select()
+        .single();
+      
+      if (!error) return data;
+      
+      // If error is about missing column 'campay_reference', try the mapping
+      if (error && (error.message.includes('campay_reference') || error.code === 'PGRST204')) {
+        const fallbackPayload = {
+          ...rest,
+          stripe_payment_id: campay_reference
+        };
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from('payments')
+          .insert([fallbackPayload])
+          .select()
+          .single();
+        
+        if (fallbackError) throw fallbackError;
+        return fallbackData;
+      }
+      
+      throw error;
+    } catch (error: any) {
+      console.error('Payment insertion error:', error);
+      throw new Error(error.message || 'Failed to create payment record');
+    }
   },
 
   async getPaymentsByOrderId(orderId: string) {
@@ -592,24 +620,48 @@ export const supabaseService = {
 
   // Escrow & Campay Logic
   async initiateCampayPayment(amount: number, phoneNumber: string, orderId: string) {
-    const response = await fetch('/api/payment/collect', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ amount, phoneNumber, externalId: orderId })
-    });
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), 20000); // 20s timeout
+    
+    try {
+      const response = await fetch('/api/payment/collect', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount, phoneNumber, externalId: orderId }),
+        signal: controller.signal
+      });
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Payment initiation failed');
+      clearTimeout(id);
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Payment initiation failed');
+      }
+
+      return response.json();
+    } catch (err: any) {
+      clearTimeout(id);
+      if (err.name === 'AbortError') throw new Error('Payment initiation timed out. Please try again.');
+      throw err;
     }
-
-    return response.json();
   },
 
   async checkCampayStatus(reference: string) {
-    const response = await fetch(`/api/payment/status?reference=${reference}`);
-    if (!response.ok) throw new Error('Status check failed');
-    return response.json();
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), 15000); // 15s timeout
+    
+    try {
+      const response = await fetch(`/api/payment/status?reference=${reference}`, {
+        signal: controller.signal
+      });
+      clearTimeout(id);
+      if (!response.ok) throw new Error('Status check failed');
+      return response.json();
+    } catch (err: any) {
+      clearTimeout(id);
+      if (err.name === 'AbortError') throw new Error('Status check timed out');
+      throw err;
+    }
   },
 
   async verifyOrderOTP(orderId: string, otp: string) {
@@ -674,26 +726,41 @@ export const supabaseService = {
     if (!farmerPhone) throw new Error('Farmer phone number not found for payout');
 
     // Call Withdrawal API (server-side for security)
-    const response = await fetch('/api/payment/withdraw', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        amount: payoutAmount, 
-        phoneNumber: farmerPhone, 
-        externalId: orderId 
-      })
-    });
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), 20000); // 20s timeout
+    
+    try {
+      const response = await fetch('/api/payment/withdraw', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          amount: payoutAmount, 
+          phoneNumber: farmerPhone, 
+          externalId: orderId 
+        }),
+        signal: controller.signal
+      });
 
-    if (!response.ok) throw new Error('Payout failed. Please check platform balance.');
+      clearTimeout(id);
 
-    const { error: updateError } = await supabase
-      .from('orders')
-      .update({ status: 'COMPLETED' })
-      .eq('id', orderId);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Payout failed. Please check platform balance.');
+      }
 
-    if (updateError) throw new Error(updateError.message);
+      const { error: updateError } = await supabase
+        .from('orders')
+        .update({ status: 'COMPLETED' })
+        .eq('id', orderId);
 
-    return true;
+      if (updateError) throw new Error(updateError.message);
+
+      return true;
+    } catch (err: any) {
+      clearTimeout(id);
+      if (err.name === 'AbortError') throw new Error('Payout request timed out.');
+      throw err;
+    }
   },
 
   /**

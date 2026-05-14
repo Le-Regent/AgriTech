@@ -75,9 +75,11 @@ CREATE TABLE diagnoses (
 CREATE TABLE orders (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   buyer_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
-  status TEXT CHECK (status IN ('pending', 'processing', 'shipped', 'delivered', 'COMPLETED', 'cancelled')) DEFAULT 'pending',
+  status TEXT CHECK (status IN ('pending', 'ESCROW_HELD', 'processing', 'shipped', 'delivered', 'COMPLETED', 'cancelled')) DEFAULT 'pending',
   total_amount NUMERIC NOT NULL,
   shipping_address TEXT,
+  otp_code TEXT,
+  evidence_url TEXT,
   tracking_number TEXT,
   estimated_delivery_date TIMESTAMP WITH TIME ZONE,
   shipped_at TIMESTAMP WITH TIME ZONE,
@@ -129,10 +131,12 @@ CREATE TABLE product_reviews (
 CREATE TABLE payments (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   order_id UUID REFERENCES orders(id) ON DELETE CASCADE,
-  stripe_payment_id TEXT UNIQUE,
+  campay_reference TEXT UNIQUE,
+  campay_id TEXT,
   amount NUMERIC NOT NULL,
-  currency TEXT DEFAULT 'USD',
-  status TEXT CHECK (status IN ('pending', 'succeeded', 'failed')) DEFAULT 'pending',
+  currency TEXT DEFAULT 'XAF',
+  status TEXT CHECK (status IN ('pending', 'succeeded', 'failed', 'escrow_held')) DEFAULT 'pending',
+  method TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 

@@ -119,6 +119,7 @@ export interface Payment {
   order_id?: string;
   campay_reference?: string;
   campay_id?: string;
+  stripe_payment_id?: string; // Kept for backward compatibility
   amount: number;
   currency: string;
   status: 'pending' | 'succeeded' | 'failed' | 'escrow_held';

@@ -52,10 +52,18 @@ export const orderService = {
   },
 
   // Payments
-  async createPayment(payment: Partial<Payment>) {
+  async createPayment(paymentData: Partial<Payment>) {
+    const { campay_reference, ...rest } = paymentData;
+    const payload: any = { ...rest };
+    if (campay_reference) {
+      payload.stripe_payment_id = campay_reference;
+    }
+
     const { data, error } = await supabase
       .from('payments')
-      .insert([payment]);
+      .insert([payload])
+      .select()
+      .single();
     
     if (error) throw new Error(error.message);
     return data;
