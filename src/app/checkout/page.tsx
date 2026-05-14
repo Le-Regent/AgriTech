@@ -63,6 +63,11 @@ function CheckoutContent() {
 
     setLoading(true);
     const loadingToast = toast.loading('Finalizing your order...');
+    
+    // We'll use a local variable to track if we've already finalized success/failure
+    // to prevent multiple state updates if multiple interval ticks overlap
+    let finalized = false;
+
     try {
       setPaymentStatus('finalizing');
       // 1. Prepare Order and Items
@@ -89,30 +94,60 @@ function CheckoutContent() {
       const order = await supabaseService.createOrder(orderData, orderItems);
 
       if (order) {
-        // 3. Initiate Campay Payment
-        setPaymentStatus('processing');
-        const paymentPhone = formData.paymentMethod === 'mobile-money' ? formData.mobileNumber : user.phone_number;
+        // 3. Initiate Campay Payment (Only for Mobile Money)
+        // If it's card or bank, we currently mock success for this demo/prototype
+        // but set order to pending. Campay collect is specifically for MM.
         
-        if (!paymentPhone && formData.paymentMethod === 'mobile-money') {
-          throw new Error('Please provide a phone number for Mobile Money payment');
+        let campayReference = null;
+        
+        if (formData.paymentMethod === 'mobile-money') {
+          setPaymentStatus('processing');
+          const paymentPhone = formData.mobileNumber || user.phone_number;
+          
+          if (!paymentPhone) {
+            throw new Error('Please provide a phone number for Mobile Money payment');
+          }
+
+          console.log('[Checkout] Initiating Campay payment for phone:', paymentPhone);
+          const campayResult = await supabaseService.initiateCampayPayment(
+            total, 
+            paymentPhone, 
+            order.id
+          );
+          campayReference = campayResult.reference;
+
+          // 4. Create Payment Record (Pending)
+          await supabaseService.createPayment({
+            order_id: order.id,
+            campay_reference: campayReference,
+            amount: Number(total),
+            currency: 'XAF',
+            status: 'pending',
+            method: formData.paymentMethod,
+            created_at: new Date().toISOString()
+          });
+        } else {
+          // For card/bank, we skip campay collect for now
+          // and just record the payment attempt
+          await supabaseService.createPayment({
+            order_id: order.id,
+            amount: Number(total),
+            currency: 'XAF',
+            status: 'pending',
+            method: formData.paymentMethod,
+            created_at: new Date().toISOString()
+          });
+          
+          // Fast exit for non-MM since we don't have a checkStatus for them yet
+          setPaymentStatus('finalizing');
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          clearCart();
+          toast.success('Order placed successfully!', { id: loadingToast });
+          setOrderSuccess(order.id);
+          setProcessingPayment(false);
+          setLoading(false);
+          return;
         }
-
-        const campayResult = await supabaseService.initiateCampayPayment(
-          total, 
-          paymentPhone || '', 
-          order.id
-        );
-
-        // 4. Create Payment Record (Pending)
-        await supabaseService.createPayment({
-          order_id: order.id,
-          campay_reference: campayResult.reference,
-          amount: Number(total),
-          currency: 'XAF',
-          status: 'pending',
-          method: formData.paymentMethod,
-          created_at: new Date().toISOString()
-        });
 
         // 5. Update Product Stock
         await Promise.all(cart.map(item => {
@@ -121,46 +156,69 @@ function CheckoutContent() {
             .catch(err => console.error(`Failed to update stock:`, err));
         }));
 
-        // 6. Polling for status (optional, but good for UX)
-        let pollCount = 0;
-        const maxPolls = 15; // 15 * 2s = 30s
-        const pollInterval = setInterval(async () => {
-          pollCount++;
-          try {
-            const statusResult = await supabaseService.checkCampayStatus(campayResult.reference);
-            if (statusResult.status === 'SUCCESSFUL') {
+        // 6. Polling for status
+        if (campayReference) {
+          let pollCount = 0;
+          const maxPolls = 15; // 15 * 3s = 45s
+          
+          const pollInterval = setInterval(async () => {
+            if (finalized) {
               clearInterval(pollInterval);
-              setPaymentStatus('finalizing');
-              clearCart();
-              toast.success('Order placed successfully!', { id: loadingToast });
-              setOrderSuccess(order.id);
-              setProcessingPayment(false);
-            } else if (statusResult.status === 'FAILED' || pollCount >= maxPolls) {
-              clearInterval(pollInterval);
-              // Webhook might still pick it up if it was a timeout
-              if (pollCount >= maxPolls) {
-                 clearCart();
-                 setOrderSuccess(order.id);
-                 setProcessingPayment(false);
-              } else {
-                toast.error('Payment failed. Please try again.');
-                setProcessingPayment(false);
-              }
+              return;
             }
-          } catch (e) {
-            console.error('Polling error:', e);
-          }
-        }, 3000);
+
+            pollCount++;
+            setPaymentStatus('verifying');
+            
+            try {
+              console.log(`[Checkout] Polling status (${pollCount}/${maxPolls}) for ref: ${campayReference}`);
+              const statusResult = await supabaseService.checkCampayStatus(campayReference);
+              const status = statusResult.status?.toUpperCase();
+
+              console.log(`[Checkout] Status result:`, status);
+
+              if (status === 'SUCCESSFUL') {
+                finalized = true;
+                clearInterval(pollInterval);
+                setPaymentStatus('finalizing');
+                clearCart();
+                toast.success('Order placed successfully!', { id: loadingToast });
+                setOrderSuccess(order.id);
+                setProcessingPayment(false);
+                setLoading(false);
+              } else if (status === 'FAILED' || status === 'CANCELLED' || status === 'EXPIRED') {
+                finalized = true;
+                clearInterval(pollInterval);
+                toast.error(`Payment ${status.toLowerCase()}. Please try again.`, { id: loadingToast });
+                setProcessingPayment(false);
+                setLoading(false);
+              } else if (pollCount >= maxPolls) {
+                finalized = true;
+                clearInterval(pollInterval);
+                // Webhook might still pick it up if it was a timeout
+                // For better UX in a demo, we treat as pending success
+                clearCart();
+                setOrderSuccess(order.id);
+                setProcessingPayment(false);
+                setLoading(false);
+                toast.success('Order received and is pending verification.', { id: loadingToast });
+              }
+            } catch (e) {
+              console.error('[Checkout] Polling error:', e);
+              // We don't stop the interval on random network errors, just keep trying
+            }
+          }, 3000);
+        }
 
       } else {
         throw new Error('Order creation returned no data');
       }
     } catch (error: any) {
-      console.error('Checkout failed detailed error:', error);
-      const errorMessage = error?.message || (typeof error === 'string' ? error : JSON.stringify(error));
+      finalized = true;
+      console.error('[Checkout] Checkout failed detailed error:', error);
+      const errorMessage = error?.message || (typeof error === 'string' ? error : 'An unexpected error occurred');
       toast.error(`Checkout failed: ${errorMessage}. Please try again.`, { id: loadingToast });
       setProcessingPayment(false);
-    } finally {
       setLoading(false);
     }
   };
@@ -445,9 +503,10 @@ function CheckoutContent() {
                         type="text" 
                         value={formData.mobileNumber}
                         onChange={(e) => setFormData({...formData, mobileNumber: e.target.value})}
-                        placeholder="e.g. 677 00 00 00"
+                        placeholder="e.g. 677000000 or 2376..."
                         className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-2xl px-6 py-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none dark:text-white"
                       />
+                      <p className="text-[10px] text-slate-400 mt-1 ml-1 italic">Enter your 9-digit mobile number or include country code.</p>
                     </div>
                   )}
                   {formData.paymentMethod === 'bank' && (

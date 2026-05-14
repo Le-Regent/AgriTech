@@ -20,79 +20,196 @@ export async function getCampayToken() {
   }
 
   console.log('[Campay] Fetching session token using credentials...');
-  const response = await fetch(`${CAMPAY_BASE_URL}/token/`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      username: process.env.CAMPAY_APP_USERNAME,
-      password: process.env.CAMPAY_APP_PASSWORD,
-    }),
-  });
   
-  if (!response.ok) {
-    const err = await response.text();
-    console.error('Campay Auth Error (Token Generation Failed):', err);
-    throw new Error(`Campay Authentication Failed: ${err}. Please check your CAMPAY_APP_USERNAME and PASSWORD.`);
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout for token
+
+  try {
+    const response = await fetch(`${CAMPAY_BASE_URL}/token/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username: process.env.CAMPAY_APP_USERNAME,
+        password: process.env.CAMPAY_APP_PASSWORD,
+      }),
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const err = await response.text();
+      console.error('Campay Auth Error (Token Generation Failed):', err);
+      throw new Error(`Campay Authentication Failed: ${err}. Please check your CAMPAY_APP_USERNAME and PASSWORD.`);
+    }
+    
+    const data = await response.json();
+    console.log('[Campay] Session token generated successfully');
+    return data.token;
+  } catch (error: any) {
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      throw new Error('Campay authentication timed out after 10 seconds.');
+    }
+    throw error;
   }
-  const data = await response.json();
-  console.log('[Campay] Session token generated successfully');
-  return data.token;
+}
+
+/**
+ * Formats a phone number to the Cameroonian standard (237XXXXXXXXX)
+ * expected by Campay.
+ */
+function formatCameroonPhone(phone: string): string {
+  // Remove all non-numeric characters
+  let cleaned = phone.replace(/\D/g, '');
+  
+  // If it starts with + or 00, we already removed them by \D/g if they were +, 
+  // but if it was 00, we check specifically.
+  if (phone.startsWith('00')) {
+    cleaned = cleaned.substring(2);
+  }
+
+  // Handle common Cameroonian 9-digit numbers starting with 6
+  if (cleaned.length === 9 && (cleaned.startsWith('6') || cleaned.startsWith('2'))) {
+    return '237' + cleaned;
+  }
+
+  // If it's already 12 digits and starts with 237, it's likely correct
+  if (cleaned.length === 12 && cleaned.startsWith('237')) {
+    return cleaned;
+  }
+
+  // Default fallback: return as is if we can't reliably format it
+  return cleaned || phone;
 }
 
 export async function initiateCollect(amount: number, phoneNumber: string, externalId: string) {
   const token = await getCampayToken();
-  const response = await fetch(`${CAMPAY_BASE_URL}/collect/`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Token ${token}`,
-    },
-    body: JSON.stringify({
-      amount: amount.toString(),
-      currency: 'XAF',
-      from: phoneNumber,
-      description: `Payment for Order ${externalId}`,
-      external_reference: externalId,
-    }),
-  });
+  const formattedPhone = formatCameroonPhone(phoneNumber);
+  console.log(`[Campay] Initiating collect: ${amount} XAF from ${formattedPhone} (Original: ${phoneNumber})`);
+  
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout for initiation
 
-  if (!response.ok) {
-    const error = await response.text();
-    console.error('Campay Collect Error:', error);
-    throw new Error(`Failed to initiate collect: ${error}`);
+  try {
+    const response = await fetch(`${CAMPAY_BASE_URL}/collect/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`,
+      },
+      body: JSON.stringify({
+        amount: Math.round(amount).toString(), // Ensure integer string
+        currency: 'XAF',
+        from: formattedPhone,
+        description: `Payment for Order ${externalId}`,
+        external_reference: externalId,
+      }),
+      signal: controller.signal
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Campay Collect Error:', errorText);
+      try {
+        const errorJson = JSON.parse(errorText);
+        throw new Error(errorJson.detail || errorJson.error || errorText);
+      } catch (e) {
+        throw new Error(`Failed to initiate collect: ${errorText}`);
+      }
+    }
+    
+    const result = await response.json();
+    console.log('[Campay] Collect initiated successfully:', result.reference);
+    return result;
+  } catch (error: any) {
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      throw new Error('Campay payment initiation timed out after 15 seconds.');
+    }
+    throw error;
   }
-  return response.json();
 }
 
 export async function checkTransactionStatus(reference: string) {
   const token = await getCampayToken();
-  const response = await fetch(`${CAMPAY_BASE_URL}/transaction/${reference}/`, {
-    headers: {
-      'Authorization': `Token ${token}`,
-    },
-  });
+  
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout for status
 
-  if (!response.ok) throw new Error('Failed to check transaction status');
-  return response.json();
+  try {
+    const response = await fetch(`${CAMPAY_BASE_URL}/transaction/${reference}/`, {
+      headers: {
+        'Authorization': `Token ${token}`,
+      },
+      signal: controller.signal
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Failed to check transaction status: ${errorText}`);
+    }
+    
+    return response.json();
+  } catch (error: any) {
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      throw new Error('Campay status check timed out after 10 seconds.');
+    }
+    throw error;
+  }
 }
 
 export async function initiateWithdrawal(amount: number, phoneNumber: string, externalId: string) {
   const token = await getCampayToken();
-  const response = await fetch(`${CAMPAY_BASE_URL}/withdraw/`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Token ${token}`,
-    },
-    body: JSON.stringify({
-      amount: amount.toString(),
-      currency: 'XAF',
-      to: phoneNumber,
-      description: `Withdrawal for Order ${externalId}`,
-      external_reference: externalId,
-    }),
-  });
+  const formattedPhone = formatCameroonPhone(phoneNumber);
+  console.log(`[Campay] Initiating withdrawal: ${amount} XAF to ${formattedPhone} (Original: ${phoneNumber})`);
+  
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout for withdrawal
 
-  if (!response.ok) throw new Error('Failed to initiate withdrawal');
-  return response.json();
+  try {
+    const response = await fetch(`${CAMPAY_BASE_URL}/withdraw/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`,
+      },
+      body: JSON.stringify({
+        amount: Math.round(amount).toString(),
+        currency: 'XAF',
+        to: formattedPhone,
+        description: `Withdrawal for Order ${externalId}`,
+        external_reference: externalId,
+      }),
+      signal: controller.signal
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Campay Withdrawal Error:', errorText);
+      try {
+        const errorJson = JSON.parse(errorText);
+        throw new Error(errorJson.detail || errorJson.error || errorText);
+      } catch (e) {
+        throw new Error(`Failed to initiate withdrawal: ${errorText}`);
+      }
+    }
+    
+    const result = await response.json();
+    console.log('[Campay] Withdrawal initiated successfully:', result.reference);
+    return result;
+  } catch (error: any) {
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      throw new Error('Campay withdrawal timed out after 15 seconds.');
+    }
+    throw error;
+  }
 }

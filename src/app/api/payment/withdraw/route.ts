@@ -9,10 +9,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    // Ensure phone number starts with 237 if not already
-    const formattedPhone = phoneNumber.startsWith('237') ? phoneNumber : `237${phoneNumber}`;
-
-    const result = await initiateWithdrawal(amount, formattedPhone, externalId);
+    const result = await initiateWithdrawal(amount, phoneNumber, externalId);
     return NextResponse.json(result);
   } catch (error: any) {
     console.error('API Payment Withdrawal Error:', error);
