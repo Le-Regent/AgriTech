@@ -37,6 +37,7 @@ function ProfileContent() {
 
   const [securityTab, setSecurityTab] = useState<'info' | 'activity' | 'devices'>('info');
   const [adminKey, setAdminKey] = useState('');
+  const [showAdminKey, setShowAdminKey] = useState(false);
   const [promoting, setPromoting] = useState(false);
 
   // Simulation of security logs
@@ -463,13 +464,24 @@ function ProfileContent() {
                   <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-3">
                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 italic">Elevate Privileges</p>
                     <div className="flex gap-2">
-                      <input 
-                        type="password"
-                        placeholder="Admin Activation Key"
-                        value={adminKey}
-                        onChange={(e) => setAdminKey(e.target.value)}
-                        className="flex-1 bg-slate-100 dark:bg-white/5 border-none rounded-xl px-4 py-2 text-xs font-bold outline-none dark:text-white"
-                      />
+                      <div className="relative flex-1">
+                        <input 
+                          type={showAdminKey ? "text" : "password"}
+                          placeholder="Admin Activation Key"
+                          value={adminKey}
+                          onChange={(e) => setAdminKey(e.target.value)}
+                          className="w-full bg-slate-100 dark:bg-white/5 border-none rounded-xl pl-4 pr-10 py-2 text-xs font-bold outline-none dark:text-white"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowAdminKey(!showAdminKey)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                        >
+                          <span className="material-symbols-outlined text-[18px]">
+                            {showAdminKey ? 'visibility_off' : 'visibility'}
+                          </span>
+                        </button>
+                      </div>
                       <button 
                         onClick={handlePromoteAdmin}
                         disabled={promoting || !adminKey}
@@ -501,7 +513,7 @@ function ProfileContent() {
             <div className="mt-8 p-4 bg-primary/5 rounded-2xl border border-primary/10">
               <p className="text-[10px] text-slate-500 leading-relaxed mb-3">
                 <span className="font-bold text-primary">Pro Tip:</span> Completing your profile and verifying your contact info increases 
-                visibility and builds stronger trust with the AgriControl community.
+                visibility and builds stronger trust with the KamerFresh community.
               </p>
               <Link href="/SECURITY.md" className="text-[9px] font-black uppercase tracking-widest text-primary flex items-center gap-1 hover:underline">
                 <span className="material-symbols-outlined text-sm">security</span>

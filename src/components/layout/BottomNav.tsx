@@ -6,10 +6,10 @@ import { motion } from 'motion/react';
 
 const MOBILE_NAV = [
   { label: 'Home', icon: 'home', path: '/' },
-  { label: 'Market', icon: 'storefront', path: '/marketplace' },
-  { label: 'Diagnose', icon: 'biotech', path: '/diagnosis', role: 'farmer' },
+  { label: 'The Marché', icon: 'storefront', path: '/marketplace' },
+  { label: 'Doctor', icon: 'biotech', path: '/diagnosis', role: 'farmer' },
   { label: 'Orders', icon: 'receipt_long', path: '/orders' },
-  { label: 'Profile', icon: 'account_circle', path: '/profile' },
+  { label: 'Account', icon: 'account_circle', path: '/profile' },
 ];
 
 export function BottomNav() {

@@ -276,7 +276,7 @@ function OrdersContent() {
                       <p className="text-xs font-black uppercase tracking-widest text-slate-400">{isFarmer ? 'Customer' : 'Order ID'}</p>
                       <p className="font-bold dark:text-white">
                         {isFarmer 
-                          ? (order.profiles?.full_name || 'AgriTech Customer') 
+                          ? (order.profiles?.full_name || 'KamerFresh Customer') 
                           : order.id.slice(0, 8).toUpperCase()}
                       </p>
                     </div>
@@ -285,7 +285,7 @@ function OrdersContent() {
                     {!isFarmer && (
                       <div>
                         <p className="text-xs font-black uppercase tracking-widest text-slate-400">Merchant</p>
-                        <p className="font-bold dark:text-white">{order.order_items?.[0]?.products?.profiles?.full_name || 'AgriTech Seller'}</p>
+                        <p className="font-bold dark:text-white">{order.order_items?.[0]?.products?.profiles?.full_name || 'KamerFresh Seller'}</p>
                       </div>
                     )}
                     <div>
@@ -457,7 +457,7 @@ function OrdersContent() {
                                       </p>
                                       {!isFarmer && (
                                         <p className="text-[10px] text-primary font-bold mt-0.5">
-                                          Seller: {item.products?.profiles?.full_name || 'AgriTech Seller'}
+                                          Seller: {item.products?.profiles?.full_name || 'KamerFresh Seller'}
                                         </p>
                                       )}
                                     </div>

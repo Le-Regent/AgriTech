@@ -23,7 +23,7 @@ const AGRI_TIPS: AgriTip[] = [
   { date: '2026-06-15', title: 'Rice Weeding', type: 'maintenance', desc: 'First round of weeding for upland rice should be completed this week.' },
 ];
 
-export default function AgriCalendar() {
+export default function KamerCalendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
   
   const monthStart = startOfMonth(currentDate);

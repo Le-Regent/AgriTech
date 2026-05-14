@@ -1,6 +1,6 @@
 # Security Architecture & Trust Protocol
 
-This document outlines the security measures implemented in the AgriControl platform to ensure data integrity, user privacy, and system reliability.
+This document outlines the security measures implemented in the KamerFresh platform to ensure data integrity, user privacy, and system reliability.
 
 ## 1. Multi-Layered Defense Strategy
 

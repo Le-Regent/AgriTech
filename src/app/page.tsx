@@ -34,7 +34,7 @@ import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'motion/react';
 import Skeleton from '@/components/ui/Skeleton';
 import { supabase } from '@/lib/supabase';
-import AgriCalendar from '@/components/ui/AgriCalendar';
+import KamerCalendar from '@/components/ui/AgriCalendar';
 
 function DashboardContent() {
   const { user } = useUser();
@@ -323,7 +323,7 @@ const [showCalendar, setShowCalendar] = useState(false);
         <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h2 className="text-3xl sm:text-4xl font-black tracking-tight dark:text-white uppercase italic">
-              Agri<span className="text-primary tracking-normal">Market</span>
+              Kamer<span className="text-primary tracking-normal">Market</span>
             </h2>
             <p className="text-xs sm:text-base text-slate-500 dark:text-slate-400 font-medium tracking-tight">Fresh produce from Cameroon&apos;s finest farms.</p>
           </div>
@@ -508,7 +508,7 @@ const [showCalendar, setShowCalendar] = useState(false);
 
   if (recentActivities.length === 0) {
     recentActivities.push({
-      title: 'Welcome to AgriTech',
+      title: 'Welcome to KamerFresh',
       time: 'Just now',
       desc: 'Start by listing products or scanning your crops for health checks.',
       icon: 'info',
@@ -526,7 +526,7 @@ const [showCalendar, setShowCalendar] = useState(false);
       <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-slate-100 dark:border-white/5">
         <div className="flex-1">
           <h2 className="text-3xl sm:text-4xl font-black tracking-tight dark:text-white uppercase italic">
-            Agri<span className="text-primary tracking-normal">Control</span> 🇨🇲
+            Kamer<span className="text-primary tracking-normal">Fresh</span> 🇨🇲
           </h2>
           <p className="text-sm text-slate-500 dark:text-slate-400 font-medium tracking-tight mt-1">Welcome back, {user?.full_name}. Here is what&apos;s happening today.</p>
         </div>
@@ -577,7 +577,7 @@ const [showCalendar, setShowCalendar] = useState(false);
                 </button>
               </div>
               <div className="h-[500px]">
-                <AgriCalendar />
+                <KamerCalendar />
               </div>
             </motion.div>
           </div>

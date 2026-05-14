@@ -274,7 +274,7 @@ function LogisticsContent() {
                         <div className="w-6 h-6 bg-slate-100 dark:bg-white/5 rounded-lg flex items-center justify-center">
                           <span className="material-symbols-outlined text-sm text-primary">local_shipping</span>
                         </div>
-                        <p className="font-bold text-xs dark:text-white">AgriLogistics CM</p>
+                        <p className="font-bold text-xs dark:text-white">KamerLogistics CM</p>
                       </div>
                     </div>
                     <div className="space-y-1">

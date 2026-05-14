@@ -71,7 +71,7 @@ export function Sidebar({ onMobileClose }: SidebarProps) {
   };
 
   return (
-    <aside className="w-full lg:w-64 bg-white dark:bg-background-dark border-r border-slate-200 dark:border-border-dark h-full lg:h-screen lg:sticky top-0 flex flex-col transition-colors duration-300">
+    <aside className={`fixed lg:sticky top-0 left-0 z-[100] w-[280px] lg:w-64 bg-white dark:bg-background-dark border-r border-slate-200 dark:border-border-dark h-screen flex flex-col transition-transform duration-300 transform ${onMobileClose ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
       <div className="p-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white">
@@ -79,15 +79,13 @@ export function Sidebar({ onMobileClose }: SidebarProps) {
           </div>
           <h1 className="font-bold text-xl tracking-tight dark:text-white">KamerFresh</h1>
         </div>
-        {onMobileClose && (
-          <button 
-            onClick={onMobileClose}
-            className="lg:hidden w-10 h-10 flex items-center justify-center text-slate-400 hover:text-slate-900 dark:hover:text-white"
-            title={t('close_menu')}
-          >
-            <span className="material-symbols-outlined">close</span>
-          </button>
-        )}
+        <button 
+          onClick={onMobileClose}
+          className="lg:hidden w-10 h-10 flex items-center justify-center text-slate-400 hover:text-slate-900 dark:hover:text-white"
+          title={t('close_menu')}
+        >
+          <span className="material-symbols-outlined">close</span>
+        </button>
       </div>
 
       <nav className="flex-1 px-4 py-4 space-y-6 overflow-y-auto no-scrollbar">

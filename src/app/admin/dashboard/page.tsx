@@ -177,77 +177,79 @@ export default function AdminDashboard() {
         </div>
 
         {/* Recent Transactions */}
-        <div className="lg:col-span-12 xl:col-span-9 bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-white/5 shadow-sm overflow-hidden flex flex-col">
-          <div className="p-8 border-b border-slate-50 dark:border-white/5 flex items-center justify-between">
+        <div className="lg:col-span-12 xl:col-span-9 bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-white/5 shadow-sm overflow-hidden flex flex-col min-w-0">
+          <div className="p-6 sm:p-8 border-b border-slate-50 dark:border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight leading-none mb-1">Recent Activity</h2>
               <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">High Resolution Log of Platform Movement</p>
             </div>
-            <button className="px-4 py-2 bg-slate-100 dark:bg-white/5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-600 dark:text-slate-400 rounded-xl hover:bg-primary/10 hover:text-primary transition-all">
+            <button className="w-full sm:w-auto px-4 py-2 bg-slate-100 dark:bg-white/5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-600 dark:text-slate-400 rounded-xl hover:bg-primary/10 hover:text-primary transition-all">
               Export Archive
             </button>
           </div>
-          <div className="overflow-x-auto flex-1">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="bg-slate-50/50 dark:bg-white/[0.02] text-slate-400 text-[10px] uppercase font-black tracking-widest">
-                  <th className="px-8 py-4">Transaction Identity</th>
-                  <th className="px-8 py-4">Counterparty</th>
-                  <th className="px-8 py-4">Status & Integrity</th>
-                  <th className="px-8 py-4 text-right">Settlement</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50 dark:divide-white/5">
-                {recentOrders.map((order) => (
-                  <tr key={order.id} className="hover:bg-slate-50 dark:hover:bg-white/[0.01] transition-colors group">
-                    <td className="px-8 py-6">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-slate-100 dark:bg-white/5 rounded-xl flex items-center justify-center text-slate-400 transition-colors group-hover:bg-primary/20 group-hover:text-primary">
-                          <span className="material-symbols-outlined text-[20px]">assignment</span>
-                        </div>
-                        <div>
-                          <p className="text-xs font-black text-slate-900 dark:text-white tracking-tight">#{order.id.slice(0, 8).toUpperCase()}</p>
-                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{new Date(order.created_at).toLocaleDateString()}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-8 py-6">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg overflow-hidden border border-slate-100 dark:border-white/10">
-                          <img 
-                            src={order.buyer?.avatar_url || `https://picsum.photos/seed/${order.buyer?.id}/32/32`} 
-                            alt="Buyer" 
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-xs font-bold text-slate-900 dark:text-white truncate">{order.buyer?.full_name || 'Anonymous'}</p>
-                          <p className="text-[10px] text-slate-400 truncate tracking-tight">{order.buyer?.email}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-8 py-6">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-2 h-2 rounded-full ${
-                          order.status === 'delivered' ? 'bg-green-500' :
-                          order.status === 'pending' ? 'bg-amber-500' : 'bg-primary'
-                        }`} />
-                        <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${
-                          order.status === 'delivered' ? 'text-green-500' :
-                          order.status === 'pending' ? 'text-amber-500' : 'text-primary'
-                        }`}>
-                          {order.status}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-8 py-6 text-right">
-                      <p className="text-sm font-black text-slate-900 dark:text-white tracking-tight">{order.total_amount.toLocaleString()} CFA</p>
-                      <p className="text-[9px] font-black uppercase text-green-500 tracking-widest">Verified Payment</p>
-                    </td>
+          <div className="overflow-x-auto flex-1 custom-scrollbar">
+            <div className="min-w-[800px]">
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="bg-slate-50/50 dark:bg-white/[0.02] text-slate-400 text-[10px] uppercase font-black tracking-widest">
+                    <th className="px-8 py-4">Transaction Identity</th>
+                    <th className="px-8 py-4">Counterparty</th>
+                    <th className="px-8 py-4">Status & Integrity</th>
+                    <th className="px-8 py-4 text-right">Settlement</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-slate-50 dark:divide-white/5">
+                  {recentOrders.map((order) => (
+                    <tr key={order.id} className="hover:bg-slate-50 dark:hover:bg-white/[0.01] transition-colors group">
+                      <td className="px-8 py-6">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-slate-100 dark:bg-white/5 rounded-xl flex items-center justify-center text-slate-400 transition-colors group-hover:bg-primary/20 group-hover:text-primary">
+                            <span className="material-symbols-outlined text-[20px]">assignment</span>
+                          </div>
+                          <div>
+                            <p className="text-xs font-black text-slate-900 dark:text-white tracking-tight">#{order.id.slice(0, 8).toUpperCase()}</p>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{new Date(order.created_at).toLocaleDateString()}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-8 py-6">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 flex-shrink-0 rounded-lg overflow-hidden border border-slate-100 dark:border-white/10">
+                            <img 
+                              src={order.buyer?.avatar_url || `https://picsum.photos/seed/${order.buyer?.id}/32/32`} 
+                              alt="Buyer" 
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-xs font-bold text-slate-900 dark:text-white truncate">{order.buyer?.full_name || 'Anonymous'}</p>
+                            <p className="text-[10px] text-slate-400 truncate tracking-tight">{order.buyer?.email}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-8 py-6">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-2 h-2 rounded-full ${
+                            order.status === 'delivered' ? 'bg-green-500' :
+                            order.status === 'pending' ? 'bg-amber-500' : 'bg-primary'
+                          }`} />
+                          <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${
+                            order.status === 'delivered' ? 'text-green-500' :
+                            order.status === 'pending' ? 'text-amber-500' : 'text-primary'
+                          }`}>
+                            {order.status}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-8 py-6 text-right">
+                        <p className="text-sm font-black text-slate-900 dark:text-white tracking-tight">{order.total_amount.toLocaleString()} CFA</p>
+                        <p className="text-[9px] font-black uppercase text-green-500 tracking-widest">Verified Payment</p>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
           <div className="p-6 bg-slate-50 dark:bg-white/[0.01] flex justify-center">
             <button className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-primary transition-colors flex items-center gap-2">

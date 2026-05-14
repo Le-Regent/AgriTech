@@ -75,7 +75,7 @@ export default function AdminEscrowPage() {
     <div className="space-y-8 pb-12">
       {/* Header */}
       <div>
-        <h1 className="text-4xl font-black tracking-tighter text-slate-900 dark:text-white uppercase italic">Escrow Vault</h1>
+        <h1 className="text-4xl font-black tracking-tighter text-slate-900 dark:text-white uppercase italic">Safe Pay Hub</h1>
         <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 mt-1">Trust Management & Farmer Disbursements</p>
       </div>
 

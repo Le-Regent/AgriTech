@@ -16,6 +16,7 @@ export default function LoginPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -27,7 +28,7 @@ export default function LoginPage() {
     // Security: Clear stale data from previous sessions before starting new auth
     if (typeof window !== 'undefined') {
       Object.keys(localStorage).forEach(key => {
-        if (key.startsWith('agritech_') || key.startsWith('shipments_')) {
+        if (key.startsWith('amerfresh_') || key.startsWith('shipments_')) {
           localStorage.removeItem(key);
         }
       });
@@ -88,7 +89,7 @@ export default function LoginPage() {
               <div className="w-12 h-12 bg-gradient-to-br from-primary to-green-400 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-primary/30 rotate-6">
                 <span className="material-symbols-outlined text-2xl font-bold">eco</span>
               </div>
-              <h1 className="font-black text-2xl tracking-tighter uppercase italic">Agri<span className="text-primary italic">Tech</span></h1>
+              <h1 className="font-black text-2xl tracking-tighter uppercase italic">Kamer<span className="text-primary italic">Fresh</span></h1>
             </div>
             
             <h2 className="text-4xl sm:text-6xl font-black tracking-tighter leading-[0.9] mb-8 uppercase italic">
@@ -207,14 +208,25 @@ export default function LoginPage() {
 
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Password</label>
-                  <input
-                    type="password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-sm font-bold text-white outline-none focus:ring-2 focus:ring-primary/50 transition-all placeholder:text-slate-600"
-                  />
+                  <div className="relative group">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-sm font-bold text-white outline-none focus:ring-2 focus:ring-primary/50 transition-all placeholder:text-slate-600"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-[20px]">
+                        {showPassword ? 'visibility_off' : 'visibility'}
+                      </span>
+                    </button>
+                  </div>
                 </div>
               </div>
 

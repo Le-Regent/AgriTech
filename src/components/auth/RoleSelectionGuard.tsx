@@ -13,7 +13,7 @@ export function RoleSelectionGuard({ children }: RoleSelectionGuardProps) {
   const [selectedRole, setSelectedRole] = useState<'farmer' | 'buyer' | null>(null);
   const [isDismissed, setIsDismissed] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('agritech_role_dismissed') === 'true';
+      return localStorage.getItem('kamerfresh_role_dismissed') === 'true';
     }
     return false;
   });
@@ -28,7 +28,7 @@ export function RoleSelectionGuard({ children }: RoleSelectionGuardProps) {
       const { error } = await updateProfile({ user_type: selectedRole });
       if (!error) {
         setIsDismissed(true);
-        localStorage.setItem('agritech_role_dismissed', 'true');
+        localStorage.setItem('kamerfresh_role_dismissed', 'true');
       } else {
         console.error('Failed to set role:', error);
       }
@@ -88,7 +88,7 @@ export function RoleSelectionGuard({ children }: RoleSelectionGuardProps) {
             Identify Yourself
           </h2>
           <p className="text-slate-400 font-medium text-lg">
-            How do you plan to use <span className="text-primary italic">AgriTech</span>?
+            How do you plan to use <span className="text-primary italic">KamerFresh</span>?
           </p>
           {user?.is_admin && (
             <p className="mt-4 text-emerald-400 text-xs font-black uppercase tracking-widest bg-emerald-500/10 py-2 px-4 rounded-full inline-block">
@@ -155,14 +155,14 @@ export function RoleSelectionGuard({ children }: RoleSelectionGuardProps) {
           {loading ? 'Processing Identity...' : 'Confirm Identity'}
         </button>
 
-        <button
+          <button
           onClick={() => {
             setIsDismissed(true);
-            localStorage.setItem('agritech_role_dismissed', 'true');
+            localStorage.setItem('kamerfresh_role_dismissed', 'true');
           }}
           className="w-full mt-6 py-2 text-slate-500 hover:text-white text-[10px] font-black uppercase tracking-widest transition-colors"
         >
-          Skip for now (Defaults to Marketplace)
+          Skip for now (Defaults to The Marché)
         </button>
       </motion.div>
     </div>
