@@ -974,5 +974,56 @@ export const supabaseService = {
     
     if (error) throw new Error(error.message);
     return data;
+  },
+
+  // Audit Logs
+  async getAuditLogs(limit = 100) {
+    try {
+      const { data, error } = await supabase
+        .from('audit_logs')
+        .select('*, profiles(full_name, avatar_url)')
+        .order('created_at', { ascending: false })
+        .limit(limit);
+      
+      if (error) {
+        if (error.code === 'PGRST116' || error.message?.includes('not found')) return [];
+        throw error;
+      }
+      return data;
+    } catch (e) {
+      console.warn('Audit logs table might not exist yet.');
+      return [];
+    }
+  },
+
+  async logAdminAction(userId: string, action: string, details: string, resourceId?: string) {
+    try {
+      await supabase
+        .from('audit_logs')
+        .insert([{
+          user_id: userId,
+          action,
+          details,
+          resource_id: resourceId,
+          created_at: new Date().toISOString()
+        }]);
+    } catch (e) {
+      console.error('Failed to log admin action:', e);
+    }
+  },
+
+  // Dispute Management
+  async getDisputedOrders() {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*, buyer:profiles!buyer_id(full_name, email), order_items(products(name, farmer:profiles!farmer_id(full_name, phone_number)))')
+      .eq('status', 'delivered')
+      .order('created_at', { ascending: false });
+    
+    if (error) throw new Error(error.message);
+    return (data || []).map(o => ({
+      ...o,
+      is_disputed: true // For UI logic
+    }));
   }
 };
