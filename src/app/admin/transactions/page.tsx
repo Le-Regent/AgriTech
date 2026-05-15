@@ -20,6 +20,7 @@ export default function TransactionsManagement() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState('all');
 
   useEffect(() => {
     async function loadOrders() {
@@ -40,7 +41,10 @@ export default function TransactionsManagement() {
       case 'delivered': return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
       case 'shipped': return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400';
       case 'processing': return 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400';
-      default: return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400';
+      case 'ESCROW_HELD': return 'bg-primary/10 text-primary dark:bg-primary/20';
+      case 'pending': return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400';
+      case 'COMPLETED': return 'bg-slate-900 text-white dark:bg-white dark:text-slate-900';
+      default: return 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400';
     }
   };
 
@@ -49,13 +53,21 @@ export default function TransactionsManagement() {
       case 'delivered': return <CheckCircle2 size={12} className="mr-1" />;
       case 'shipped': return <Truck size={12} className="mr-1" />;
       case 'processing': return <Package size={12} className="mr-1" />;
+      case 'pending': 
+      case 'ESCROW_HELD': return <Clock size={12} className="mr-1" />;
+      case 'COMPLETED': return <CheckCircle2 size={12} className="mr-1" />;
       default: return <Clock size={12} className="mr-1" />;
     }
   };
 
+  const filteredOrders = orders.filter(o => {
+    if (statusFilter === 'all') return true;
+    return o.status === statusFilter;
+  });
+
   const totalOrders = orders.length;
-  const completedVolume = orders.filter(o => o.status === 'delivered').length;
-  const processingVolume = orders.filter(o => o.status === 'processing' || o.status === 'pending').length;
+  const completedVolume = orders.filter(o => o.status === 'delivered' || o.status === 'COMPLETED').length;
+  const processingVolume = orders.filter(o => ['processing', 'pending', 'ESCROW_HELD', 'shipped'].includes(o.status)).length;
   const totalCFA = orders.reduce((acc, o) => acc + o.total_amount, 0);
 
   const marketStats = [
@@ -77,9 +89,24 @@ export default function TransactionsManagement() {
             <Download size={16} />
             Export Protocol
           </button>
-          <button className="p-2.5 bg-slate-900 dark:bg-green-600 text-white rounded-2xl hover:opacity-90 transition-opacity shadow-lg shadow-primary/20">
-            <Filter size={20} />
-          </button>
+          <div className="relative group">
+            <select 
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="appearance-none bg-slate-900 dark:bg-green-600 text-white px-8 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest cursor-pointer outline-none hover:opacity-90 shadow-lg"
+            >
+              <option value="all">Filter: All</option>
+              <option value="pending">Pending</option>
+              <option value="ESCROW_HELD">Escrow</option>
+              <option value="processing">Processing</option>
+              <option value="shipped">Shipped</option>
+              <option value="delivered">Delivered</option>
+              <option value="COMPLETED">Completed</option>
+            </select>
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+              <Filter size={14} className="text-white/70" />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -154,7 +181,7 @@ export default function TransactionsManagement() {
                   </tr>
                 ))
               ) : (
-                orders.map((order) => (
+                filteredOrders.map((order) => (
                   <React.Fragment key={order.id}>
                     <tr className={`hover:bg-slate-50 dark:hover:bg-white/[0.01] transition-colors cursor-pointer group ${expandedOrder === order.id ? 'bg-slate-50 dark:bg-white/[0.01]' : ''}`}
                       onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}

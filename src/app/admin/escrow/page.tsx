@@ -27,10 +27,10 @@ export default function AdminEscrowPage() {
   const loadOrders = async () => {
     try {
       const allOrders = await supabaseService.getAllOrders();
-      // Filter for orders that are ESCROW_HELD, shipped, or delivered (handshake done)
+      // Filter for orders that are pending, ESCROW_HELD, shipped, or delivered (handshake done)
       // but especially those ready for final payout (delivered)
       setOrders(allOrders.filter(o => 
-        ['ESCROW_HELD', 'processing', 'shipped', 'delivered', 'COMPLETED'].includes(o.status)
+        ['pending', 'ESCROW_HELD', 'processing', 'shipped', 'delivered', 'COMPLETED'].includes(o.status)
       ));
     } catch (error) {
       console.error('Error loading escrow orders:', error);
@@ -62,7 +62,7 @@ export default function AdminEscrowPage() {
   }
 
   const pendingPayouts = orders.filter(o => o.status === 'delivered');
-  const inEscrow = orders.filter(o => ['ESCROW_HELD', 'processing', 'shipped'].includes(o.status));
+  const inEscrow = orders.filter(o => ['pending', 'ESCROW_HELD', 'processing', 'shipped'].includes(o.status));
   const completed = orders.filter(o => o.status === 'COMPLETED');
 
   const stats = [
@@ -190,8 +190,10 @@ export default function AdminEscrowPage() {
                   </td>
                   <td className="px-8 py-6">
                     <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${
+                      order.status === 'pending' ? 'bg-amber-50 text-amber-500 border border-amber-100' :
                       order.status === 'ESCROW_HELD' ? 'bg-amber-100 text-amber-600' : 
-                      order.status === 'shipped' ? 'bg-indigo-100 text-indigo-600' : 'bg-slate-100 text-slate-600'
+                      order.status === 'shipped' ? 'bg-indigo-100 text-indigo-600' : 
+                      order.status === 'processing' ? 'bg-blue-50 text-blue-600' : 'bg-slate-100 text-slate-600'
                     }`}>
                       {order.status}
                     </span>
