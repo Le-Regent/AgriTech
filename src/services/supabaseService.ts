@@ -14,6 +14,17 @@ export const supabaseService = {
     return data;
   },
 
+  async createProfile(profile: Partial<User>) {
+    const { data, error } = await supabase
+      .from('profiles')
+      .insert([profile])
+      .select()
+      .single();
+    
+    if (error) throw new Error(error.message);
+    return data;
+  },
+
   async updateProfile(userId: string, profile: Partial<User>) {
     const { data, error } = await supabase
       .from('profiles')
@@ -460,6 +471,38 @@ export const supabaseService = {
     
     if (error) throw new Error(error.message);
     return data;
+  },
+
+  async getConversations(userId: string) {
+    const { data, error } = await supabase
+      .from('messages')
+      .select('*, sender:profiles!sender_id(full_name, avatar_url), receiver:profiles!receiver_id(full_name, avatar_url)')
+      .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`)
+      .order('created_at', { ascending: false });
+    
+    if (error) throw new Error(error.message);
+
+    // Group messages by conversation partner
+    const conversations = new Map();
+    data.forEach((msg: any) => {
+      const partnerId = msg.sender_id === userId ? msg.receiver_id : msg.sender_id;
+      const partner = msg.sender_id === userId ? msg.receiver : msg.sender;
+      
+      if (!conversations.has(partnerId)) {
+        conversations.set(partnerId, {
+          id: partnerId,
+          full_name: partner?.full_name || 'User',
+          avatar_url: partner?.avatar_url,
+          last_message: msg.message,
+          created_at: msg.created_at,
+          unread_count: !msg.is_read && msg.receiver_id === userId ? 1 : 0
+        });
+      } else if (!msg.is_read && msg.receiver_id === userId) {
+        conversations.get(partnerId).unread_count++;
+      }
+    });
+
+    return Array.from(conversations.values());
   },
 
   // Payments

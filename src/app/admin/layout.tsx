@@ -7,11 +7,13 @@ import { Navbar } from '@/components/layout/Navbar';
 import { useUser } from '@/context/UserContext';
 import { motion, AnimatePresence } from 'motion/react';
 
+import { usePathname } from 'next/navigation';
 import AdminAuthGuard from '@/components/layout/AdminAuthGuard';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user } = useUser();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+  const pathname = usePathname();
 
   return (
     <AdminAuthGuard>
@@ -51,14 +53,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             onMenuClick={() => setIsMobileMenuOpen(true)}
           />
           <main className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 no-scrollbar scroll-smooth">
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-              className="max-w-7xl mx-auto w-full"
-            >
-              {children}
-            </motion.div>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={pathname}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+                className="max-w-7xl mx-auto w-full"
+              >
+                {children}
+              </motion.div>
+            </AnimatePresence>
           </main>
         </div>
       </div>

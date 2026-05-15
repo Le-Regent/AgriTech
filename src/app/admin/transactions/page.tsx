@@ -35,14 +35,6 @@ export default function TransactionsManagement() {
     loadOrders();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-      </div>
-    );
-  }
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'delivered': return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
@@ -93,21 +85,31 @@ export default function TransactionsManagement() {
 
       {/* Transaction Overview */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {marketStats.map((stat, idx) => (
-          <motion.div
-            key={idx}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: idx * 0.05 }}
-            className="bg-white dark:bg-slate-900 p-5 rounded-[2rem] border border-slate-100 dark:border-white/5 shadow-sm"
-          >
-            <div className={`w-8 h-8 rounded-xl ${stat.color} dark:bg-opacity-20 flex items-center justify-center mb-4`}>
-              <stat.icon size={16} />
+        {loading ? (
+          Array(4).fill(0).map((_, i) => (
+            <div key={i} className="bg-white dark:bg-slate-900 p-5 rounded-[2rem] border border-slate-100 dark:border-white/5 shadow-sm">
+              <div className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-white/5 animate-pulse mb-4" />
+              <div className="w-16 h-2 bg-slate-100 dark:bg-white/5 rounded-full mb-2 animate-pulse" />
+              <div className="w-24 h-6 bg-slate-100 dark:bg-white/5 rounded-lg animate-pulse" />
             </div>
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">{stat.label}</p>
-            <p className="text-xl font-black text-slate-900 dark:text-white tracking-tight">{stat.value}</p>
-          </motion.div>
-        ))}
+          ))
+        ) : (
+          marketStats.map((stat, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.05 }}
+              className="bg-white dark:bg-slate-900 p-5 rounded-[2rem] border border-slate-100 dark:border-white/5 shadow-sm"
+            >
+              <div className={`w-8 h-8 rounded-xl ${stat.color} dark:bg-opacity-20 flex items-center justify-center mb-4`}>
+                <stat.icon size={16} />
+              </div>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">{stat.label}</p>
+              <p className="text-xl font-black text-slate-900 dark:text-white tracking-tight">{stat.value}</p>
+            </motion.div>
+          ))
+        )}
       </div>
 
       <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-white/5 shadow-sm overflow-hidden">
@@ -125,59 +127,86 @@ export default function TransactionsManagement() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50 dark:divide-white/5">
-              {orders.map((order) => (
-                <React.Fragment key={order.id}>
-                  <tr className={`hover:bg-slate-50 dark:hover:bg-white/[0.01] transition-colors cursor-pointer group ${expandedOrder === order.id ? 'bg-slate-50 dark:bg-white/[0.01]' : ''}`}
-                    onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}
-                  >
+              {loading ? (
+                Array(5).fill(0).map((_, i) => (
+                  <tr key={i}>
+                    <td className="px-8 py-6"><div className="w-8 h-8 bg-slate-100 dark:bg-white/5 rounded-lg animate-pulse" /></td>
+                    <td className="px-8 py-6"><div className="w-16 h-3 bg-slate-100 dark:bg-white/5 animate-pulse rounded-full" /></td>
                     <td className="px-8 py-6">
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${expandedOrder === order.id ? 'bg-primary text-white' : 'text-slate-400 group-hover:text-primary'}`}>
-                        {expandedOrder === order.id ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
-                      </div>
-                    </td>
-                    <td className="px-8 py-6">
-                      <span className="text-xs font-black text-slate-900 dark:text-white tracking-widest italic group-hover:text-primary transition-colors">#{order.id.slice(0, 8).toUpperCase()}</span>
-                    </td>
-                    <td className="px-8 py-6">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-white/5 overflow-hidden border border-slate-100 dark:border-white/10 shrink-0">
-                          <img src={order.buyer?.avatar_url || `https://picsum.photos/seed/${order.buyer?.id}/36/36`} alt="Avatar" className="w-full h-full object-contain grayscale group-hover:grayscale-0 transition-all" />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-xs font-black text-slate-900 dark:text-white truncate">{order.buyer?.full_name}</p>
-                          <p className="text-[10px] font-medium text-slate-400 truncate">{order.buyer?.email}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-8 py-6">
-                      <div className="flex flex-col gap-1.5">
-                        <span className={`inline-flex items-center w-fit px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-[0.2em] ${getStatusColor(order.status)}`}>
-                          {getStatusIcon(order.status)}
-                          {order.status}
-                        </span>
-                        <div className="flex items-center gap-1">
-                          {[1, 2, 3].map(i => (
-                            <div key={i} className={`h-1 w-4 rounded-full ${
-                              i === 1 ? 'bg-green-500' : 
-                              (order.status === 'delivered' ? 'bg-green-500' : (order.status === 'shipped' && i <= 2 ? 'bg-blue-500' : 'bg-slate-200 dark:bg-white/5'))
-                            }`} />
-                          ))}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-8 py-6">
-                       <div className="space-y-0.5">
-                         <p className="text-[10px] font-black text-slate-900 dark:text-white">{new Date(order.created_at).toLocaleDateString()}</p>
-                         <p className="text-[9px] font-black text-slate-400 uppercase">{new Date(order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</p>
+                       <div className="flex items-center gap-3">
+                         <div className="w-9 h-9 bg-slate-100 dark:bg-white/5 rounded-xl animate-pulse" />
+                         <div className="space-y-2">
+                           <div className="w-24 h-3 bg-slate-100 dark:bg-white/5 animate-pulse rounded-full" />
+                           <div className="w-32 h-2 bg-slate-100 dark:bg-white/5 animate-pulse rounded-full" />
+                         </div>
                        </div>
                     </td>
+                    <td className="px-8 py-6">
+                       <div className="w-20 h-4 bg-slate-100 dark:bg-white/5 animate-pulse rounded-md" />
+                    </td>
+                    <td className="px-8 py-6">
+                       <div className="w-24 h-3 bg-slate-100 dark:bg-white/5 animate-pulse rounded-full" />
+                    </td>
                     <td className="px-8 py-6 text-right">
-                      <p className="text-sm font-black text-slate-900 dark:text-white tracking-tight">{order.total_amount.toLocaleString()} CFA</p>
+                       <div className="w-20 h-4 bg-slate-100 dark:bg-white/5 animate-pulse rounded-full ml-auto" />
                     </td>
-                    <td className="px-8 py-6 text-right text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
-                      <MoreVertical size={18} />
-                    </td>
+                    <td className="px-8 py-6"><div className="w-4 h-4 bg-slate-100 dark:bg-white/5 rounded animate-pulse" /></td>
                   </tr>
+                ))
+              ) : (
+                orders.map((order) => (
+                  <React.Fragment key={order.id}>
+                    <tr className={`hover:bg-slate-50 dark:hover:bg-white/[0.01] transition-colors cursor-pointer group ${expandedOrder === order.id ? 'bg-slate-50 dark:bg-white/[0.01]' : ''}`}
+                      onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}
+                    >
+                      <td className="px-8 py-6">
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${expandedOrder === order.id ? 'bg-primary text-white' : 'text-slate-400 group-hover:text-primary'}`}>
+                          {expandedOrder === order.id ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+                        </div>
+                      </td>
+                      <td className="px-8 py-6">
+                        <span className="text-xs font-black text-slate-900 dark:text-white tracking-widest italic group-hover:text-primary transition-colors">#{order.id.slice(0, 8).toUpperCase()}</span>
+                      </td>
+                      <td className="px-8 py-6">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-white/5 overflow-hidden border border-slate-100 dark:border-white/10 shrink-0">
+                            <img src={order.buyer?.avatar_url || `https://picsum.photos/seed/${order.buyer?.id}/36/36`} alt="Avatar" className="w-full h-full object-contain grayscale group-hover:grayscale-0 transition-all" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-xs font-black text-slate-900 dark:text-white truncate">{order.buyer?.full_name}</p>
+                            <p className="text-[10px] font-medium text-slate-400 truncate">{order.buyer?.email}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-8 py-6">
+                        <div className="flex flex-col gap-1.5">
+                          <span className={`inline-flex items-center w-fit px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-[0.2em] ${getStatusColor(order.status)}`}>
+                            {getStatusIcon(order.status)}
+                            {order.status}
+                          </span>
+                          <div className="flex items-center gap-1">
+                            {[1, 2, 3].map(i => (
+                              <div key={i} className={`h-1 w-4 rounded-full ${
+                                i === 1 ? 'bg-green-500' : 
+                                (order.status === 'delivered' ? 'bg-green-500' : (order.status === 'shipped' && i <= 2 ? 'bg-blue-500' : 'bg-slate-200 dark:bg-white/5'))
+                              }`} />
+                            ))}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-8 py-6">
+                         <div className="space-y-0.5">
+                           <p className="text-[10px] font-black text-slate-900 dark:text-white">{new Date(order.created_at).toLocaleDateString()}</p>
+                           <p className="text-[9px] font-black text-slate-400 uppercase">{new Date(order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</p>
+                         </div>
+                      </td>
+                      <td className="px-8 py-6 text-right">
+                        <p className="text-sm font-black text-slate-900 dark:text-white tracking-tight">{order.total_amount.toLocaleString()} CFA</p>
+                      </td>
+                      <td className="px-8 py-6 text-right text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
+                        <MoreVertical size={18} />
+                      </td>
+                    </tr>
                   
                   <AnimatePresence>
                     {expandedOrder === order.id && (
@@ -245,7 +274,7 @@ export default function TransactionsManagement() {
                     )}
                   </AnimatePresence>
                 </React.Fragment>
-              ))}
+              )))}
             </tbody>
           </table>
         </div>
