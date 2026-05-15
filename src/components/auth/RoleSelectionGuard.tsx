@@ -11,6 +11,7 @@ interface RoleSelectionGuardProps {
 export function RoleSelectionGuard({ children }: RoleSelectionGuardProps) {
   const { user, updateProfile, loading, isAuthReady } = useUser();
   const [selectedRole, setSelectedRole] = useState<'farmer' | 'buyer' | null>(null);
+  const [showPrompt, setShowPrompt] = useState(false);
   const [isDismissed, setIsDismissed] = useState(() => {
     if (typeof window !== 'undefined') {
       return localStorage.getItem('kamerfresh_role_dismissed') === 'true';
@@ -18,9 +19,21 @@ export function RoleSelectionGuard({ children }: RoleSelectionGuardProps) {
     return false;
   });
 
-  // Skip guard for admins - they have their own dashboard and might not need a persona
-  // Also skip if already dismissed (e.g. clicked "Skip for now")
-  const needsRole = isAuthReady && user && !user.user_type && !user.is_admin && !isDismissed;
+  // Delay showing the prompt to avoid flashing for registered users while their profile is being fetched
+  React.useEffect(() => {
+    // Only even consider showing it if auth is ready and user metadata didn't have a role
+    if (isAuthReady && user && !user.user_type && !user.is_admin && !isDismissed) {
+      const timer = setTimeout(() => {
+        // Re-check state after 1.5s delay to be sure background fetch didn't resolve it
+        setShowPrompt(true);
+      }, 1500); 
+      return () => clearTimeout(timer);
+    } else {
+      setShowPrompt(false);
+    }
+  }, [isAuthReady, user?.user_type, user?.is_admin, isDismissed]);
+
+  const needsRole = showPrompt;
 
   const handleRoleSelect = async () => {
     if (!selectedRole) return;

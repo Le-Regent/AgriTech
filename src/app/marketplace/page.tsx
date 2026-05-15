@@ -48,6 +48,23 @@ function MarketplaceContent() {
   const [recentlyViewed, setRecentlyViewed] = useState<Product[]>([]);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [generatingId, setGeneratingId] = useState<string | null>(null);
+  const [showHeader, setShowHeader] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setShowHeader(false);
+      } else {
+        setShowHeader(true);
+      }
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);
 
   useEffect(() => {
     const recentlyViewedIds = JSON.parse(localStorage.getItem('recently_viewed') || '[]');
@@ -155,70 +172,77 @@ function MarketplaceContent() {
         } as any)}
       />
       
-      <MarketplaceHeader 
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-        onAddProduct={() => setIsAddModalOpen(true)}
-        showAddButton={user?.user_type === 'farmer'}
-        onShowFilters={() => setShowFilters(true)}
-        sortBy={sortBy}
-        onSortChange={setSortBy}
-        t={t}
-      />
+      <motion.div 
+        initial={{ y: 0 }}
+        animate={{ y: showHeader ? 0 : -250 }}
+        transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+        className="sticky top-0 z-30 pt-4 pb-2 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-md -mx-4 px-4 space-y-4 shadow-sm"
+      >
+        <MarketplaceHeader 
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          onAddProduct={() => setIsAddModalOpen(true)}
+          showAddButton={user?.user_type === 'farmer'}
+          onShowFilters={() => setShowFilters(true)}
+          sortBy={sortBy}
+          onSortChange={setSortBy}
+          t={t}
+        />
+
+        <div id="marketplace-category-tabs" className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+          {['All Produce', 'Foodstuff', 'Grains & Beans', 'Spices & Pepper', 'Oils', 'Vegetables', 'Fruits', 'Meat & Eggs'].map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setFilters({ ...filters, category: cat })}
+              className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest whitespace-nowrap transition-all border shrink-0 ${
+                filters.category === cat 
+                  ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20' 
+                  : 'bg-white dark:bg-white/5 border-slate-200 dark:border-white/5 text-slate-500 dark:text-slate-500'
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex items-center justify-between gap-4 py-1">
+          <button 
+            id="marketplace-filters-btn"
+            onClick={() => setShowFilters(true)}
+            className="h-8 px-3 bg-slate-900 dark:bg-slate-800 text-white rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-lg"
+          >
+            <span className="material-symbols-outlined text-[16px]">tune</span>
+            {t('filters')}
+          </button>
+          
+          <div className="flex items-center gap-2">
+            {selectedProducts.length > 0 && (
+              <button 
+                onClick={() => setShowComparison(true)}
+                className="h-8 px-3 bg-indigo-600 text-white rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 animate-pulse shadow-lg"
+              >
+                <span className="material-symbols-outlined text-[16px]">compare_arrows</span>
+                Compare({selectedProducts.length})
+              </button>
+            )}
+
+            <div className="flex bg-slate-100 dark:bg-white/5 p-0.5 rounded-lg">
+               <button onClick={() => setViewMode('grid')} className={`w-7 h-7 flex items-center justify-center rounded-md ${viewMode === 'grid' ? 'bg-white dark:bg-slate-800 text-primary shadow-sm' : 'text-slate-400'}`}>
+                 <span className="material-symbols-outlined text-[18px]">grid_view</span>
+               </button>
+               <button onClick={() => setViewMode('list')} className={`w-7 h-7 flex items-center justify-center rounded-md ${viewMode === 'list' ? 'bg-white dark:bg-slate-800 text-primary shadow-sm' : 'text-slate-400'}`}>
+                 <span className="material-symbols-outlined text-[18px]">view_list</span>
+               </button>
+            </div>
+          </div>
+        </div>
+      </motion.div>
 
       <RecentlyViewed 
         products={recentlyViewed} 
         onClear={() => { localStorage.removeItem('recently_viewed'); setRecentlyViewed([]); }} 
         t={t} 
       />
-
-      <div id="marketplace-category-tabs" className="flex gap-2 overflow-x-auto pb-2 no-scrollbar px-4 -mx-4">
-        {['All Produce', 'Foodstuff', 'Grains & Beans', 'Spices & Pepper', 'Oils', 'Vegetables', 'Fruits', 'Meat & Eggs'].map((cat) => (
-          <button
-            key={cat}
-            onClick={() => setFilters({ ...filters, category: cat })}
-            className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest whitespace-nowrap transition-all border shrink-0 ${
-              filters.category === cat 
-                ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20' 
-                : 'bg-white dark:bg-white/5 border-slate-200 dark:border-white/5 text-slate-500 dark:text-slate-500'
-            }`}
-          >
-            {cat}
-          </button>
-        ))}
-      </div>
-
-      <div className="flex items-center justify-between gap-4 py-1">
-        <button 
-          id="marketplace-filters-btn"
-          onClick={() => setShowFilters(true)}
-          className="h-8 px-3 bg-slate-900 dark:bg-slate-800 text-white rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-lg"
-        >
-          <span className="material-symbols-outlined text-[16px]">tune</span>
-          {t('filters')}
-        </button>
-        
-        <div className="flex items-center gap-2">
-          {selectedProducts.length > 0 && (
-            <button 
-              onClick={() => setShowComparison(true)}
-              className="h-8 px-3 bg-indigo-600 text-white rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 animate-pulse shadow-lg"
-            >
-              <span className="material-symbols-outlined text-[16px]">compare_arrows</span>
-              Compare({selectedProducts.length})
-            </button>
-          )}
-
-          <div className="flex bg-slate-100 dark:bg-white/5 p-0.5 rounded-lg">
-             <button onClick={() => setViewMode('grid')} className={`w-7 h-7 flex items-center justify-center rounded-md ${viewMode === 'grid' ? 'bg-white dark:bg-slate-800 text-primary shadow-sm' : 'text-slate-400'}`}>
-               <span className="material-symbols-outlined text-[18px]">grid_view</span>
-             </button>
-             <button onClick={() => setViewMode('list')} className={`w-7 h-7 flex items-center justify-center rounded-md ${viewMode === 'list' ? 'bg-white dark:bg-slate-800 text-primary shadow-sm' : 'text-slate-400'}`}>
-               <span className="material-symbols-outlined text-[18px]">view_list</span>
-             </button>
-          </div>
-        </div>
-      </div>
 
       <MarketplaceFilters 
         filters={filters} 
