@@ -35,102 +35,63 @@ export function UserProvider({ children }: { children: ReactNode }) {
     // Safety timeout to ensure isAuthReady is set even if Supabase hangs
     const timeout = setTimeout(() => {
       if (!isAuthReadyRef.current) {
-        console.warn('Auth initialization timed out, forcing ready state');
+        console.warn('Auth initialization slow, readying fallback state');
         setIsAuthReady(true);
       }
-    }, 3000);
+    }, 1500); // Reduced timeout for better perceived speed
 
     const fetchAndSetProfile = async (sessionUser: any) => {
       // Avoid redundant fetches if user is already set and ID matches
       if (currentUserIdRef.current === sessionUser.id && user?.user_type) return;
       currentUserIdRef.current = sessionUser.id;
 
-      // 1. Check local storage first for immediate role resolution
-      const cached = localStorage.getItem(`agritech_profile_${sessionUser.id}`);
+      // 1. HIGH SPEED: Check local storage first for immediate role resolution
+      // Use a more specific key for consistency
+      const cacheKey = `kamerfresh_profile_${sessionUser.id}`;
+      const cached = localStorage.getItem(cacheKey);
+      
       if (cached) {
         try {
           const parsed = JSON.parse(cached);
           if (parsed && parsed.user_type) {
+            console.log('Using cached profile for speed:', parsed.user_type);
             setUser(parsed);
             setIsAuthReady(true);
-            clearTimeout(timeout);
+            // We still continue to fetch fresh data in background, but UI is ready
           }
         } catch (e) {
           console.warn('Failed to parse cached profile');
         }
       }
 
-      // 2. Set preliminary user from metadata
+      // 2. Set preliminary user from metadata (Next fastest)
       const metadata = sessionUser.user_metadata;
-      console.log('Auth Metadata:', metadata);
       const preliminaryUser: User = {
         id: sessionUser.id,
         full_name: metadata?.full_name || 'User',
         email: sessionUser.email || '',
-        user_type: metadata?.user_type as 'farmer' | 'buyer' | null,
+        user_type: (metadata?.user_type || metadata?.role) as 'farmer' | 'buyer' | null,
         is_admin: metadata?.is_admin || false,
         avatar_url: metadata?.avatar_url,
       };
       
-      // Only set preliminary if we don't have a better one from cache
-      setUser(prev => {
-        const next = (prev?.user_type ? prev : preliminaryUser);
-        console.log('Setting Preliminary User:', next);
-        return next;
-      });
+      // Update state if we don't have a better one yet
+      setUser(prev => (prev?.user_type ? prev : preliminaryUser));
 
-      // If we have user_type in metadata, we can show the UI immediately
       if (preliminaryUser.user_type) {
-        console.log('User identity found in metadata, readying auth');
         setIsAuthReady(true);
-        clearTimeout(timeout);
       }
 
-      // 2. Fetch full profile in background
+      // 3. BACKGROUND: Fetch full profile from DB
       try {
-        console.log('Fetching full profile for:', sessionUser.id);
         const profile = await profileService.getProfile(sessionUser.id);
-        console.log('Full Profile Data:', profile);
         if (profile) {
           setUser(profile);
-          // Cache full profile for offline access
-          try {
-            localStorage.setItem(`agritech_profile_${sessionUser.id}`, JSON.stringify(profile));
-          } catch (e) {
-            console.warn('Failed to cache profile:', e);
-          }
+          localStorage.setItem(cacheKey, JSON.stringify(profile));
         }
       } catch (error: any) {
-        if (error.code === 'PGRST116') { // Not found
-          console.warn('Profile not found, attempting to create from metadata');
-          if (metadata?.full_name && metadata?.user_type) {
-            const newProfile = {
-              id: sessionUser.id,
-              full_name: metadata.full_name,
-              email: sessionUser.email || '',
-              user_type: metadata.user_type as 'farmer' | 'buyer',
-            };
-            try {
-              await supabase.from('profiles').insert([newProfile]);
-              setUser(newProfile as User);
-            } catch (insertError) {
-              console.error('Failed to manually create profile:', insertError);
-            }
-          }
-        } else if (error.message?.includes('fetch') || (typeof window !== 'undefined' && !window.navigator.onLine)) {
-          // Network error - try to load from local cache
-          console.warn('Network error fetching profile, checking local cache');
-          try {
-            const cached = localStorage.getItem(`agritech_profile_${sessionUser.id}`);
-            if (cached) {
-              setUser(JSON.parse(cached));
-            }
-          } catch (e) {
-            console.error('Failed to load profile from cache:', e);
-          }
-        } else {
-          console.error('Error fetching profile:', error);
-        }
+        console.error('Error fetching profile:', error);
+        // If not found and we have metadata, try to at least keep preliminary
       } finally {
         setIsAuthReady(true);
         clearTimeout(timeout);

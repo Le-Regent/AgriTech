@@ -24,13 +24,13 @@ export default function ProductCard({
       onClick={onClick}
       className={`group bg-white dark:bg-surface-dark rounded-[2rem] sm:rounded-[2.5rem] border border-slate-100 dark:border-border-dark shadow-sm hover:shadow-xl transition-all overflow-hidden flex flex-col ${onClick ? 'cursor-pointer' : ''} ${className}`}
     >
-      <div className="aspect-[4/3] relative overflow-hidden">
+      <div className="aspect-[3/4] sm:aspect-[4/3] relative overflow-hidden">
         <ResponsiveImage
-          src={product.image_url || 'https://picsum.photos/seed/product/400/300'}
+          src={product.image_url || 'https://picsum.photos/seed/product/600/800'}
           alt={`Fresh ${product.name}`}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 dark:opacity-80"
           baseWidth={400}
-          baseHeight={300}
+          baseHeight={500}
         />
         {showBadges && (
           <div className="absolute top-3 left-3 sm:top-4 sm:left-4 flex flex-col gap-1.5 sm:gap-2">
@@ -97,7 +97,7 @@ export default function ProductCard({
             </p>
           </div>
           <div className="flex flex-col gap-1.5 mt-1 sm:mt-2">
-            <div className="flex items-center gap-1 text-slate-400 dark:text-slate-500">
+            <div className="hidden sm:flex items-center gap-1 text-slate-400 dark:text-slate-500">
               <span className="material-symbols-outlined text-[14px] sm:text-[18px]">location_on</span>
               <span className="text-[10px] sm:text-xs font-bold truncate">{product.location}</span>
             </div>
@@ -110,8 +110,8 @@ export default function ProductCard({
                   <span className="material-symbols-outlined text-blue-500 text-[12px] sm:text-[14px] fill-1" title="Verified Farmer">verified_user</span>
                 )}
               </div>
-              <span className="w-0.5 h-0.5 bg-slate-300 dark:bg-slate-700 rounded-full shrink-0" />
-              <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 truncate">
+              <span className="hidden sm:block w-0.5 h-0.5 bg-slate-300 dark:bg-slate-700 rounded-full shrink-0" />
+              <span className="hidden sm:block text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 truncate">
                 {product.category}
               </span>
             </div>

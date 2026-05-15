@@ -21,8 +21,8 @@ export function BottomNav() {
   const filteredNav = MOBILE_NAV.filter(item => !item.role || (user.user_type === item.role));
 
   return (
-    <nav className="md:hidden fixed bottom-6 left-4 right-4 z-50 pointer-events-none">
-      <div className="flex items-center justify-around h-16 bg-slate-900/80 backdrop-blur-3xl border border-white/10 rounded-[2rem] px-4 shadow-2xl shadow-black/50 pointer-events-auto">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-slate-900/90 backdrop-blur-2xl border-t border-white/10 px-2 pb-safe shadow-[0_-8px_30px_rgb(0,0,0,0.4)]">
+      <div className="flex items-center justify-around h-20 max-w-lg mx-auto">
         {filteredNav.map((item) => {
           const isActive = pathname === item.path;
           return (

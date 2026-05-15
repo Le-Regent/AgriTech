@@ -83,7 +83,7 @@ export default function LoginPage() {
 
       <div className="w-full max-w-5xl relative z-10 flex flex-col md:flex-row bg-slate-900/40 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] sm:rounded-[3.5rem] shadow-2xl shadow-black/50 overflow-hidden">
         {/* Left Side: Brand & Vibe */}
-        <div className="md:w-1/2 p-8 sm:p-16 text-white flex flex-col justify-between relative overflow-hidden border-b md:border-b-0 md:border-r border-white/5">
+        <div className="hidden md:flex md:w-1/2 p-8 sm:p-16 text-white flex-col justify-between relative overflow-hidden border-r border-white/5">
           <div className="relative z-10">
             <div className="flex items-center gap-3 mb-12">
               <div className="w-12 h-12 bg-gradient-to-br from-primary to-green-400 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-primary/30 rotate-6">
@@ -121,8 +121,18 @@ export default function LoginPage() {
         </div>
 
         {/* Right Side: Auth Forms */}
-        <div className="md:w-1/2 p-8 sm:p-16 flex flex-col justify-center bg-slate-900/40">
-          <div className="max-w-sm mx-auto w-full space-y-8">
+        <div className="w-full md:w-1/2 p-6 sm:p-16 flex flex-col justify-center bg-slate-900/40">
+          {/* Mobile Logo visibility */}
+          <div className="md:hidden flex items-center gap-2 mb-8 justify-center">
+            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white">
+              <span className="material-symbols-outlined text-xl font-bold">eco</span>
+            </div>
+            <h1 className="font-black text-xl tracking-tighter uppercase italic text-white flex gap-1">
+              Kamer<span className="text-primary">Fresh</span>
+            </h1>
+          </div>
+
+          <div className="max-w-sm mx-auto w-full space-y-6 sm:space-y-8">
             <div className="space-y-2">
               <h3 className="text-3xl font-black tracking-tight text-white uppercase italic">{isLogin ? 'Welcome Back' : 'Create Identity'}</h3>
               <p className="text-sm text-slate-400 font-medium">

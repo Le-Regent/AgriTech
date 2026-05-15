@@ -228,37 +228,43 @@ function MarketplaceContent() {
         t={t} 
       />
 
-      <motion.div variants={containerVariants} className={viewMode === 'grid' ? "grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6" : "flex flex-col gap-4"}>
+      <motion.div variants={containerVariants} className={viewMode === 'grid' ? "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 sm:gap-6" : "flex flex-col gap-4"}>
         {loading ? (
           Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className={`bg-slate-100 dark:bg-slate-800 rounded-3xl animate-pulse ${viewMode === 'grid' ? 'h-[400px]' : 'h-32'}`} />
+            <div key={i} className={`bg-slate-100 dark:bg-slate-800 rounded-3xl animate-pulse ${viewMode === 'grid' ? 'h-[320px] sm:h-[450px]' : 'h-32'}`} />
           ))
         ) : sortedProducts.length > 0 ? (
           sortedProducts.map((product, index) => (
             <motion.div key={product.id} variants={itemVariants} className={index === 0 ? 'product-card-first' : ''}>
               {viewMode === 'grid' ? (
                 <ProductCard product={product}>
-                  <div className="absolute top-4 right-4 flex gap-2">
+                  <div className="absolute top-2 right-2 sm:top-4 sm:right-4 flex flex-col gap-2">
                     <button 
                       onClick={(e) => {
                         e.preventDefault(); e.stopPropagation();
                         setSelectedProducts(prev => prev.includes(product.id) ? prev.filter(id => id !== product.id) : [...prev, product.id]);
                       }}
-                      className={`w-10 h-10 backdrop-blur rounded-xl shadow-lg flex items-center justify-center transition-all ${selectedProducts.includes(product.id) ? 'bg-indigo-600 text-white' : 'bg-white/90 dark:bg-slate-900/90 text-slate-400 hover:text-indigo-600'}`}
+                      className={`w-8 h-8 sm:w-10 sm:h-10 backdrop-blur rounded-lg sm:rounded-xl shadow-lg flex items-center justify-center transition-all ${selectedProducts.includes(product.id) ? 'bg-indigo-600 text-white' : 'bg-white/90 dark:bg-slate-900/90 text-slate-400 hover:text-indigo-600'}`}
                     >
-                      <span className="material-symbols-outlined">{selectedProducts.includes(product.id) ? 'check_circle' : 'add_circle'}</span>
+                      <span className="material-symbols-outlined text-[18px] sm:text-[24px]">{selectedProducts.includes(product.id) ? 'check_circle' : 'add_circle'}</span>
                     </button>
                     {(!product.image_url || product.image_url.includes('picsum.photos')) && (
                       <button 
                         onClick={(e) => generateAIImage(e, product.id, product.name)}
                         disabled={generatingId === product.id}
-                        className="h-10 px-3 bg-white/90 dark:bg-slate-900/90 rounded-xl shadow-lg flex items-center justify-center text-primary disabled:opacity-50"
+                        className="w-8 h-8 sm:w-10 sm:h-10 bg-white/90 dark:bg-slate-900/90 rounded-lg sm:rounded-xl shadow-lg flex items-center justify-center text-primary disabled:opacity-50"
                       >
-                        {generatingId === product.id ? <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" /> : <span className="material-symbols-outlined text-[18px]">auto_awesome</span>}
+                        {generatingId === product.id ? <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" /> : <span className="material-symbols-outlined text-[16px] sm:text-[18px]">auto_awesome</span>}
                       </button>
                     )}
+                    <button 
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); addToCart(product, 1); toast.success(`${product.name} added to cart`); }}
+                      className="w-8 h-8 sm:w-10 sm:h-10 bg-primary text-white rounded-lg sm:rounded-xl shadow-lg flex items-center justify-center sm:hidden"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">shopping_cart</span>
+                    </button>
                   </div>
-                  <div className="absolute inset-x-4 bottom-4 translate-y-12 sm:group-hover:translate-y-0 transition-transform duration-300">
+                  <div className="absolute inset-x-4 bottom-4 hidden sm:block translate-y-12 group-hover:translate-y-0 transition-transform duration-300">
                     <button 
                       onClick={(e) => { e.preventDefault(); e.stopPropagation(); addToCart(product, 1); toast.success(`${product.name} added to cart`); }}
                       className="w-full bg-primary text-white py-3 rounded-xl font-black text-xs shadow-xl shadow-primary/20 flex items-center justify-center gap-2"

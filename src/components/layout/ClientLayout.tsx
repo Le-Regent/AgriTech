@@ -71,7 +71,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.3, ease: 'easeOut' }}
-              className="max-w-7xl mx-auto w-full pb-32 lg:pb-8"
+              className="max-w-7xl mx-auto w-full pb-24 lg:pb-8"
             >
               {children}
             </motion.div>
