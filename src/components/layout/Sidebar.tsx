@@ -71,7 +71,7 @@ export function Sidebar({ onMobileClose }: SidebarProps) {
   };
 
   return (
-    <aside className={`fixed lg:sticky top-0 left-0 z-[100] w-[280px] lg:w-64 bg-white dark:bg-background-dark border-r border-slate-200 dark:border-border-dark h-screen flex flex-col transition-transform duration-300 transform ${onMobileClose ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+    <aside className={`${onMobileClose ? 'relative w-full' : 'fixed lg:sticky top-0 left-0 z-[100] w-[280px] lg:w-64'} bg-white dark:bg-background-dark border-r border-slate-200 dark:border-border-dark h-screen flex flex-col transition-transform duration-300 transform ${onMobileClose ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
       <div className="p-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white">

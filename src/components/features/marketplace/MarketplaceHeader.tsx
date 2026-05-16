@@ -29,7 +29,7 @@ const MarketplaceHeader: React.FC<MarketplaceHeaderProps> = ({
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       id="marketplace-header" 
-      className="sticky top-0 z-40 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-xl -mx-4 px-4 py-4 border-b border-slate-100 dark:border-white/5 sm:static sm:bg-transparent sm:backdrop-blur-none sm:p-0 sm:border-none"
+      className="-mx-4 px-4 py-4 border-b border-slate-100 dark:border-white/5 sm:static sm:bg-transparent sm:backdrop-blur-none sm:p-0 sm:border-none"
     >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="hidden sm:block">

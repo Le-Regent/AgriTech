@@ -289,11 +289,18 @@ function ProfileContent() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h2 className="text-2xl sm:text-3xl font-black tracking-tight dark:text-white">User Profile</h2>
-        <div className="flex gap-3">
+      {/* Header with Title and Quick Actions */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center justify-between pb-2">
+        <div className="flex items-center gap-3">
+          <div className="md:hidden w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
+            <span className="material-symbols-outlined font-black">person</span>
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-black tracking-tight dark:text-white">Profile Settings</h2>
+        </div>
+        
+        <div className="flex items-center gap-2">
           {isEditing ? (
-            <>
+            <div className="hidden sm:flex gap-2">
               <button 
                 onClick={() => {
                   setIsEditing(false);
@@ -310,41 +317,36 @@ function ProfileContent() {
                     });
                   }
                 }}
-                className="px-6 py-2 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+                className="px-4 py-2 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
               >
                 Cancel
               </button>
               <button 
                 onClick={handleSave}
                 disabled={saving || isUploading || !hasChanges}
-                className="bg-primary text-white px-6 py-2 rounded-xl text-sm font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="bg-primary text-white px-6 py-2 rounded-xl text-sm font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 disabled:opacity-50 flex items-center gap-2"
               >
-                {saving ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Saving...
-                  </>
-                ) : isUploading ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Uploading...
-                  </>
-                ) : 'Save Changes'}
+                {saving || isUploading ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : null}
+                Save
               </button>
-            </>
+            </div>
           ) : (
             <button 
               onClick={() => setIsEditing(true)}
-              className="bg-primary text-white px-6 py-2 rounded-xl text-sm font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20"
+              className="flex-1 sm:flex-none bg-primary text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
             >
+              <span className="material-symbols-outlined text-[18px]">edit</span>
               Edit Profile
             </button>
           )}
+          
           <button 
             onClick={handleRefresh}
             disabled={isRefreshing || isEditing}
             title="Force sync data from database"
-            className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-primary transition-all disabled:opacity-50"
+            className="w-11 h-11 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-primary transition-all disabled:opacity-50"
           >
             <span className={`material-symbols-outlined ${isRefreshing ? 'animate-spin' : ''}`}>sync</span>
           </button>
@@ -352,9 +354,10 @@ function ProfileContent() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+        {/* Sidebar Info */}
         <div className="space-y-6 sm:space-y-8">
-          <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm text-center transition-colors">
-              <div className="relative inline-block mb-4 sm:mb-6">
+          <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm text-center">
+              <div className="relative inline-block mb-6">
                 <div className="relative">
                   <ResponsiveImage
                     src={previewUrl || formData.avatar_url || `https://picsum.photos/seed/${user?.user_type || 'user'}/200/200`}
@@ -413,11 +416,11 @@ function ProfileContent() {
             )}
           </div>
 
-          <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-colors">
+          <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-colors">
             <div className="flex items-center justify-between mb-6">
               <h4 className="font-bold dark:text-white">Account Security</h4>
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Trust Score:</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Score:</span>
                 <span className={`text-xs font-black ${trustScore > 70 ? 'text-green-500' : trustScore > 40 ? 'text-amber-500' : 'text-red-500'}`}>{trustScore}%</span>
               </div>
             </div>
@@ -522,7 +525,7 @@ function ProfileContent() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-colors">
+          <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-colors">
             <h4 className="font-bold mb-6 dark:text-white">Account Preferences</h4>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
@@ -556,10 +559,10 @@ function ProfileContent() {
           </div>
         </div>
 
-        <div className="lg:col-span-2 space-y-8">
-          <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-colors">
-            <h4 className="font-bold mb-8 dark:text-white">Personal Information</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div className="lg:col-span-2 space-y-6 sm:space-y-8">
+          <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-colors">
+            <h4 className="font-bold mb-6 sm:mb-8 dark:text-white">Personal Information</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
               {personalFields.map((field, i) => (
                 <div key={i} className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{field.label}</label>
@@ -593,8 +596,8 @@ function ProfileContent() {
               </div>
             </div>
 
-            <h4 className="font-bold mb-8 dark:text-white pt-4 border-t border-slate-100 dark:border-slate-800">Professional Details</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <h4 className="font-bold mb-6 sm:mb-8 dark:text-white pt-4 border-t border-slate-100 dark:border-slate-800">Professional Details</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
               {professionalFields.filter(f => !f.farmerOnly || isFarmer).map((field, i) => (
                 <div key={i} className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{field.label}</label>
@@ -648,26 +651,28 @@ function ProfileContent() {
                   </div>
                 ) : filteredOrders.length > 0 ? (
                   filteredOrders.slice(0, 5).map((order) => (
-                    <div key={order.id} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 group hover:border-primary/30 transition-all">
-                      <div className="flex items-center gap-3 overflow-hidden">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${getStatusClasses(order.status)}`}>
-                          <span className="material-symbols-outlined text-[20px]">
+                    <div key={order.id} className="flex items-center justify-between p-5 sm:p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 group hover:border-primary/30 transition-all active:scale-[0.98]">
+                      <div className="flex items-center gap-4 overflow-hidden">
+                        <div className={`w-12 h-12 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 ${getStatusClasses(order.status)}`}>
+                          <span className="material-symbols-outlined text-[24px] sm:text-[20px]">
                             {order.status === 'delivered' ? 'check_circle' : 
                              order.status === 'pending' ? 'schedule' : 
                              order.status === 'cancelled' ? 'cancel' : 'local_shipping'}
                           </span>
                         </div>
                         <div className="min-w-0">
-                          <p className="text-sm font-bold dark:text-white truncate">Order #{order.id.slice(0, 8).toUpperCase()}</p>
-                          <p className="text-[10px] text-slate-500 dark:text-slate-400">{new Date(order.created_at).toLocaleDateString()} · {order.total_amount.toLocaleString()} CFA</p>
+                          <p className="text-base sm:text-sm font-bold dark:text-white truncate">Order #{order.id.slice(0, 8).toUpperCase()}</p>
+                          <p className="text-xs sm:text-[10px] text-slate-500 dark:text-slate-400 font-medium">
+                            {new Date(order.created_at).toLocaleDateString()} · <span className="text-primary font-black">{order.total_amount.toLocaleString()} CFA</span>
+                          </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-3 shrink-0">
-                        <span className={`text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest hidden xs:inline-block ${getStatusClasses(order.status)}`}>
+                        <span className={`text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest hidden xs:inline-block ${getStatusClasses(order.status)}`}>
                           {order.status}
                         </span>
-                        <Link href="/orders" className="w-8 h-8 rounded-full bg-white dark:bg-white/5 flex items-center justify-center text-slate-400 hover:text-primary transition-colors opacity-0 group-hover:opacity-100">
-                          <span className="material-symbols-outlined text-sm">visibility</span>
+                        <Link href="/orders" className="w-10 h-10 sm:w-8 sm:h-8 rounded-full bg-white dark:bg-white/5 flex items-center justify-center text-slate-400 hover:text-primary transition-colors hover:shadow-md">
+                          <span className="material-symbols-outlined text-lg sm:text-sm">visibility</span>
                         </Link>
                       </div>
                     </div>
@@ -681,9 +686,9 @@ function ProfileContent() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-colors">
-            <h4 className="font-bold mb-6 dark:text-white">{isFarmer ? 'Farm Location' : 'Preferred Delivery Area'}</h4>
-            <div className="aspect-video bg-slate-100 dark:bg-slate-800 rounded-3xl overflow-hidden relative transition-colors">
+          <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-colors">
+            <h4 className="font-bold mb-4 sm:mb-6 dark:text-white">{isFarmer ? 'Farm Location' : 'Preferred Delivery Area'}</h4>
+            <div className="aspect-[4/3] sm:aspect-video bg-slate-100 dark:bg-slate-800 rounded-2xl sm:rounded-3xl overflow-hidden relative transition-colors">
               <ResponsiveImage 
                 src={`https://picsum.photos/seed/${isFarmer ? 'farm' : 'city'}-location/1000/600`} 
                 alt="Map showing location" 
@@ -737,7 +742,7 @@ function ProfileContent() {
           )}
 
           {isFarmer && (
-            <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-colors">
+            <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-colors">
               <div className="flex items-center justify-between mb-6">
                 <h4 className="font-bold dark:text-white">Diagnosis History</h4>
                 <Link href="/diagnosis" className="text-primary text-xs font-bold hover:underline">New Scan</Link>
@@ -796,6 +801,76 @@ function ProfileContent() {
             </div>
           )}
         </div>
+      </div>
+      {/* Sticky Action Footer when editing */}
+      <AnimatePresence>
+        {isEditing && (
+          <motion.div 
+            initial={{ y: 100 }}
+            animate={{ y: 0 }}
+            exit={{ y: 100 }}
+            className="fixed bottom-24 left-0 right-0 z-50 px-4 md:hidden"
+          >
+            <div className="bg-slate-900 dark:bg-slate-800 backdrop-blur-xl p-4 rounded-3xl border border-white/10 shadow-2xl flex items-center gap-3">
+              <button 
+                onClick={() => {
+                  setIsEditing(false);
+                  setPreviewUrl(null);
+                  if (user) {
+                    setFormData({
+                      full_name: user.full_name || '',
+                      location_name: user.location_name || '',
+                      avatar_url: user.avatar_url || '',
+                      phone_number: user.phone_number || '',
+                      bio: user.bio || '',
+                      farm_name: user.farm_name || '',
+                      website: user.website || ''
+                    });
+                  }
+                }}
+                className="flex-1 py-3 rounded-2xl text-xs font-black uppercase tracking-widest text-white/50 bg-white/5 hover:bg-white/10"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleSave}
+                disabled={saving || isUploading || !hasChanges}
+                className="flex-[2] bg-primary text-white py-3 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {saving || isUploading ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <span className="material-symbols-outlined text-[16px]">save</span>
+                )}
+                {saving ? 'Saving...' : isUploading ? 'Uploading...' : 'Save Changes'}
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Desktop Inline Save Controls */}
+      <div className="hidden md:flex justify-end pt-4">
+        {isEditing && (
+          <div className="flex gap-3">
+            <button 
+              onClick={() => setIsEditing(false)}
+              className="px-6 py-2 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={handleSave}
+              disabled={saving || isUploading || !hasChanges}
+              className="bg-primary text-white px-8 py-2.5 rounded-xl text-sm font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 disabled:opacity-50 flex items-center gap-2"
+            >
+              {saving || isUploading ? (
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : null}
+              {saving ? 'Saving...' : 'Save Changes'}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

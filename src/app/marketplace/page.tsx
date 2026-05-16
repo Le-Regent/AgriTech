@@ -52,18 +52,26 @@ function MarketplaceContent() {
   const [lastScrollY, setLastScrollY] = useState(0);
 
   useEffect(() => {
+    const mainElement = document.querySelector('main');
+    if (!mainElement) return;
+
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
+      const currentScrollY = mainElement.scrollTop;
+      
+      // Hide on scroll down
       if (currentScrollY > lastScrollY && currentScrollY > 100) {
         setShowHeader(false);
-      } else {
+      } 
+      // Show ONLY when near the top
+      else if (currentScrollY < 10) {
         setShowHeader(true);
       }
+      
       setLastScrollY(currentScrollY);
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    mainElement.addEventListener('scroll', handleScroll, { passive: true });
+    return () => mainElement.removeEventListener('scroll', handleScroll);
   }, [lastScrollY]);
 
   useEffect(() => {

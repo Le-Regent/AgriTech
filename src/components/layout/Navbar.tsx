@@ -95,7 +95,7 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
           {onMenuClick && (
             <button 
               onClick={onMenuClick}
-              className="lg:hidden w-10 h-10 flex items-center justify-center text-slate-500 hover:text-slate-900 transition-colors"
+              className="lg:hidden w-10 h-10 flex-shrink-0 flex items-center justify-center text-slate-500 hover:text-slate-900 transition-colors"
             >
               <span className="material-symbols-outlined text-[24px]">menu</span>
             </button>
