@@ -1,10 +1,10 @@
 import React, { useState, useRef } from 'react';
-import Image from 'next/image';
 import { motion, AnimatePresence } from 'motion/react';
 import { Product } from '@/types';
 import { supabaseService } from '@/services/supabaseService';
 import { toast } from 'sonner';
 import { formatUnit } from '@/lib/unitUtils';
+import ResponsiveImage from '@/components/ui/ResponsiveImage';
 
 interface ProductModalProps {
   isOpen: boolean;
@@ -26,6 +26,7 @@ const DEFAULT_FORM_DATA: Partial<Product> = {
   price: 0,
   unit: 'bag',
   stock_quantity: 0,
+  initial_stock_quantity: 0,
   harvest_season: 'Year round',
   health_status: 'Healthy',
   certifications: [],
@@ -44,7 +45,8 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, far
       ...initialData,
       farmer_id: farmerId,
       price: isNaN(Number(initialData.price)) ? 0 : Number(initialData.price),
-      stock_quantity: isNaN(Number(initialData.stock_quantity)) ? 0 : Number(initialData.stock_quantity)
+      stock_quantity: isNaN(Number(initialData.stock_quantity)) ? 0 : Number(initialData.stock_quantity),
+      initial_stock_quantity: isNaN(Number(initialData.initial_stock_quantity)) ? 0 : Number(initialData.initial_stock_quantity)
     };
   });
 
@@ -65,7 +67,8 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, far
           ...initialData,
           farmer_id: farmerId,
           price: isNaN(Number(initialData.price)) ? 0 : Number(initialData.price),
-          stock_quantity: isNaN(Number(initialData.stock_quantity)) ? 0 : Number(initialData.stock_quantity)
+          stock_quantity: isNaN(Number(initialData.stock_quantity)) ? 0 : Number(initialData.stock_quantity),
+          initial_stock_quantity: isNaN(Number(initialData.initial_stock_quantity)) ? (Number(initialData.stock_quantity) || 0) : Number(initialData.initial_stock_quantity)
         });
       } else {
         setFormData({ ...DEFAULT_FORM_DATA, farmer_id: farmerId });
@@ -144,7 +147,8 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, far
       }
     } catch (error: any) {
       console.error('Image generation failed:', error);
-      toast.error(error.message || 'Failed to generate image. Please try again.');
+      const errorMessage = error.message || 'Failed to generate image. Please try again.';
+      toast.error(errorMessage);
     } finally {
       setTimeout(() => {
         setGeneratingImage(false);
@@ -171,9 +175,9 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, far
       
       setFormData(prev => ({ ...prev, image_url: publicUrl }));
       toast.success('Image uploaded successfully!');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Image upload failed:', error);
-      toast.error('Failed to upload image. Please try again.');
+      toast.error(error.message || 'Failed to upload image. Please ensure it is a valid image file and try again.');
     } finally {
       setTimeout(() => {
         setUploadingImage(false);
@@ -515,20 +519,22 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, far
                   <div className="aspect-video sm:aspect-square bg-slate-50 dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-700 overflow-hidden relative flex items-center justify-center group">
                     {formData.image_url ? (
                       <>
-                        <Image 
+                        <ResponsiveImage 
                           src={formData.image_url} 
                           alt="Preview" 
                           fill
                           className="object-cover" 
-                          referrerPolicy="no-referrer"
                         />
-                        <button
-                          type="button"
-                          onClick={() => setFormData(prev => ({ ...prev, image_url: '' }))}
-                          className="absolute top-2 right-2 w-8 h-8 bg-black/50 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <span className="material-symbols-outlined text-sm">close</span>
-                        </button>
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <button
+                            type="button"
+                            onClick={() => setFormData(prev => ({ ...prev, image_url: '' }))}
+                            className="bg-white/20 backdrop-blur-md hover:bg-white/30 text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all flex items-center gap-2"
+                          >
+                            <span className="material-symbols-outlined text-[18px]">delete</span>
+                            Remove Image
+                          </button>
+                        </div>
                       </>
                     ) : (
                       <div className="text-center space-y-2 text-slate-400">
