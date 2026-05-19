@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import ResponsiveImage from '@/components/ui/ResponsiveImage';
 import { Product } from '@/types';
+import Link from 'next/link';
 
 interface ProductCardProps {
   product: Product;
@@ -101,7 +102,11 @@ export default function ProductCard({
               <span className="material-symbols-outlined text-[14px] sm:text-[18px]">location_on</span>
               <span className="text-[10px] sm:text-xs font-bold truncate">{product.location}</span>
             </div>
-            <div className="flex items-center gap-1.5 flex-wrap">
+            <Link 
+              href={`/farmer/${product.farmer_id}`}
+              onClick={(e) => e.stopPropagation()}
+              className="flex items-center gap-1.5 flex-wrap hover:opacity-70 transition-opacity"
+            >
               <div className="flex items-center gap-1">
                 <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 truncate max-w-[55px] sm:max-w-none">
                   {product.profiles?.full_name?.split(' ')[0] || 'Farmer'}
@@ -114,7 +119,7 @@ export default function ProductCard({
               <span className="hidden sm:block text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 truncate">
                 {product.category}
               </span>
-            </div>
+            </Link>
           </div>
         </div>
       </div>

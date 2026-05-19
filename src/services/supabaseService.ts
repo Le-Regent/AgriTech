@@ -1025,5 +1025,54 @@ export const supabaseService = {
       ...o,
       is_disputed: true // For UI logic
     }));
+  },
+
+  async reportOrderIssue(orderId: string, issueDetails: string) {
+    const { data: order, error: fetchError } = await supabase
+      .from('orders')
+      .select('buyer_id, order_items(products(farmer_id))')
+      .eq('id', orderId)
+      .single();
+
+    if (fetchError) throw new Error(fetchError.message);
+
+    const farmerId = (order as any).order_items?.[0]?.products?.farmer_id;
+
+    // Update order status if needed, or just log the issue
+    // For now, let's keep status as 'delivered' but add metadata or just notify
+    // In a more robust system, we'd have a 'disputes' table.
+    // For this implementation, we will use notifications to support and the farmer.
+
+    await Promise.all([
+      // Notify support (admin simulation)
+      this.createNotification({
+        user_id: 'SYSTEM_SUPPORT', // Logic would handle admin broadcast
+        title: 'New Dispute Reported! 🚨',
+        message: `Order #${orderId.slice(0, 8)} has been disputed: ${issueDetails}`,
+        type: 'system',
+        link: `/admin/orders`
+      }),
+      // Notify Farmer
+      farmerId ? this.createNotification({
+        user_id: farmerId,
+        title: 'Order Issue Reported ⚠️',
+        message: `The buyer of order #${orderId.slice(0, 8)} reported an issue: ${issueDetails}. Please contact them to resolve.`,
+        type: 'order',
+        link: '/orders'
+      }) : Promise.resolve()
+    ]);
+
+    // Send a message into the chat as well
+    if (farmerId && order.buyer_id) {
+      await this.sendMessage({
+        sender_id: order.buyer_id,
+        receiver_id: farmerId,
+        message: `[ISSUE REPORTED] I've reported an issue with order #${orderId.slice(0, 8)}: ${issueDetails}`,
+        is_read: false,
+        created_at: new Date().toISOString()
+      });
+    }
+
+    return true;
   }
 };

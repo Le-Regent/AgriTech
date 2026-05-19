@@ -2,9 +2,11 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'motion/react';
 import { useUser } from '@/context/UserContext';
 import { useOffline } from '@/context/OfflineContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { supabaseService } from '@/services/supabaseService';
 import ResponsiveImage from '@/components/ui/ResponsiveImage';
 import ProtectedRoute from '@/components/layout/ProtectedRoute';
@@ -12,6 +14,7 @@ import { toast } from 'sonner';
 
 function OrdersContent() {
   const { user } = useUser();
+  const { t } = useLanguage();
   const { isOnline, saveToCache, getFromCache } = useOffline();
   const searchParams = useSearchParams();
   const [orders, setOrders] = useState<any[]>([]);
@@ -21,6 +24,9 @@ function OrdersContent() {
   const [sortBy, setSortBy] = useState<'newest' | 'oldest'>('newest');
   const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
   const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [disputeOrderId, setDisputeOrderId] = useState<string | null>(null);
+  const [disputeMessage, setDisputeMessage] = useState('');
+  const [reportingIssue, setReportingIssue] = useState(false);
 
   useEffect(() => {
     if (showSuccess) {
@@ -176,6 +182,22 @@ function OrdersContent() {
     }
   };
 
+  const handleReportIssue = async () => {
+    if (!disputeOrderId || !disputeMessage.trim()) return;
+    
+    setReportingIssue(true);
+    try {
+      await supabaseService.reportOrderIssue(disputeOrderId, disputeMessage);
+      toast.success(t('report_success'));
+      setDisputeOrderId(null);
+      setDisputeMessage('');
+    } catch (err) {
+      toast.error('Failed to report issue');
+    } finally {
+      setReportingIssue(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="space-y-8 animate-pulse">
@@ -285,7 +307,13 @@ function OrdersContent() {
                     {!isFarmer && (
                       <div>
                         <p className="text-xs font-black uppercase tracking-widest text-slate-400">Merchant</p>
-                        <p className="font-bold dark:text-white">{order.order_items?.[0]?.products?.profiles?.full_name || 'KamerFresh Seller'}</p>
+                        <Link 
+                          href={`/farmer/${order.order_items?.[0]?.products?.profiles?.id}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="font-bold dark:text-white hover:text-primary transition-colors"
+                        >
+                          {order.order_items?.[0]?.products?.profiles?.full_name || 'KamerFresh Seller'}
+                        </Link>
                       </div>
                     )}
                     <div>
@@ -457,7 +485,12 @@ function OrdersContent() {
                                       </p>
                                       {!isFarmer && (
                                         <p className="text-[10px] text-primary font-bold mt-0.5">
-                                          Seller: {item.products?.profiles?.full_name || 'KamerFresh Seller'}
+                                          Seller: <Link 
+                                            href={`/farmer/${item.products?.profiles?.id}`}
+                                            className="hover:underline"
+                                          >
+                                            {item.products?.profiles?.full_name || 'KamerFresh Seller'}
+                                          </Link>
                                         </p>
                                       )}
                                     </div>
@@ -561,6 +594,18 @@ function OrdersContent() {
                                   </div>
                                 </div>
                               )}
+                              {(order.status === 'shipped' || order.status === 'delivered') && (
+                                <button 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setDisputeOrderId(order.id);
+                                  }}
+                                  className="flex-1 bg-red-50 dark:bg-red-500/5 text-red-500 py-4 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-red-100 transition-all flex items-center justify-center gap-2"
+                                >
+                                  <span className="material-symbols-outlined text-[18px]">report</span>
+                                  {t('report_issue')}
+                                </button>
+                              )}
                               {order.status === 'delivered' && (
                                 <div className="flex-1 bg-green-50 dark:bg-green-900/10 border border-green-100 dark:border-green-900 p-6 rounded-[2.5rem] flex items-center gap-4">
                                   <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-white shrink-0">
@@ -588,6 +633,50 @@ function OrdersContent() {
                           )}
                         </div>
                       </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Dispute Modal */}
+                <AnimatePresence>
+                  {disputeOrderId === order.id && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm"
+                    >
+                      <motion.div
+                        initial={{ scale: 0.9, y: 20 }}
+                        animate={{ scale: 1, y: 0 }}
+                        className="bg-white dark:bg-slate-900 w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl border border-slate-100 dark:border-slate-800"
+                      >
+                        <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tighter mb-2">{t('report_issue')}</h3>
+                        <p className="text-xs text-slate-500 mb-6">{t('issue_details')}</p>
+                        
+                        <textarea
+                          value={disputeMessage}
+                          onChange={(e) => setDisputeMessage(e.target.value)}
+                          placeholder="Describe the issue with your produce (quality, quantity, delivery time...)"
+                          className="w-full h-32 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl p-4 text-sm dark:text-white focus:ring-2 focus:ring-primary/20 outline-none transition-all mb-6"
+                        />
+                        
+                        <div className="flex gap-3">
+                          <button
+                            onClick={() => setDisputeOrderId(null)}
+                            className="flex-1 px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest text-slate-500 hover:bg-slate-50 transition-all"
+                          >
+                            {t('cancel')}
+                          </button>
+                          <button
+                            onClick={handleReportIssue}
+                            disabled={reportingIssue || !disputeMessage.trim()}
+                            className="flex-1 bg-red-500 text-white px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-red-500/20 disabled:opacity-50 transition-all"
+                          >
+                            {reportingIssue ? 'Reporting...' : t('submit_report')}
+                          </button>
+                        </div>
+                      </motion.div>
                     </motion.div>
                   )}
                 </AnimatePresence>
