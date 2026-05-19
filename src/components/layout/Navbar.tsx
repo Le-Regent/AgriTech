@@ -75,8 +75,8 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
   // Key links for the navbar based on role
   const mainNavLinks = [
     { label: 'Marketplace', icon: 'storefront', path: '/marketplace' },
-    { label: 'Cart', icon: 'shopping_cart', path: '/cart', showBadge: true },
-    { label: 'My Listings', icon: 'potted_plant', path: '/listings', roles: ['farmer'] },
+    { label: 'Basket', icon: 'shopping_cart', path: '/cart', showBadge: true },
+    { label: 'My Boutique', icon: 'potted_plant', path: '/listings', roles: ['farmer'] },
     { label: 'Orders', icon: 'receipt_long', path: '/orders' },
     { label: 'Messages', icon: 'forum', path: '/messages' },
   ].filter(item => {
@@ -128,7 +128,7 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
               >
                 <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
                 <span className="hidden xl:inline">{t(item.label.toLowerCase().replace(/\s+/g, '_')) || item.label}</span>
-                {item.showBadge && item.label === 'Cart' && totalItems > 0 && (
+                {item.showBadge && item.label === 'Basket' && totalItems > 0 && (
                   <span className="absolute top-1 right-1 w-4 h-4 bg-primary text-white text-[8px] font-black rounded-full flex items-center justify-center border border-white dark:border-background-dark">
                     {totalItems}
                   </span>

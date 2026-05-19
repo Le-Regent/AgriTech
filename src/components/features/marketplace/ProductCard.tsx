@@ -25,13 +25,13 @@ export default function ProductCard({
       onClick={onClick}
       className={`group bg-white dark:bg-surface-dark rounded-[2rem] sm:rounded-[2.5rem] border border-slate-100 dark:border-border-dark shadow-sm hover:shadow-xl transition-all overflow-hidden flex flex-col ${onClick ? 'cursor-pointer' : ''} ${className}`}
     >
-      <div className="aspect-[3/4] sm:aspect-[4/3] relative overflow-hidden">
+      <div className="aspect-[3/4] sm:aspect-square lg:aspect-[4/5] relative overflow-hidden">
         <ResponsiveImage
-          src={product.image_url || 'https://picsum.photos/seed/product/600/800'}
+          src={product.image_url || 'https://picsum.photos/seed/product/800/1000'}
           alt={`Fresh ${product.name}`}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 dark:opacity-80"
-          baseWidth={400}
-          baseHeight={500}
+          baseWidth={600}
+          baseHeight={800}
         />
         {showBadges && (
           <div className="absolute top-3 left-3 sm:top-4 sm:left-4 flex flex-col gap-1.5 sm:gap-2">

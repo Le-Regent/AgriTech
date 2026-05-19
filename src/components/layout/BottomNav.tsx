@@ -2,19 +2,21 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useUser } from '@/context/UserContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { motion } from 'motion/react';
 
 const MOBILE_NAV = [
   { label: 'Home', icon: 'home', path: '/' },
-  { label: 'The Marché', icon: 'storefront', path: '/marketplace' },
-  { label: 'Doctor', icon: 'biotech', path: '/diagnosis', role: 'farmer' },
+  { label: 'Marketplace', icon: 'storefront', path: '/marketplace' },
+  { label: 'Crop Doctor', icon: 'biotech', path: '/diagnosis', role: 'farmer' },
   { label: 'Orders', icon: 'receipt_long', path: '/orders' },
-  { label: 'Account', icon: 'account_circle', path: '/profile' },
+  { label: 'Profile', icon: 'account_circle', path: '/profile' },
 ];
 
 export function BottomNav() {
   const pathname = usePathname();
   const { user } = useUser();
+  const { t } = useLanguage();
 
   if (!user) return null;
 
@@ -56,7 +58,7 @@ export function BottomNav() {
               <span className={`text-[9px] font-black uppercase tracking-tighter mt-1 transition-colors ${
                 isActive ? 'text-primary' : 'text-slate-600'
               }`}>
-                {item.label}
+                {t(item.label.toLowerCase().replace(/\s+/g, '_'))}
               </span>
             </Link>
           );

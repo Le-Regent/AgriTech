@@ -10,13 +10,13 @@ export const SIDEBAR_NAV: NavItem[] = [
 ];
 
 export const MARKETPLACE_NAV: NavItem[] = [
-  { label: 'The Marché', icon: 'storefront', path: '/marketplace' },
+  { label: 'Marketplace', icon: 'storefront', path: '/marketplace' },
   { label: 'Basket', icon: 'shopping_cart', path: '/cart' },
   { label: 'Messages', icon: 'forum', path: '/messages' },
   { label: 'My Boutique', icon: 'potted_plant', path: '/listings', roles: ['farmer'] },
   { label: 'Orders', icon: 'receipt_long', path: '/orders' },
   { label: 'Insights', icon: 'insights', path: '/insights', roles: ['farmer'] },
-  { label: 'MoMo Transport', icon: 'local_shipping', path: '/logistics', roles: ['farmer'] },
+  { label: 'Logistics', icon: 'local_shipping', path: '/logistics', roles: ['farmer'] },
 ];
 
 export const ADMIN_NAV: NavItem[] = [

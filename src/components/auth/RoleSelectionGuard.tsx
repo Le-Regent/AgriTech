@@ -175,7 +175,7 @@ export function RoleSelectionGuard({ children }: RoleSelectionGuardProps) {
           }}
           className="w-full mt-6 py-2 text-slate-500 hover:text-white text-[10px] font-black uppercase tracking-widest transition-colors"
         >
-          Skip for now (Defaults to The Marché)
+          Skip for now (Defaults to Marketplace)
         </button>
       </motion.div>
     </div>
