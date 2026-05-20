@@ -58,7 +58,15 @@ function DashboardContent() {
   const isFarmer = user?.user_type === 'farmer';
   const hasLoadedFromCache = useRef(false);
 
-const [showCalendar, setShowCalendar] = useState(false);
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [activeMode, setActiveMode] = useState<'farmer' | 'buyer'>('farmer');
+
+  useEffect(() => {
+    if (user?.user_type) {
+      setActiveMode(user.user_type === 'farmer' ? 'farmer' : 'buyer');
+    }
+  }, [user?.user_type]);
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -585,6 +593,205 @@ const [showCalendar, setShowCalendar] = useState(false);
           </div>
         )}
       </AnimatePresence>
+
+      {/* Dynamic Interactive Onboarding Hub */}
+      <motion.div 
+        variants={itemVariants} 
+        className="bg-gradient-to-br from-white via-slate-50/50 to-emerald-50/20 dark:from-slate-900 dark:via-slate-900 dark:to-emerald-950/10 p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-all relative overflow-hidden"
+      >
+        {/* Decorative background ambient glow */}
+        <div className="absolute right-0 top-0 -mt-20 -mr-20 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute left-1/3 bottom-0 -mb-20 w-60 h-60 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 mb-6 border-b border-slate-100 dark:border-slate-800/60">
+          <div className="space-y-1">
+            <div className="inline-flex items-center gap-2 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest leading-none">
+              <span className="material-symbols-outlined text-[12px] animate-pulse">explore</span>
+              App Overview & Quick Guide
+            </div>
+            <h3 className="text-xl sm:text-2xl font-black dark:text-white tracking-tight">
+              What would you like to do today?
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 tracking-tight">
+              Explore the two powerful sides of Cameroon&apos;s leading farm-to-table cooperative network.
+            </p>
+          </div>
+
+          {/* Toggle Switch pills with sliding animation */}
+          <div className="self-start sm:self-center flex p-1 bg-slate-100 dark:bg-slate-800 rounded-2xl relative border border-slate-200/50 dark:border-slate-700/50">
+            <button
+              onClick={() => setActiveMode('farmer')}
+              className={`relative z-10 px-4 py-2.5 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-colors duration-300 ${
+                activeMode === 'farmer' 
+                  ? 'text-white font-extrabold' 
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
+              }`}
+            >
+              <span className="material-symbols-outlined text-[16px]">agriculture</span>
+              Farmer Mode
+            </button>
+            <button
+              onClick={() => setActiveMode('buyer')}
+              className={`relative z-10 px-4 py-2.5 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-colors duration-300 ${
+                activeMode === 'buyer' 
+                  ? 'text-white font-extrabold' 
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
+              }`}
+            >
+              <span className="material-symbols-outlined text-[16px]">shopping_bag</span>
+              Buyer Mode
+            </button>
+            
+            {/* Sliding backdrop */}
+            <motion.div
+              layoutId="mode-toggle-pill"
+              className="absolute top-1 bottom-1 bg-primary rounded-xl shadow-md cursor-pointer"
+              animate={{
+                left: activeMode === 'farmer' ? '4px' : 'calc(50% + 2px)',
+                width: 'calc(50% - 6px)',
+              }}
+              transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+            />
+          </div>
+        </div>
+
+        {/* Dynamic Action Grid to deep-link users */}
+        <AnimatePresence mode="wait">
+          {activeMode === 'farmer' ? (
+            <motion.div
+              key="farmer-panel"
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 10 }}
+              transition={{ duration: 0.2 }}
+              className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6"
+            >
+              <div 
+                onClick={() => router.push('/diagnosis')}
+                className="group cursor-pointer p-5 bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-100/80 dark:border-slate-800/80 shadow-xs hover:border-primary/50 dark:hover:border-primary/50 hover:bg-emerald-50/10 dark:hover:bg-emerald-500/[0.02] transition-all flex flex-col justify-between"
+              >
+                <div>
+                  <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <span className="material-symbols-outlined">add_a_photo</span>
+                  </div>
+                  <h4 className="font-bold text-sm dark:text-white mb-1 group-hover:text-primary transition-colors flex items-center gap-1">
+                    AI Crop Diagnosis
+                    <span className="material-symbols-outlined text-xs text-slate-400 group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                  </h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
+                    Instantly analyze leaf images using server-side Gemini intelligence. Detect diseases, identify unnamed crop species, and run offline-ready treatment steps automatically.
+                  </p>
+                </div>
+                <span className="inline-flex text-[10px] font-black uppercase tracking-widest text-primary mt-auto">Diagnose Crop Now</span>
+              </div>
+
+              <div 
+                onClick={() => router.push('/marketplace')}
+                className="group cursor-pointer p-5 bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-100/80 dark:border-slate-800/80 shadow-xs hover:border-primary/50 dark:hover:border-primary/50 hover:bg-emerald-50/10 dark:hover:bg-emerald-500/[0.02] transition-all flex flex-col justify-between"
+              >
+                <div>
+                  <div className="w-10 h-10 rounded-xl bg-orange-50 dark:bg-orange-500/10 text-orange-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <span className="material-symbols-outlined">storefront</span>
+                  </div>
+                  <h4 className="font-bold text-sm dark:text-white mb-1 group-hover:text-primary transition-colors flex items-center gap-1">
+                    List & Sell Produce
+                    <span className="material-symbols-outlined text-xs text-slate-400 group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                  </h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
+                    Post your fresh yields directly to our responsive local marketplace to reach bulk buyers and cooperatives. Safely store details offline and auto-sync when connected.
+                  </p>
+                </div>
+                <span className="inline-flex text-[10px] font-black uppercase tracking-widest text-primary mt-auto">Manage Inventory</span>
+              </div>
+
+              <div 
+                onClick={() => setShowCalendar(true)}
+                className="group cursor-pointer p-5 bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-100/80 dark:border-slate-800/80 shadow-xs hover:border-primary/50 dark:hover:border-primary/50 hover:bg-emerald-50/10 dark:hover:bg-emerald-500/[0.02] transition-all flex flex-col justify-between"
+              >
+                <div>
+                  <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-500/10 text-blue-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <span className="material-symbols-outlined">agriculture</span>
+                  </div>
+                  <h4 className="font-bold text-sm dark:text-white mb-1 group-hover:text-primary transition-colors flex items-center gap-1">
+                    Agro-Calendar & Weather
+                    <span className="material-symbols-outlined text-xs text-slate-400 group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                  </h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
+                    Access localized weather indicators, real-time soil moisture calculations, and a comprehensive agricultural planting/harvest task scheduling calendar.
+                  </p>
+                </div>
+                <span className="inline-flex text-[10px] font-black uppercase tracking-widest text-primary mt-auto">Open Agri-Calendar</span>
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="buyer-panel"
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 10 }}
+              transition={{ duration: 0.2 }}
+              className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6"
+            >
+              <div 
+                onClick={() => router.push('/marketplace')}
+                className="group cursor-pointer p-5 bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-100/80 dark:border-slate-800/80 shadow-xs hover:border-primary/50 dark:hover:border-primary/50 hover:bg-indigo-50/10 dark:hover:bg-indigo-500/[0.02] transition-all flex flex-col justify-between"
+              >
+                <div>
+                  <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <span className="material-symbols-outlined text-indigo-500">shopping_cart</span>
+                  </div>
+                  <h4 className="font-bold text-sm dark:text-white mb-1 group-hover:text-primary transition-colors flex items-center gap-1">
+                    Fresh Food Marketplace
+                    <span className="material-symbols-outlined text-xs text-slate-400 group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                  </h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
+                    Direct-to-consumer digital marketplace with a fast two-product mobile grid structure. Order fresh yields from verified farmer profiles around Cameroon easily.
+                  </p>
+                </div>
+                <span className="inline-flex text-[10px] font-black uppercase tracking-widest text-primary mt-auto">Shop Fresh Produce</span>
+              </div>
+
+              <div 
+                onClick={() => router.push('/orders')}
+                className="group cursor-pointer p-5 bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-100/80 dark:border-slate-800/80 shadow-xs hover:border-primary/50 dark:hover:border-primary/50 hover:bg-indigo-50/10 dark:hover:bg-indigo-500/[0.02] transition-all flex flex-col justify-between"
+              >
+                <div>
+                  <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-500/10 text-purple-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <span className="material-symbols-outlined">local_shipping</span>
+                  </div>
+                  <h4 className="font-bold text-sm dark:text-white mb-1 group-hover:text-primary transition-colors flex items-center gap-1">
+                    Secure Escrow & Tracking
+                    <span className="material-symbols-outlined text-xs text-slate-400 group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                  </h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
+                    Track shipments with integrated logistics, secure funds safely in escrow, and release payout simple and clean using unique OTP verification codes upon arrival.
+                  </p>
+                </div>
+                <span className="inline-flex text-[10px] font-black uppercase tracking-widest text-primary mt-auto">View Order History</span>
+              </div>
+
+              <div 
+                onClick={() => router.push('/insights')}
+                className="group cursor-pointer p-5 bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-100/80 dark:border-slate-800/80 shadow-xs hover:border-primary/50 dark:hover:border-primary/50 hover:bg-indigo-50/10 dark:hover:bg-indigo-500/[0.02] transition-all flex flex-col justify-between"
+              >
+                <div>
+                  <div className="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-500/10 text-teal-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <span className="material-symbols-outlined">trending_up</span>
+                  </div>
+                  <h4 className="font-bold text-sm dark:text-white mb-1 group-hover:text-primary transition-colors flex items-center gap-1">
+                    Market Price Analytics
+                    <span className="material-symbols-outlined text-xs text-slate-400 group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                  </h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
+                    Assess high-yield agricultural insights, demand trends, and price evolution charts across Cameroonian wholesale markets to make smarter decisions.
+                  </p>
+                </div>
+                <span className="inline-flex text-[10px] font-black uppercase tracking-widest text-primary mt-auto">Explore Insights</span>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
 
       <motion.div 
         variants={containerVariants} 
