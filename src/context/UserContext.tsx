@@ -141,10 +141,20 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const signInWithGoogle = useCallback(async () => {
     setLoading(true);
     try {
+      // Dynamic redirectTo: if we are in local dev or on a run.app preview, redirect to active window origin to avoid state mismatch.
+      // Otherwise, default to production vercel domain.
+      let redirectTo = 'https://kamerfresh.vercel.app/';
+      if (typeof window !== 'undefined') {
+        const hostname = window.location.hostname;
+        if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.includes('run.app')) {
+          redirectTo = `${window.location.origin}/`;
+        }
+      }
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: 'https://kamerfresh.vercel.app/',
+          redirectTo,
         }
       });
       if (error) return { error: error.message };
