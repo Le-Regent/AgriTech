@@ -41,11 +41,14 @@ To design, develop, and evaluate an interoperable, context-aware web application
 5.  **Ensure Inclusive Design:** Develop a bilingual (English/French) interface that adheres to high-contrast, accessible UI principles for rural usability.
 
 ## 1.4 Work Done So Far (System Features)
-The prototype has matured through several development sprints, resulting in the following functional milestones:
--   **AI Health Center:** A production-ready module using the Google GenAI SDK. It processes leaf photos and returns structured JSON responses detailing disease name, severity, and intervention steps.
--   **Live Mapping Infrastructure:** A fully functional logistics map using `react-leaflet`, allowing for visual tracking of "Orders in Transit" between hubs like Bamenda and Douala.
--   **Localized Weather Hub:** A dashboard providing real-time metrics (Temp, Wind, Hum) specifically filtered to highlight "Planting Risk" and "Harvest Opportunities."
--   **Seller/Buyer Dashboard:** Dedicated portals for product listing and order management with live state updates via Postgres Change Data Capture (CDC).
+The prototype has matured through several key development sprints, resulting in the following functional milestones:
+-   **Dynamic Interactive Onboarding Hub:** A centralized onboarding guide integrated directly at the app entry. It features a layout-constrained, responsive sliding toggle with spring animations to switch between "Farmer" and "Buyer" views. This eliminates the need for prompts first, directly deep-linking users to major features based on their selected role.
+-   **AI Health Center (Zero-Shot Crop Identification):** A production-ready diagnosis module using the Google GenAI SDK. When a user uploads a leaf scan, if the crop type is unspecified or marked as "Other", Gemini's multi-modal intelligence automatically detects the plant type (e.g., Cassava, Plantain, Mango, Groundnut), fills `detectedCropType` dynamically, and writes standard disease taxonomy and treatment details to Supabase.
+-   **Optimized Dual-Grid Marketplace:** A mobile-optimized digital market that preserves a clean, two-product-per-row grid layout on small viewports with permanently visible product cards and rich-media images, reinforcing discovery on mobile screens.
+-   **Strict Admin Security Enclosure:** A secure authentication system that blocks access to the Admin Dashboard for non-admin users. Demanding a clean separation of roles, the interface removes bypass modes or self-elevation buttons, enforcing database-driven `is_admin` verification.
+-   **Live Mapping Infrastructure:** A fully functional logistics map using `react-leaflet`, allowing for visual tracking of "Orders in Transit" between agricultural hubs like Bamenda and Douala.
+-   **Localized Weather Hub:** An environmental advisory dashboard providing sub-regional real-time metrics (Temp, Wind, Hum) specifically filtered to highlight localized "Planting Risks" and "Harvest Opportunities."
+-   **Seller/Buyer Dashboard:** Dedicated portals for product listing and order management with live state updates synced via Postgres Change Data Capture (CDC).
 -   **Notification Center:** A categorized activity center (Market, Climate, Primary) that keeps users updated on shipment changes and weather alerts.
 
 ## 1.5 Rationale and Scope
