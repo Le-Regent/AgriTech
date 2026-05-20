@@ -603,31 +603,41 @@ export const supabaseService = {
 
   // Notifications
   async getNotifications(userId: string) {
-    const { data, error } = await supabase
-      .from('notifications')
-      .select('*')
-      .eq('user_id', userId)
-      .order('is_read', { ascending: true }) // unread first
-      .order('created_at', { ascending: false });
-    
-    if (error) {
-      if (error.code === 'PGRST116' || error.message?.includes('notifications\' not found')) {
+    try {
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', userId)
+        .order('is_read', { ascending: true }) // unread first
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        if (error.code === 'PGRST116' || error.message?.includes('notifications\' not found') || error.message?.includes('schema cache')) {
+          return [];
+        }
+        console.warn('Notifications retrieval skipped:', error.message);
         return [];
       }
-      throw new Error(error.message);
+      return data || [];
+    } catch (err) {
+      console.warn('Notifications retrieval skipped:', err);
+      return [];
     }
-    return data;
   },
 
   async getUnreadNotificationsCount(userId: string) {
-    const { count, error } = await supabase
-      .from('notifications')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', userId)
-      .eq('is_read', false);
-    
-    if (error) return 0;
-    return count || 0;
+    try {
+      const { count, error } = await supabase
+        .from('notifications')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .eq('is_read', false);
+      
+      if (error) return 0;
+      return count || 0;
+    } catch {
+      return 0;
+    }
   },
 
   async calculateNotifications(userId: string) {
@@ -636,29 +646,43 @@ export const supabaseService = {
   },
 
   async createNotification(notification: Partial<AppNotification>) {
-    // Default to primary if not specified
-    const payload = {
-      category: 'primary',
-      is_read: false,
-      created_at: new Date().toISOString(),
-      ...notification
-    };
+    try {
+      // Default to primary if not specified
+      const payload = {
+        category: 'primary',
+        is_read: false,
+        created_at: new Date().toISOString(),
+        ...notification
+      };
 
-    const { data, error } = await supabase
-      .from('notifications')
-      .insert([payload]);
-    
-    if (error) throw new Error(error.message);
-    return data;
+      const { data, error } = await supabase
+        .from('notifications')
+        .insert([payload]);
+      
+      if (error) {
+        console.warn('Notification creation skipped:', error.message);
+        return null;
+      }
+      return data;
+    } catch (err) {
+      console.warn('Notification creation skipped:', err);
+      return null;
+    }
   },
 
   async markNotificationAsRead(id: string) {
-    const { error } = await supabase
-      .from('notifications')
-      .update({ is_read: true })
-      .eq('id', id);
-    
-    if (error) throw new Error(error.message);
+    try {
+      const { error } = await supabase
+        .from('notifications')
+        .update({ is_read: true })
+        .eq('id', id);
+      
+      if (error) {
+        console.warn('Mark notification as read warning:', error.message);
+      }
+    } catch (err) {
+      console.warn('Mark notification as read warning:', err);
+    }
   },
 
   // Escrow & Campay Logic

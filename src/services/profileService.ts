@@ -24,7 +24,22 @@ export const profileService = {
       .select()
       .single();
     
-    if (error) throw new Error(error.message);
+    if (error) {
+      if (error.message?.includes('updated_at') || error.message?.includes('schema cache')) {
+        const { data: retryData, error: retryError } = await supabase
+          .from('profiles')
+          .upsert({ 
+            id: userId, 
+            ...profile
+          }, { onConflict: 'id' })
+          .select()
+          .single();
+        
+        if (retryError) throw new Error(retryError.message);
+        return retryData;
+      }
+      throw new Error(error.message);
+    }
     return data;
   }
 };
