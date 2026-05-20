@@ -410,8 +410,40 @@ function ProfileContent() {
             </div>
             
             {user && (
-              <div className="pt-8 border-t border-slate-100 dark:border-slate-800">
+              <div className="pt-8 border-t border-slate-100 dark:border-slate-800 space-y-6">
                 <ProfileSmartCard user={user} />
+                
+                {/* Micro-Interaction Account Mode Toggle */}
+                <div className="bg-slate-50/50 dark:bg-slate-800/40 p-5 rounded-3xl border border-slate-100 dark:border-slate-800/80 text-left space-y-3 shadow-inner">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Account Mode</span>
+                    <span className={`text-[9px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full ${isFarmer ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300' : 'bg-indigo-100 text-indigo-800 dark:bg-indigo-500/20 dark:text-indigo-400'}`}>
+                      {isFarmer ? 'Farmer' : 'Buyer'}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
+                    {isFarmer 
+                      ? 'You are currently managing crops and settings as a Farmer. Toggle to explore products as a Buyer.' 
+                      : 'You are currently browsing and purchasing products as a Buyer. Toggle to list and manage crop details as a Farmer.'}
+                  </p>
+                  <button
+                    onClick={async () => {
+                      const targetRole = isFarmer ? 'buyer' : 'farmer';
+                      const res = await updateProfile({ user_type: targetRole });
+                      if (res.error) {
+                        toast.error(res.error);
+                      } else {
+                        toast.success(`Active mode: ${targetRole === 'farmer' ? 'Farmer' : 'Buyer'}`, {
+                          description: `Switched seamlessly to ${targetRole}.`
+                        });
+                      }
+                    }}
+                    className="w-full h-11 bg-slate-900 hover:bg-primary dark:bg-slate-800 dark:hover:bg-primary text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-[0.98] shadow-md flex items-center justify-center gap-2"
+                  >
+                    <span className="material-symbols-outlined text-sm">swap_calls</span>
+                    Switch to {isFarmer ? 'Buyer' : 'Farmer'} Mode
+                  </button>
+                </div>
               </div>
             )}
           </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense, useRef } from 'react';
 import { motion } from 'motion/react';
 import { Joyride, Step, STATUS } from 'react-joyride';
 import { useCart } from '@/context/CartContext';
@@ -52,7 +52,7 @@ function MarketplaceContent() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [generatingId, setGeneratingId] = useState<string | null>(null);
   const [showHeader, setShowHeader] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
+  const lastScrollYRef = useRef(0);
 
   useEffect(() => {
     const mainElement = document.querySelector('main');
@@ -62,7 +62,7 @@ function MarketplaceContent() {
       const currentScrollY = mainElement.scrollTop;
       
       // Hide on scroll down
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+      if (currentScrollY > lastScrollYRef.current && currentScrollY > 100) {
         setShowHeader(false);
       } 
       // Show ONLY when near the top
@@ -70,12 +70,12 @@ function MarketplaceContent() {
         setShowHeader(true);
       }
       
-      setLastScrollY(currentScrollY);
+      lastScrollYRef.current = currentScrollY;
     };
 
     mainElement.addEventListener('scroll', handleScroll, { passive: true });
     return () => mainElement.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY]);
+  }, []);
 
   useEffect(() => {
     const recentlyViewedIds = JSON.parse(localStorage.getItem('recently_viewed') || '[]');
