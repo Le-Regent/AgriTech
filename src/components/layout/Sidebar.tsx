@@ -22,8 +22,8 @@ export function Sidebar({ onMobileClose }: SidebarProps) {
     // Switch to ADMIN_NAV if on admin route
     if (isAdminRoute && titleKey === 'main_menu') {
       filteredItems = ADMIN_NAV;
-    } else if (titleKey === 'main_menu') {
-      // Add Admin entry point to standard menu so testers can access admin views easily
+    } else if (titleKey === 'main_menu' && user?.is_admin) {
+      // Add Admin entry point to standard menu if user is actual admin
       filteredItems = [
         ...filteredItems,
         {

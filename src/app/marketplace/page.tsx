@@ -277,7 +277,7 @@ function MarketplaceContent() {
         t={t} 
       />
 
-      <motion.div variants={containerVariants} className={viewMode === 'grid' ? "grid grid-cols-1 xs:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-8" : "flex flex-col gap-4"}>
+      <motion.div variants={containerVariants} className={viewMode === 'grid' ? "grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 sm:gap-8" : "flex flex-col gap-4"}>
         {loading ? (
           Array.from({ length: 8 }).map((_, i) => (
             <div key={i} className={`bg-slate-100 dark:bg-slate-800 rounded-3xl animate-pulse ${viewMode === 'grid' ? 'h-[320px] sm:h-[450px]' : 'h-32'}`} />
