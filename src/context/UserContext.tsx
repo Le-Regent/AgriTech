@@ -229,7 +229,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     // 2. Clear critical local storage immediately
     try {
       Object.keys(localStorage).forEach(key => {
-        if (key.startsWith('agritech_') || key.startsWith('shipments_') || key.startsWith('last_insight_')) {
+        if (key.startsWith('agritech_') || key.startsWith('kamerfresh_') || key.startsWith('shipments_') || key.startsWith('last_insight_')) {
           localStorage.removeItem(key);
         }
       });
@@ -280,7 +280,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         if (!prev) return null;
         const updated = { ...prev, ...updates };
         try {
-          localStorage.setItem(`agritech_profile_${user.id}`, JSON.stringify(updated));
+          localStorage.setItem(`kamerfresh_profile_${user.id}`, JSON.stringify(updated));
         } catch (e) {
           console.warn('Failed to update profile cache:', e);
         }

@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useUser } from '@/context/UserContext';
 import { motion, AnimatePresence } from 'motion/react';
+import { toast } from 'sonner';
 
 interface RoleSelectionGuardProps {
   children: React.ReactNode;
@@ -37,16 +38,20 @@ export function RoleSelectionGuard({ children }: RoleSelectionGuardProps) {
 
   const handleRoleSelect = async () => {
     if (!selectedRole) return;
+    const toastId = toast.loading('Confirming your identity...');
     try {
       const { error } = await updateProfile({ user_type: selectedRole });
       if (!error) {
         setIsDismissed(true);
         localStorage.setItem('kamerfresh_role_dismissed', 'true');
+        toast.success(`Identity confirmed as ${selectedRole === 'farmer' ? 'Farmer' : 'Buyer'}!`, { id: toastId });
       } else {
         console.error('Failed to set role:', error);
+        toast.error(`Failed to set role: ${error}`, { id: toastId });
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error in RoleSelectionGuard:', err);
+      toast.error(`An unexpected error occurred: ${err.message || err}`, { id: toastId });
     }
   };
 
