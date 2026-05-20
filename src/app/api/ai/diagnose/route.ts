@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
     logger.info('Initiating AI diagnosis', { cropType });
 
     const ai = new GoogleGenAI({ apiKey });
-    const model = "gemini-1.5-flash"; // Using flash-latest or similar
+    const model = "gemini-3.5-flash"; // Standard, modern, non-deprecated model for basic/complex text/multimodal tasks
 
     const prompt = `Analyze this ${cropType} leaf image for diseases or health issues. 
     ${weatherContext || ''}
