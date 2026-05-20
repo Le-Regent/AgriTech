@@ -88,12 +88,26 @@ function MarketplaceContent() {
   }, [sortedProducts]);
 
   const tourSteps: Step[] = [
-    { target: '#marketplace-header', content: t('marketplace_explorer_desc'), placement: 'bottom' },
-    { target: '#marketplace-filters-btn', content: t('filters'), placement: 'bottom' },
-    { target: '#marketplace-sort-btn', content: t('sort'), placement: 'bottom' },
-    { target: '#marketplace-category-tabs', content: t('marketplace_overview'), placement: 'bottom' },
-    { target: '.product-card-first', content: t('details'), placement: 'top' },
-    { target: '.compare-btn-first', content: t('compare'), placement: 'top' }
+    { 
+      target: '#marketplace-header', 
+      content: 'Welcome to KamerFresh! Discover fresh and verified organic produce directly from local Cameroonian farms.', 
+      placement: 'bottom' 
+    },
+    { 
+      target: '#search-input', 
+      content: 'Quick Search: Instantly search for specific products, regional farms, and items by typing keywords like name or category.', 
+      placement: 'bottom' 
+    },
+    { 
+      target: '#crop-doctor-nav', 
+      content: 'AI Crop Doctor: Having issues with your crops? Snap and upload a leaf photo to diagnose crop disease instantly and get treatment advice.', 
+      placement: 'right' 
+    },
+    { 
+      target: '#profile-nav', 
+      content: 'Your Profile: Seamlessly manage your account, switch between buyer/farmer modes, update listings, and track active orders.', 
+      placement: 'right' 
+    }
   ];
 
   useEffect(() => {

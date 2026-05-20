@@ -23,6 +23,11 @@ interface MapProps {
     position: [number, number];
     title: string;
     description?: string;
+    sensors?: {
+      moisture: number;
+      temperature: number;
+      humidity: number;
+    };
   }>;
   className?: string;
 }
@@ -70,9 +75,48 @@ export default function Map({
         {markers.map((marker, index) => (
           <Marker key={index} position={marker.position}>
             <Popup>
-              <div className="p-1">
-                <h3 className="font-bold text-sm">{marker.title}</h3>
-                {marker.description && <p className="text-xs text-secondary mt-1">{marker.description}</p>}
+              <div className="p-2 min-w-[180px] text-slate-800 dark:text-slate-100">
+                <h3 className="font-bold text-sm text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-1.5 mb-2 flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-[16px] text-primary">potted_plant</span>
+                  {marker.title}
+                </h3>
+                {marker.description && (
+                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mb-3">
+                    {marker.description}
+                  </p>
+                )}
+                
+                {marker.sensors ? (
+                  <div className="space-y-1.5 bg-slate-50 dark:bg-slate-950 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800/80">
+                    <p className="text-[9px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-wider mb-1 flex items-center gap-1 leading-none">
+                      <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                      Sensor Telemetry
+                    </p>
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="text-slate-500 dark:text-slate-400 font-bold flex items-center gap-1">
+                        <span className="material-symbols-outlined text-[14px] text-blue-500">water_drop</span>
+                        Soil Moisture
+                      </span>
+                      <span className="font-black text-indigo-600 dark:text-indigo-400">{marker.sensors.moisture}%</span>
+                    </div>
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="text-slate-500 dark:text-slate-400 font-bold flex items-center gap-1">
+                        <span className="material-symbols-outlined text-[14px] text-red-500">thermostat</span>
+                        Temp
+                      </span>
+                      <span className="font-black text-emerald-600 dark:text-emerald-400">{marker.sensors.temperature}°C</span>
+                    </div>
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="text-slate-500 dark:text-slate-400 font-bold flex items-center gap-1">
+                        <span className="material-symbols-outlined text-[14px] text-sky-500">humidity_percentage</span>
+                        Humidity
+                      </span>
+                      <span className="font-black text-amber-600 dark:text-amber-400">{marker.sensors.humidity}%</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-[10px] text-slate-400 italic">No telemetry active</div>
+                )}
               </div>
             </Popup>
           </Marker>

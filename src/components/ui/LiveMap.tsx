@@ -25,6 +25,11 @@ interface LiveMapProps {
     position: [number, number];
     title: string;
     description?: string;
+    sensors?: {
+      moisture: number;
+      temperature: number;
+      humidity: number;
+    };
   }>;
   className?: string;
 }

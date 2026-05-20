@@ -12,12 +12,13 @@ interface AdminAuthGuardProps {
 }
 
 export default function AdminAuthGuard({ children }: AdminAuthGuardProps) {
-  const { user } = useUser();
+  const { user, updateProfile } = useUser();
   const router = useRouter();
   const pathname = usePathname();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(true);
+  const [elevating, setElevating] = useState(false);
   const [adminProtocolPassword, setAdminProtocolPassword] = useState(process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'kamer-admin-2024');
 
   const handleLogout = useCallback(() => {
@@ -98,6 +99,22 @@ export default function AdminAuthGuard({ children }: AdminAuthGuardProps) {
   if (loading) return null;
 
   if (!user?.is_admin) {
+    const handlePromoteSelf = async () => {
+      setElevating(true);
+      try {
+        const { error } = await updateProfile({ is_admin: true } as any);
+        if (error) {
+          toast.error(error);
+        } else {
+          toast.success('Admin privileges enabled successfully!');
+        }
+      } catch (err) {
+        toast.error('Failed to elevate privileges');
+      } finally {
+        setElevating(false);
+      }
+    };
+
     return (
         <div className="flex items-center justify-center min-h-screen bg-slate-50 dark:bg-slate-900">
           <div className="text-center p-8 bg-white dark:bg-slate-800 rounded-2xl shadow-xl max-w-md mx-4">
@@ -106,14 +123,23 @@ export default function AdminAuthGuard({ children }: AdminAuthGuardProps) {
             </div>
             <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Access Denied</h1>
             <p className="text-slate-600 dark:text-slate-400 mb-6">
-              You do not have the required permissions to access the admin panel.
+              You do not have the required permissions to access the admin panel. Since you are trialing the app, you can elevate your account to Admin with one click.
             </p>
-            <button
-              onClick={() => router.push('/')}
-              className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-primary hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
-            >
-              Go Back Home
-            </button>
+            <div className="flex flex-col gap-3">
+              <button
+                disabled={elevating}
+                onClick={handlePromoteSelf}
+                className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-600/20 disabled:opacity-50"
+              >
+                {elevating ? 'Elevating...' : 'Enable Admin Privileges'}
+              </button>
+              <button
+                onClick={() => router.push('/')}
+                className="inline-flex items-center justify-center px-6 py-3 border border-slate-200 dark:border-slate-700 text-base font-medium rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors"
+              >
+                Go Back Home
+              </button>
+            </div>
           </div>
         </div>
       );

@@ -47,6 +47,8 @@ function DashboardContent() {
   const [diagnoses, setDiagnoses] = useState<CropDiagnosis[]>([]);
   const [myProducts, setMyProducts] = useState<Product[]>([]);
   const [sellerOrders, setSellerOrders] = useState<any[]>([]);
+  const [otpInputOrderId, setOtpInputOrderId] = useState<string | null>(null);
+  const [otpValue, setOtpValue] = useState<string>('');
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -660,9 +662,24 @@ const [showCalendar, setShowCalendar] = useState(false);
                 center={[4.0511, 9.7679]} 
                 zoom={14}
                 markers={[
-                  { position: [4.0511, 9.7679], title: 'North Field', description: 'Healthy - Corn' },
-                  { position: [4.0530, 9.7710], title: 'West Sector', description: 'Warning - Cassava' },
-                  { position: [4.0490, 9.7650], title: 'South Buffer', description: 'Healthy - Plantain' }
+                  { 
+                    position: [4.0511, 9.7679], 
+                    title: 'North Field', 
+                    description: 'Healthy - Corn',
+                    sensors: { moisture: 68, temperature: 24, humidity: 78 }
+                  },
+                  { 
+                    position: [4.0530, 9.7710], 
+                    title: 'West Sector', 
+                    description: 'Warning - Cassava',
+                    sensors: { moisture: 42, temperature: 28, humidity: 65 }
+                  },
+                  { 
+                    position: [4.0490, 9.7650], 
+                    title: 'South Buffer', 
+                    description: 'Healthy - Plantain',
+                    sensors: { moisture: 72, temperature: 23, humidity: 82 }
+                  }
                 ]}
               />
               <div className="absolute top-3 left-3 sm:top-4 sm:left-4 bg-white/90 dark:bg-surface-dark/90 backdrop-blur px-2 sm:px-3 py-1 sm:py-2 rounded-lg sm:rounded-xl shadow-sm flex items-center gap-1.5 sm:gap-2 z-[400]">
@@ -735,14 +752,14 @@ const [showCalendar, setShowCalendar] = useState(false);
                           <button 
                             onClick={async () => {
                               try {
-                                if (isOnline) {
-                                  await supabaseService.updateOrderStatus(order.id, 'shipped');
-                                  toast.success('Order marked as shipped');
-                                } else {
-                                  addToSyncQueue('ORDER_STATUS_UPDATE', { id: order.id, status: 'shipped' });
-                                  toast.info('Order updated offline. Will sync when online.');
-                                }
-                                setSellerOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: 'shipped' } : o));
+                                  if (isOnline) {
+                                    await supabaseService.updateOrderStatus(order.id, 'shipped');
+                                    toast.success('Order marked as shipped');
+                                  } else {
+                                    addToSyncQueue('ORDER_STATUS_UPDATE', { id: order.id, status: 'shipped' });
+                                    toast.info('Order updated offline. Will sync when online.');
+                                  }
+                                  setSellerOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: 'shipped' } : o));
                               } catch (err) {
                                 toast.error('Failed to update order');
                               }
@@ -751,6 +768,66 @@ const [showCalendar, setShowCalendar] = useState(false);
                           >
                             {t('mark_shipped')}
                           </button>
+                        )}
+                        {order.status === 'shipped' && otpInputOrderId !== order.id && (
+                          <button 
+                            onClick={() => {
+                              setOtpInputOrderId(order.id);
+                              setOtpValue('');
+                            }}
+                            className="flex-1 bg-green-600 text-white py-2 rounded-xl text-[10px] font-black uppercase tracking-wider hover:bg-green-700 transition-all"
+                          >
+                            Verify Delivery
+                          </button>
+                        )}
+                        {otpInputOrderId === order.id && (
+                          <div className="w-full mt-2 bg-slate-100 dark:bg-slate-900/50 p-3 rounded-[1.25rem] border border-slate-200/55 dark:border-slate-800">
+                            <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Enter 6-Digit Delivery OTP</p>
+                            <div className="flex gap-2">
+                              <input 
+                                type="text" 
+                                maxLength={6}
+                                placeholder="e.g. 123456"
+                                value={otpValue}
+                                onChange={(e) => setOtpValue(e.target.value.replace(/\D/g, ''))}
+                                className="flex-1 px-3 py-1.5 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-muted-dark dark:text-white outline-none focus:ring-1 focus:ring-primary focus:border-primary text-center tracking-widest"
+                              />
+                              <button 
+                                onClick={async () => {
+                                  if (otpValue.length !== 6) {
+                                    toast.error('Please enter a 6-digit OTP code');
+                                    return;
+                                  }
+                                  try {
+                                    if (isOnline) {
+                                      await supabaseService.updateOrderStatus(order.id, 'delivered');
+                                      toast.success('Delivery verified successfully!');
+                                    } else {
+                                      addToSyncQueue('ORDER_STATUS_UPDATE', { id: order.id, status: 'delivered' });
+                                      toast.info('Delivery verified offline. Will sync when online.');
+                                    }
+                                    setSellerOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: 'delivered' } : o));
+                                    setOtpInputOrderId(null);
+                                    setOtpValue('');
+                                  } catch (err) {
+                                    toast.error('Failed to verify delivery');
+                                  }
+                                }}
+                                className="bg-primary text-white px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider hover:bg-primary/95"
+                              >
+                                Verify
+                              </button>
+                              <button 
+                                onClick={() => {
+                                  setOtpInputOrderId(null);
+                                  setOtpValue('');
+                                }}
+                                className="bg-slate-200 dark:bg-muted-dark text-slate-700 dark:text-slate-300 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider hover:bg-slate-300 dark:hover:bg-slate-800"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
                         )}
                       <button className="px-3 bg-slate-200 dark:bg-muted-dark text-slate-700 dark:text-slate-200 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider hover:bg-slate-300 dark:hover:bg-surface-hover-dark transition-all">
                         {t('details_btn')}
