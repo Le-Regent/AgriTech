@@ -39,6 +39,7 @@ export async function POST(req: NextRequest) {
 
     const prompt = `Analyze this ${cropType} leaf image for diseases or health issues. 
     ${weatherContext || ''}
+    If the selected cropType input is 'Other' or is unspecified, identify the specific plant or crop type from the image (e.g. Cassava, Plantain, Mango, Groundnut, etc.) and specify it in 'detectedCropType'. Otherwise, set 'detectedCropType' to ${cropType}.
     Provide a detailed report in JSON format.
     IMPORTANT: For all "icon" fields, use ONLY valid Material Symbol names.`;
 
@@ -62,6 +63,7 @@ export async function POST(req: NextRequest) {
           properties: {
             diseaseName: { type: Type.STRING },
             scientificName: { type: Type.STRING },
+            detectedCropType: { type: Type.STRING },
             confidence: { type: Type.NUMBER },
             status: { type: Type.STRING, enum: ["healthy", "warning", "critical"] },
             description: { type: Type.STRING },
@@ -116,7 +118,7 @@ export async function POST(req: NextRequest) {
               }
             }
           },
-          required: ["diseaseName", "confidence", "status", "description", "symptoms", "recommendations", "treatmentSteps", "causes", "preventions", "environmentalContext"]
+          required: ["diseaseName", "detectedCropType", "confidence", "status", "description", "symptoms", "recommendations", "treatmentSteps", "causes", "preventions", "environmentalContext"]
         }
       }
     });

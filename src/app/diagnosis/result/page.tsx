@@ -95,15 +95,27 @@ function DiagnosisResultContent() {
           <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-all">
             <div className="flex flex-col sm:flex-row items-start justify-between mb-6 sm:mb-8 gap-4">
               <div className="space-y-1">
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <span className={`px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-full ${getStatusColor(report.status)}`}>
                     {report.status} status
                   </span>
-                  <span className="px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
-                    {report.cropType || 'Plant'}
-                  </span>
+                  {report.cropType === 'Other' && report.detectedCropType ? (
+                    <span className="px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-indigo-500 border border-indigo-200/50 dark:border-indigo-500/20">
+                      Detected Crop: {report.detectedCropType}
+                    </span>
+                  ) : (
+                    <span className="px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+                      {report.cropType || 'Plant'}
+                    </span>
+                  )}
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-black dark:text-white">{report.diseaseName}</h2>
+                {report.cropType === 'Other' && report.detectedCropType && (
+                  <p className="text-xs font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mt-1.5 mb-2">
+                    <span className="material-symbols-outlined text-[14px] text-indigo-500">grid_view</span>
+                    Automatically Identified Plant: <strong className="text-indigo-600 dark:text-indigo-400 font-black">{report.detectedCropType}</strong>
+                  </p>
+                )}
                 <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400 italic">{report.scientificName}</p>
               </div>
               <div className="text-left sm:text-right">

@@ -74,6 +74,10 @@ function DiagnosisContent() {
       const reader = new FileReader();
       reader.onloadend = () => {
         setSelectedImage(reader.result as string);
+        if (!selectedCrop) {
+          setSelectedCrop('Other');
+          toast.info("No crop selected. Defaulted to 'Other'.");
+        }
       };
       reader.readAsDataURL(file);
     }
@@ -104,6 +108,10 @@ function DiagnosisContent() {
         context.drawImage(videoRef.current, 0, 0);
         const dataUrl = canvasRef.current.toDataURL('image/jpeg', 0.8);
         setSelectedImage(dataUrl);
+        if (!selectedCrop) {
+          setSelectedCrop('Other');
+          toast.info("No crop selected. Defaulted to 'Other'.");
+        }
         stopCamera();
       }
     }
@@ -125,11 +133,11 @@ function DiagnosisContent() {
       setError('Please select or take a photo first.');
       return;
     }
+    const crop = selectedCrop || 'Other';
     if (!selectedCrop) {
-      setError('Please select a crop type first.');
-      return;
+      setSelectedCrop('Other');
     }
-    analyzeImage(selectedImage);
+    analyzeImage(selectedImage, crop);
   };
 
   const [analysisStep, setAnalysisStep] = useState(0);
@@ -177,9 +185,10 @@ function DiagnosisContent() {
     });
   };
 
-  const analyzeImage = async (base64Data: string) => {
+  const analyzeImage = async (base64Data: string, cropOverride?: string) => {
     setIsAnalyzing(true);
     setError(null);
+    const activeCrop = cropOverride || selectedCrop || 'Other';
     try {
       const compressedData = await compressImage(base64Data);
       
@@ -197,7 +206,7 @@ function DiagnosisContent() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           image: compressedData.split(',')[1],
-          cropType: selectedCrop,
+          cropType: activeCrop,
           weatherContext
         })
       });
@@ -208,7 +217,7 @@ function DiagnosisContent() {
       }
 
       const report = await response.json();
-      report.cropType = selectedCrop; // Add crop type to report
+      report.cropType = activeCrop; // Add crop type to report
       setSuccess('Analysis complete! Redirecting to results...');
       
       // Save to Supabase
@@ -216,7 +225,7 @@ function DiagnosisContent() {
         try {
           const diagnosisData = {
             farmer_id: user.id,
-            crop_type: selectedCrop,
+            crop_type: activeCrop,
             image_url: base64Data,
             result_label: report.diseaseName,
             confidence: report.confidence || report.confidence_score,
