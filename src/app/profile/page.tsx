@@ -408,42 +408,9 @@ function ProfileContent() {
                 )
               ))}
             </div>
-            
             {user && (
-              <div className="pt-8 border-t border-slate-100 dark:border-slate-800 space-y-6">
+              <div className="pt-8 border-t border-slate-105 dark:border-slate-800 space-y-6">
                 <ProfileSmartCard user={user} />
-                
-                {/* Micro-Interaction Account Mode Toggle */}
-                <div className="bg-slate-50/50 dark:bg-slate-800/40 p-5 rounded-3xl border border-slate-100 dark:border-slate-800/80 text-left space-y-3 shadow-inner">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Account Mode</span>
-                    <span className={`text-[9px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full ${isFarmer ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300' : 'bg-indigo-100 text-indigo-800 dark:bg-indigo-500/20 dark:text-indigo-400'}`}>
-                      {isFarmer ? 'Farmer' : 'Buyer'}
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
-                    {isFarmer 
-                      ? 'You are currently managing crops and settings as a Farmer. Toggle to explore products as a Buyer.' 
-                      : 'You are currently browsing and purchasing products as a Buyer. Toggle to list and manage crop details as a Farmer.'}
-                  </p>
-                  <button
-                    onClick={async () => {
-                      const targetRole = isFarmer ? 'buyer' : 'farmer';
-                      const res = await updateProfile({ user_type: targetRole });
-                      if (res.error) {
-                        toast.error(res.error);
-                      } else {
-                        toast.success(`Active mode: ${targetRole === 'farmer' ? 'Farmer' : 'Buyer'}`, {
-                          description: `Switched seamlessly to ${targetRole}.`
-                        });
-                      }
-                    }}
-                    className="w-full h-11 bg-slate-900 hover:bg-primary dark:bg-slate-800 dark:hover:bg-primary text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-[0.98] shadow-md flex items-center justify-center gap-2"
-                  >
-                    <span className="material-symbols-outlined text-sm">swap_calls</span>
-                    Switch to {isFarmer ? 'Buyer' : 'Farmer'} Mode
-                  </button>
-                </div>
               </div>
             )}
           </div>
@@ -495,38 +462,7 @@ function ProfileContent() {
                   </div>
                 ))}
 
-                {isEditing && !user?.is_admin && (
-                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-3">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 italic">Elevate Privileges</p>
-                    <div className="flex gap-2">
-                      <div className="relative flex-1">
-                        <input 
-                          type={showAdminKey ? "text" : "password"}
-                          placeholder="Admin Activation Key"
-                          value={adminKey}
-                          onChange={(e) => setAdminKey(e.target.value)}
-                          className="w-full bg-slate-100 dark:bg-white/5 border-none rounded-xl pl-4 pr-10 py-2 text-xs font-bold outline-none dark:text-white"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowAdminKey(!showAdminKey)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
-                        >
-                          <span className="material-symbols-outlined text-[18px]">
-                            {showAdminKey ? 'visibility_off' : 'visibility'}
-                          </span>
-                        </button>
-                      </div>
-                      <button 
-                        onClick={handlePromoteAdmin}
-                        disabled={promoting || !adminKey}
-                        className="bg-slate-900 dark:bg-white dark:text-slate-900 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest disabled:opacity-50"
-                      >
-                        {promoting ? '...' : 'Activate'}
-                      </button>
-                    </div>
-                  </div>
-                )}
+
               </div>
             ) : (
               <div className="space-y-4">
@@ -557,37 +493,19 @@ function ProfileContent() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-colors">
-            <h4 className="font-bold mb-6 dark:text-white">Account Preferences</h4>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <span className="material-symbols-outlined text-slate-400">dark_mode</span>
-                  <span className="text-sm font-bold dark:text-white">Dark Mode</span>
-                </div>
-                <div 
-                  onClick={toggleTheme}
-                  className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors ${theme === 'dark' ? 'bg-primary' : 'bg-slate-200 dark:bg-slate-700'}`}
-                >
-                  <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${theme === 'dark' ? 'left-6' : 'left-1'}`}></div>
-                </div>
-              </div>
-              {[
-                { label: 'Email Notifications', icon: 'mail', checked: true },
-                { label: 'SMS Alerts', icon: 'sms', checked: false },
-                { label: 'Two-Factor Auth', icon: 'security', checked: true },
-              ].map((pref, i) => (
-                <div key={i} className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <span className="material-symbols-outlined text-slate-400">{pref.icon}</span>
-                    <span className="text-sm font-bold dark:text-white">{pref.label}</span>
-                  </div>
-                  <div className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors ${pref.checked ? 'bg-primary' : 'bg-slate-200 dark:bg-slate-700'}`}>
-                    <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${pref.checked ? 'left-6' : 'left-1'}`}></div>
-                  </div>
-                </div>
-              ))}
-            </div>
+          <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-colors text-center py-8 space-y-4">
+            <span className="material-symbols-outlined text-primary text-4xl">settings</span>
+            <h4 className="font-bold dark:text-white">System Settings</h4>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              Theme colors, language systems, physical GPS location authorizations, and media scan permissions are now managed in the dashboard panel.
+            </p>
+            <Link 
+              href="/settings"
+              className="mt-4 w-full h-11 bg-slate-900 dark:bg-slate-800 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-primary transition-colors flex items-center justify-center gap-2"
+            >
+              <span className="material-symbols-outlined text-sm">tune</span>
+              Go to Settings Dashboard
+            </Link>
           </div>
         </div>
 

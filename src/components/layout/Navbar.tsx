@@ -250,7 +250,7 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
                 </div>
                 <div className="p-2 space-y-1">
                   <div className="flex items-center justify-between px-3 py-2">
-                    <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">{t('settings')}</span>
+                    <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">{t('language') || 'Language'}</span>
                     <div className="flex bg-slate-50 dark:bg-slate-800 p-0.5 rounded-lg border border-slate-100 dark:border-white/5">
                       <button 
                         onClick={() => setLanguage('en')}
@@ -274,6 +274,15 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
                   >
                     <span className="material-symbols-outlined text-[20px]">person</span>
                     {t('my_profile')}
+                  </Link>
+
+                  <Link 
+                    href="/settings" 
+                    onClick={() => setShowProfileMenu(false)}
+                    className="flex items-center gap-3 px-3 py-2 text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-surface-hover-dark rounded-xl transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-[20px]">settings</span>
+                    {t('settings') || 'Settings'}
                   </Link>
                   
                   <div className="h-px bg-slate-100 dark:bg-white/5 my-1" />
