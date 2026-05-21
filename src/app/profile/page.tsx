@@ -271,9 +271,9 @@ function ProfileContent() {
 
   const getSecurityHealth = () => {
     const health = [
-      { label: 'Email Verified', status: !!user?.email, icon: 'email_heart' },
-      { label: 'Profile Complete', status: !!user?.full_name && !!user?.bio, icon: 'person_check' },
-      { label: 'Phone Linked', status: !!user?.phone_number, icon: 'phone_callback' },
+      { label: 'Email Verified', status: !!user?.email, icon: 'alternate_email' },
+      { label: 'Profile Complete', status: !!user?.full_name && !!user?.bio, icon: 'assignment_ind' },
+      { label: 'Phone Linked', status: !!user?.phone_number, icon: 'contact_phone' },
       { label: 'Identified as Admin', status: !!user?.is_admin, icon: 'security' },
     ];
     const score = Math.round((health.filter(h => h.status).length / health.length) * 100);

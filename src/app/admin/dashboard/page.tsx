@@ -124,7 +124,7 @@ export default function AdminDashboard() {
         <div className="lg:col-span-12 xl:col-span-3 space-y-6">
           <div className="bg-slate-900 dark:bg-slate-950 p-6 rounded-[2.5rem] text-white shadow-2xl border border-white/5">
             <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-6 flex items-center gap-2">
-              <span className="material-symbols-outlined text-sm">health_metrics</span>
+              <span className="material-symbols-outlined text-sm">monitoring</span>
               System Telemetry
             </h2>
             <div className="space-y-6">

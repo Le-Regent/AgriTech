@@ -311,7 +311,7 @@ function DashboardContent() {
               {/* Top line with Active Status Badges and Immediate Role Switch */}
               <div className="flex flex-wrap items-center gap-2.5">
                 <div className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-md text-emerald-300 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest leading-none border border-white/5">
-                  <span className="material-symbols-outlined text-[13px]">person_play</span>
+                  <span className="material-symbols-outlined text-[13px]">assignment_ind</span>
                   {isFarmer ? 'Active: Farmer / Producteur' : 'Active: Buyer / Acheteur'}
                 </div>
                 
@@ -776,7 +776,7 @@ function DashboardContent() {
 
             <section className="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm">
               <h3 className="text-xl font-bold mb-8 dark:text-white flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary">order_play</span> {t('recent_orders')}
+                <span className="material-symbols-outlined text-primary">receipt_long</span> {t('recent_orders')}
               </h3>
               <div className="space-y-4">
                 {sellerOrders.length > 0 ? sellerOrders.slice(0, 5).map((order) => (

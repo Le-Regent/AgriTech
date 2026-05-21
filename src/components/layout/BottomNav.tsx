@@ -31,7 +31,7 @@ export function BottomNav() {
             <Link 
               key={item.path} 
               href={item.path}
-              className="relative flex flex-col items-center justify-center w-full h-full group"
+              className="relative flex flex-col items-center justify-center w-full h-full group cursor-pointer"
             >
               <div className={`relative flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-300 ${
                 isActive ? 'text-primary' : 'text-slate-500 group-active:scale-90'

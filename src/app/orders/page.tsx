@@ -590,7 +590,7 @@ function OrdersContent() {
                                     </p>
                                   </div>
                                   <div className="w-24 h-24 bg-white dark:bg-slate-900 rounded-[2rem] flex items-center justify-center text-primary shadow-xl border border-slate-100 dark:border-slate-800 shrink-0">
-                                    <span className="material-symbols-outlined text-5xl">key_visualizer</span>
+                                    <span className="material-symbols-outlined text-5xl">vpn_key</span>
                                   </div>
                                 </div>
                               )}
