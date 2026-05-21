@@ -660,7 +660,7 @@ function DashboardContent() {
               <button
                 key={chip.value}
                 onClick={() => router.push(`/marketplace?category=${encodeURIComponent(chip.value)}`)}
-                className="px-3.5 py-2 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-850 text-slate-700 dark:text-slate-300 rounded-2xl text-[10px] font-bold border border-slate-100 dark:border-white/5 shadow-xs shrink-0 transition-transform active:scale-95 duration-200"
+                className="px-3.5 py-2 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-850 text-slate-700 dark:text-slate-300 rounded-2xl text-[10px] font-bold border border-slate-100 dark:border-white/5 shadow-xs shrink-0 transition-transform active:scale-95 duration-200 cursor-pointer"
               >
                 {chip.label}
               </button>
@@ -688,18 +688,67 @@ function DashboardContent() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
-            <section className="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm">
-              <div className="flex items-center justify-between mb-8">
-                <h3 className="text-xl font-bold dark:text-white flex items-center gap-2">
+            {/* National Agricultural Cooperatives & Sourcing Hubs */}
+            <motion.div 
+              variants={itemVariants}
+              className="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm space-y-4 text-left"
+            >
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-xs text-primary">hub</span>
+                    {language === 'fr' ? 'COOPÉRATIVES RÉGIONALES' : 'REGIONAL COOPERATIVE HUBS'}
+                  </h4>
+                  <p className="text-[10px] text-slate-500 font-medium">
+                    {language === 'fr' 
+                      ? 'Parcourez le Cameroun par zones de production majeures' 
+                      : 'Connect with direct food pools in peak production basins'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { name: 'Kumba Hubs', region: 'South-West', crop: 'Cocoa & Pepper', term: 'Kumba', desc: 'Volcanic Soil Sourcing', color: 'border-slate-100 dark:border-white/5 hover:bg-slate-50 dark:hover:bg-white/5', icon: 'forest' },
+                  { name: 'Foumbot Co-ops', region: 'West Province', crop: 'Potatoes & Vegs', term: 'Foumbot', desc: 'The Garden State', color: 'border-slate-100 dark:border-white/5 hover:bg-slate-50 dark:hover:bg-white/5', icon: 'agriculture' },
+                  { name: 'Makenene Hub', region: 'Centre Province', crop: 'Plantains & Bananas', term: 'Makenene', desc: 'Central Route', color: 'border-slate-100 dark:border-white/5 hover:bg-slate-50 dark:hover:bg-white/5', icon: 'local_shipping' },
+                  { name: 'Buea Farms', region: 'South-West', crop: 'Volcanic Soil Tea', term: 'Buea', desc: 'Mountain Slopes', color: 'border-slate-100 dark:border-white/5 hover:bg-slate-50 dark:hover:bg-white/5', icon: 'wb_sunny' },
+                ].map((hub) => (
+                  <button
+                    key={hub.name}
+                    onClick={() => router.push(`/marketplace?search=${encodeURIComponent(hub.term)}`)}
+                    className={`p-3 text-left border rounded-2xl transition-all duration-200 group active:scale-[0.98] relative overflow-hidden backdrop-blur-sm cursor-pointer ${hub.color}`}
+                  >
+                    <div className="flex items-start justify-between gap-1 relative z-10">
+                      <div>
+                        <span className="text-[8px] font-black uppercase tracking-wider text-slate-400 group-hover:text-primary transition-colors block">{hub.region}</span>
+                        <h5 className="font-extrabold text-xs text-slate-800 dark:text-white mt-1 leading-tight tracking-tight">{hub.name}</h5>
+                        <p className="text-[10px] sm:text-xs font-black text-primary mt-1.5 flex items-center gap-1">
+                          <span className="material-symbols-outlined text-[11px] leading-none">compost</span>
+                          {hub.crop}
+                        </p>
+                      </div>
+                      <span className="material-symbols-outlined text-slate-300 dark:text-slate-700 text-base group-hover:scale-110 group-hover:text-primary transition-all shrink-0 mt-0.5 leading-none">
+                        {hub.icon}
+                      </span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+
+            <section className="bg-white dark:bg-slate-900 p-4 sm:p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm text-left">
+              <div className="flex items-center justify-between mb-6 sm:mb-8">
+                <h3 className="text-lg sm:text-xl font-bold dark:text-white flex items-center gap-2">
                   <span className="material-symbols-outlined text-primary">local_fire_department</span> {t('featured_products')}
                 </h3>
                 <Link href="/marketplace" className="text-primary text-sm font-bold hover:underline">{t('view_all')}</Link>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-2 gap-4 sm:gap-6">
+              <div className="grid grid-cols-2 md:grid-cols-2 gap-3 sm:gap-6">
                 {featuredProducts.length > 0 ? featuredProducts.map((product) => (
                   <Link key={product.id} href={`/marketplace/${product.id}`} className="group gap-2 flex flex-col justify-between text-left">
                     <div className="space-y-3">
-                      <div className="aspect-[4/3] sm:aspect-[16/10] rounded-2xl overflow-hidden shadow-sm border border-slate-100/10 dark:border-white/5 relative">
+                      <div className="aspect-[4/3] sm:aspect-[16/10] rounded-2xl overflow-hidden shadow-sm border border-slate-100/15 dark:border-white/5 relative">
                         <ResponsiveImage src={product.image_url || ''} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" baseWidth={400} baseHeight={250} />
                         {product.is_verified && (
                           <span className="absolute top-2 right-2 bg-emerald-500 text-white rounded-full p-1 shadow-md flex items-center justify-center w-5 h-5">
@@ -711,7 +760,7 @@ function DashboardContent() {
                         <h4 className="font-bold text-xs sm:text-base dark:text-white group-hover:text-primary transition-colors leading-snug tracking-tight line-clamp-1">{product.name}</h4>
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mt-1">
                           <p className="text-[11px] sm:text-sm font-black text-primary leading-none">{product.price.toLocaleString()} CFA</p>
-                          <span className="text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded dark:text-slate-450 uppercase tracking-wider self-start sm:self-auto truncate max-w-full">{product.category}</span>
+                          <span className="text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded dark:text-slate-400 uppercase tracking-wider self-start sm:self-auto truncate max-w-full">{product.category}</span>
                         </div>
                       </div>
                     </div>
@@ -804,6 +853,44 @@ function DashboardContent() {
               <Link href={isFarmer ? "/insights" : "/marketplace"} className="mt-8 w-full bg-white text-slate-900 text-[10px] font-black uppercase tracking-widest py-3 rounded-xl transition-all flex items-center justify-center gap-2 relative z-10">
                 {t('view_details')} <span className="material-symbols-outlined text-sm">arrow_forward</span>
               </Link>
+            </div>
+
+            {/* Escrow Protective Shield */}
+            <div className="bg-slate-950 border border-white/5 text-white p-6 rounded-[2.5rem] shadow-xl relative overflow-hidden text-left space-y-4">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
+              <div className="flex items-center gap-2.5">
+                <span className="w-8 h-8 rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 flex items-center justify-center">
+                  <span className="material-symbols-outlined text-sm">verified_user</span>
+                </span>
+                <div>
+                  <h4 className="text-[10px] font-black uppercase tracking-widest text-emerald-400 leading-none">
+                    Guaranteed Escrow
+                  </h4>
+                  <p className="text-[8px] text-slate-400 mt-1 uppercase tracking-wider">Trusted Agri-Trade</p>
+                </div>
+              </div>
+
+              <p className="text-[11px] text-slate-300 leading-relaxed font-semibold">
+                Your payment is buffered in a secure, digital hold when you order. Funds are only cleared once you verify your goods:
+              </p>
+
+              <div className="space-y-2 border-t border-white/5 pt-3">
+                {[
+                  'Farmer ships fresh bags down transit corridors',
+                  'You check food health at the Douala/Yaoundé zone',
+                  'Confirm satisfaction to dispatch payments'
+                ].map((step, idx) => (
+                  <div key={idx} className="flex items-start gap-2 text-[10px] text-slate-300">
+                    <span className="material-symbols-outlined text-xs text-primary shrink-0 mt-0.5">check_circle</span>
+                    <p className="leading-tight">{step}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex items-center justify-between text-[8px] font-black uppercase text-slate-500 border-t border-white/5 pt-3">
+                <span>VERIFICATION CODE</span>
+                <span className="text-emerald-400 font-bold">100% SECURED</span>
+              </div>
             </div>
           </div>
         </div>
@@ -1312,6 +1399,44 @@ function DashboardContent() {
             </div>
           </div>
 
+          {/* Market Demand Index for Cameroon Sourcing */}
+          <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-all space-y-5 text-left">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-[15px] text-primary">analytics</span>
+                  MARKET DEMAND INDEX
+                </h3>
+                <p className="text-[10px] text-slate-500 font-medium">What Cameroonian wholesalers and buyers are actively seeking</p>
+              </div>
+              <span className="text-[9px] font-black uppercase bg-emerald-500/10 text-emerald-500 px-2 py-0.5 rounded border border-emerald-500/15 leading-none">HIGH DEMAND</span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3.5 pt-1">
+              {[
+                { crop: 'Penja White Pepper', target: 'Douala / Export', demand: '98%', trend: '+8.4%', up: true, desc: 'Grade A Sun-Dried' },
+                { crop: 'Yellow Maize', target: 'Bafoussam Feeds', demand: '92%', trend: '+14.2%', up: true, desc: 'Dry Bulk Shelled' },
+                { crop: 'Mbe Yam Tubers', target: 'Yaoundé Mfoundi', demand: '81%', trend: '-2.1%', up: false, desc: 'Large Tubers preferred' },
+                { crop: 'Organic Avocado', target: 'Mbouda Sourcing', demand: '74%', trend: '+5.0%', up: true, desc: 'Fuerte & Butter varieties' },
+              ].map((item, idx) => (
+                <div key={idx} className="p-3 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-white/5 space-y-1 hover:border-primary/20 transition-all duration-200">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[8px] font-black uppercase tracking-wider text-slate-400 truncate">{item.target}</span>
+                    <span className={`text-[8px] font-black ${item.up ? 'text-emerald-500' : 'text-rose-500'}`}>{item.trend}</span>
+                  </div>
+                  <h4 className="font-extrabold text-xs text-slate-800 dark:text-white mt-1 leading-tight tracking-tight">{item.crop}</h4>
+                  <p className="text-[9px] text-slate-500 truncate">{item.desc}</p>
+                  <div className="flex items-center gap-1.5 pt-1">
+                    <div className="h-1 flex-1 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                      <div className="h-full bg-primary" style={{ width: item.demand }} />
+                    </div>
+                    <span className="text-[9px] font-black text-slate-600 dark:text-slate-400">{item.demand}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
           <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-all">
             <h3 className="text-lg sm:text-xl font-bold mb-6 dark:text-white">{t('recent_activity')}</h3>
             <div className="space-y-6">
@@ -1418,6 +1543,27 @@ function DashboardContent() {
                     </div>
                   </div>
                 )}
+
+                {/* Safe Spraying and Smart Harvest window */}
+                <div className={`mt-6 p-4 rounded-2xl flex items-start gap-3 border text-left ${
+                  (weather.rain || weather.humidity > 80)
+                    ? 'bg-rose-500/10 border-rose-500/20 text-rose-200'
+                    : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-200'
+                }`}>
+                  <span className="material-symbols-outlined text-lg shrink-0 mt-0.5">
+                    {(weather.rain || weather.humidity > 80) ? 'warning' : 'task_alt'}
+                  </span>
+                  <div>
+                    <p className="text-[11px] font-black uppercase tracking-wider leading-none">
+                      {(weather.rain || weather.humidity > 80) ? 'PRESP_CROP WARNING' : 'SAFE SPRAY WINDOW'}
+                    </p>
+                    <p className="text-[10px] text-slate-400 mt-1.5 leading-relaxed font-semibold">
+                      {(weather.rain || weather.humidity > 80) 
+                        ? 'High rainfall or humidity risks washing organic treatment spray off cocoa fields or potato plants. Postpone active applications.' 
+                        : 'Optimal humidity levels with zero short-term rain forecast. Ideal to dispatch nutrient spray and execute scans.'}
+                    </p>
+                  </div>
+                </div>
               </>
             ) : (
               <p className="text-xs text-slate-400 relative z-10">Weather data unavailable. Please enable location access.</p>

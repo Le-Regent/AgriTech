@@ -97,6 +97,13 @@ function ProfileContent() {
     formData.website !== (user.website || '')
   );
 
+  const isFieldModified = (key: string) => {
+    if (!isEditing || !user) return false;
+    const currentVal = formData[key as keyof typeof formData] || '';
+    const originalVal = (user as any)[key] || '';
+    return currentVal !== originalVal;
+  };
+
   useEffect(() => {
     async function fetchFarmerData() {
       if (isFarmer && user?.id) {
@@ -317,14 +324,14 @@ function ProfileContent() {
                     });
                   }
                 }}
-                className="px-4 py-2 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+                className="px-4 py-2 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer"
               >
                 Cancel
               </button>
               <button 
                 onClick={handleSave}
                 disabled={saving || isUploading || !hasChanges}
-                className="bg-primary text-white px-6 py-2 rounded-xl text-sm font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 disabled:opacity-50 flex items-center gap-2"
+                className="bg-primary text-white px-6 py-2 rounded-xl text-sm font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 disabled:opacity-50 flex items-center gap-2 cursor-pointer disabled:cursor-not-allowed"
               >
                 {saving || isUploading ? (
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -335,7 +342,7 @@ function ProfileContent() {
           ) : (
             <button 
               onClick={() => setIsEditing(true)}
-              className="flex-1 sm:flex-none bg-primary text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
+              className="flex-1 sm:flex-none bg-primary text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2 cursor-pointer"
             >
               <span className="material-symbols-outlined text-[18px]">edit</span>
               Edit Profile
@@ -346,7 +353,7 @@ function ProfileContent() {
             onClick={handleRefresh}
             disabled={isRefreshing || isEditing}
             title="Force sync data from database"
-            className="w-11 h-11 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-primary transition-all disabled:opacity-50"
+            className="w-11 h-11 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-primary transition-all disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
           >
             <span className={`material-symbols-outlined ${isRefreshing ? 'animate-spin' : ''}`}>sync</span>
           </button>
@@ -434,14 +441,14 @@ function ProfileContent() {
             <div className="flex gap-4 mb-6 border-b border-slate-100 dark:border-slate-800">
               <button 
                 onClick={() => setSecurityTab('info')}
-                className={`pb-3 text-[10px] font-black uppercase tracking-widest transition-colors relative ${securityTab === 'info' ? 'text-primary' : 'text-slate-400'}`}
+                className={`pb-3 text-[10px] font-black uppercase tracking-widest transition-colors relative cursor-pointer ${securityTab === 'info' ? 'text-primary' : 'text-slate-400'}`}
               >
                 Invariants
                 {securityTab === 'info' && <motion.div layoutId="secTab" className="absolute bottom-0 inset-x-0 h-0.5 bg-primary" />}
               </button>
               <button 
                 onClick={() => setSecurityTab('activity')}
-                className={`pb-3 text-[10px] font-black uppercase tracking-widest transition-colors relative ${securityTab === 'activity' ? 'text-primary' : 'text-slate-400'}`}
+                className={`pb-3 text-[10px] font-black uppercase tracking-widest transition-colors relative cursor-pointer ${securityTab === 'activity' ? 'text-primary' : 'text-slate-400'}`}
               >
                 Activity Log
                 {securityTab === 'activity' && <motion.div layoutId="secTab" className="absolute bottom-0 inset-x-0 h-0.5 bg-primary" />}
@@ -512,27 +519,66 @@ function ProfileContent() {
         <div className="lg:col-span-2 space-y-6 sm:space-y-8">
           <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-colors">
             <h4 className="font-bold mb-6 sm:mb-8 dark:text-white">Personal Information</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
-              {personalFields.map((field, i) => (
-                <div key={i} className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{field.label}</label>
-                  <div className="relative">
-                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">{field.icon}</span>
-                    <input
-                      type="text"
-                      value={field.value}
-                      readOnly={!isEditing || field.readOnly}
-                      disabled={saving}
-                      onChange={(e) => setFormData({ ...formData, [field.key]: e.target.value })}
-                      className={`w-full pl-12 pr-4 py-3 border-none rounded-2xl text-sm font-bold focus:ring-2 focus:ring-primary/20 outline-none dark:text-white transition-colors ${!isEditing || field.readOnly ? 'bg-slate-50 dark:bg-slate-800/50 cursor-not-allowed' : 'bg-slate-100 dark:bg-slate-800'} ${saving ? 'opacity-50' : ''}`}
-                    />
+            
+            <AnimatePresence>
+              {isEditing && (
+                <motion.div 
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="overflow-hidden mb-6"
+                >
+                  <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 flex items-start gap-3 text-left">
+                    <span className="material-symbols-outlined text-amber-500 animate-pulse leading-none">edit_note</span>
+                    <div>
+                      <h5 className="text-xs font-black uppercase tracking-wider text-amber-600 dark:text-amber-400">Editing Profile</h5>
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 font-semibold leading-relaxed">
+                        Modify your details safely. Unsending or discarding is easy. Modified fields feature an active amber border and clear "unsaved" badge.
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
+              {personalFields.map((field, i) => {
+                const modified = isFieldModified(field.key);
+                return (
+                  <div key={i} className="space-y-2 text-left">
+                    <div className="flex items-center justify-between ml-1">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">{field.label}</label>
+                      {modified && (
+                        <span className="text-[8px] font-black uppercase tracking-wider text-amber-600 bg-amber-500/10 dark:text-amber-400 border border-amber-500/20 px-1.5 py-0.5 rounded-md animate-pulse">Unsaved</span>
+                      )}
+                    </div>
+                    <div className="relative">
+                      <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">{field.icon}</span>
+                      <input
+                        type="text"
+                        value={field.value}
+                        readOnly={!isEditing || field.readOnly}
+                        disabled={saving}
+                        onChange={(e) => setFormData({ ...formData, [field.key]: e.target.value })}
+                        className={`w-full pl-12 pr-4 py-3 border rounded-2xl text-xs sm:text-sm font-bold focus:ring-2 focus:ring-primary/10 outline-none dark:text-white transition-all ${
+                          !isEditing || field.readOnly 
+                            ? 'bg-slate-50 dark:bg-slate-800/50 cursor-not-allowed border-transparent' 
+                            : 'bg-slate-100 dark:bg-slate-800 cursor-text ' + (modified ? 'border-amber-500/50 focus:border-amber-500 focus:ring-amber-550/20' : 'border-transparent focus:border-primary')
+                        } ${saving ? 'opacity-50' : ''}`}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
             </div>
 
-            <div className="space-y-2 mb-8">
-              <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">About / Bio</label>
+            <div className="space-y-2 mb-8 text-left">
+              <div className="flex items-center justify-between ml-1">
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">About / Bio</label>
+                {isFieldModified('bio') && (
+                  <span className="text-[8px] font-black uppercase tracking-wider text-amber-600 bg-amber-500/10 dark:text-amber-400 border border-amber-500/20 px-1.5 py-0.5 rounded-md animate-pulse">Unsaved</span>
+                )}
+              </div>
               <div className="relative">
                 <span className="material-symbols-outlined absolute left-4 top-4 text-slate-400 text-[20px]">description</span>
                 <textarea
@@ -541,29 +587,45 @@ function ProfileContent() {
                   disabled={saving}
                   onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
                   placeholder="Tell us about yourself or your farm..."
-                  className={`w-full pl-12 pr-4 py-3 border-none rounded-2xl text-sm font-bold focus:ring-2 focus:ring-primary/20 outline-none dark:text-white transition-colors min-h-[100px] resize-none ${!isEditing ? 'bg-slate-50 dark:bg-slate-800/50 cursor-not-allowed' : 'bg-slate-100 dark:bg-slate-800'} ${saving ? 'opacity-50' : ''}`}
+                  className={`w-full pl-12 pr-4 py-3 border rounded-2xl text-xs sm:text-sm font-bold focus:ring-2 focus:ring-primary/10 outline-none dark:text-white transition-all min-h-[100px] resize-none ${
+                    !isEditing 
+                      ? 'bg-slate-50 dark:bg-slate-800/50 cursor-not-allowed border-transparent' 
+                      : 'bg-slate-100 dark:bg-slate-800 cursor-text ' + (isFieldModified('bio') ? 'border-amber-500/50 focus:border-amber-500 focus:ring-amber-550/20' : 'border-transparent focus:border-primary')
+                  } ${saving ? 'opacity-50' : ''}`}
                 />
               </div>
             </div>
 
-            <h4 className="font-bold mb-6 sm:mb-8 dark:text-white pt-4 border-t border-slate-100 dark:border-slate-800">Professional Details</h4>
+            <h4 className="font-bold mb-6 sm:mb-8 dark:text-white pt-4 border-t border-slate-105 dark:border-slate-805">Professional Details</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
-              {professionalFields.filter(f => !f.farmerOnly || isFarmer).map((field, i) => (
-                <div key={i} className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{field.label}</label>
-                  <div className="relative">
-                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">{field.icon}</span>
-                    <input
-                      type="text"
-                      value={field.value}
-                      readOnly={!isEditing}
-                      disabled={saving}
-                      onChange={(e) => setFormData({ ...formData, [field.key]: e.target.value })}
-                      className={`w-full pl-12 pr-4 py-3 border-none rounded-2xl text-sm font-bold focus:ring-2 focus:ring-primary/20 outline-none dark:text-white transition-colors ${!isEditing ? 'bg-slate-50 dark:bg-slate-800/50 cursor-not-allowed' : 'bg-slate-100 dark:bg-slate-800'} ${saving ? 'opacity-50' : ''}`}
-                    />
+              {professionalFields.filter(f => !f.farmerOnly || isFarmer).map((field, i) => {
+                const modified = isFieldModified(field.key);
+                return (
+                  <div key={i} className="space-y-2 text-left">
+                    <div className="flex items-center justify-between ml-1">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">{field.label}</label>
+                      {modified && (
+                        <span className="text-[8px] font-black uppercase tracking-wider text-amber-600 bg-amber-500/10 dark:text-amber-400 border border-amber-500/20 px-1.5 py-0.5 rounded-md animate-pulse">Unsaved</span>
+                      )}
+                    </div>
+                    <div className="relative">
+                      <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">{field.icon}</span>
+                      <input
+                        type="text"
+                        value={field.value}
+                        readOnly={!isEditing}
+                        disabled={saving}
+                        onChange={(e) => setFormData({ ...formData, [field.key]: e.target.value })}
+                        className={`w-full pl-12 pr-4 py-3 border rounded-2xl text-xs sm:text-sm font-bold focus:ring-2 focus:ring-primary/10 outline-none dark:text-white transition-all ${
+                          !isEditing 
+                            ? 'bg-slate-50 dark:bg-slate-800/50 cursor-not-allowed border-transparent' 
+                            : 'bg-slate-100 dark:bg-slate-800 cursor-text ' + (modified ? 'border-amber-500/50 focus:border-amber-500 focus:ring-amber-550/20' : 'border-transparent focus:border-primary')
+                        } ${saving ? 'opacity-50' : ''}`}
+                      />
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             <div className="pt-6 border-t border-slate-100 dark:border-slate-800">
@@ -778,14 +840,14 @@ function ProfileContent() {
                     });
                   }
                 }}
-                className="flex-1 py-3 rounded-2xl text-xs font-black uppercase tracking-widest text-white/50 bg-white/5 hover:bg-white/10"
+                className="flex-1 py-3 rounded-2xl text-xs font-black uppercase tracking-widest text-white/50 bg-white/5 hover:bg-white/10 cursor-pointer"
               >
                 Cancel
               </button>
               <button 
                 onClick={handleSave}
                 disabled={saving || isUploading || !hasChanges}
-                className="flex-[2] bg-primary text-white py-3 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 disabled:opacity-50 flex items-center justify-center gap-2"
+                className="flex-[2] bg-primary text-white py-3 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed"
               >
                 {saving || isUploading ? (
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -805,14 +867,14 @@ function ProfileContent() {
           <div className="flex gap-3">
             <button 
               onClick={() => setIsEditing(false)}
-              className="px-6 py-2 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+              className="px-6 py-2 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer"
             >
               Cancel
             </button>
             <button 
               onClick={handleSave}
               disabled={saving || isUploading || !hasChanges}
-              className="bg-primary text-white px-8 py-2.5 rounded-xl text-sm font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 disabled:opacity-50 flex items-center gap-2"
+              className="bg-primary text-white px-8 py-2.5 rounded-xl text-sm font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 disabled:opacity-50 flex items-center gap-2 cursor-pointer disabled:cursor-not-allowed"
             >
               {saving || isUploading ? (
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
