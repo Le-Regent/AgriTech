@@ -28,7 +28,7 @@ export function useMarketplace() {
   const [loading, setLoading] = useState(true);
   
   const [filters, setFilters] = useState<FilterState>({
-    category: 'All Produce',
+    category: searchParams.get('category') || 'All Produce',
     origin: 'All',
     certification: [],
     season: 'All',
@@ -37,6 +37,13 @@ export function useMarketplace() {
 
   const productsRef = useRef<Product[]>(allProducts);
   useEffect(() => { productsRef.current = allProducts; }, [allProducts]);
+
+  useEffect(() => {
+    const cat = searchParams.get('category');
+    if (cat) {
+      setFilters(prev => ({ ...prev, category: cat }));
+    }
+  }, [searchParams]);
 
   const fetchProducts = useCallback(async () => {
     const cachedProducts = await getFromCache('marketplace_products');

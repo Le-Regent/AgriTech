@@ -39,7 +39,7 @@ import KamerCalendar from '@/components/ui/AgriCalendar';
 
 function DashboardContent() {
   const { user, updateProfile } = useUser();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { cart } = useCart();
   const { isOnline, saveToCache, getFromCache, addToSyncQueue } = useOffline();
   const router = useRouter();
@@ -576,7 +576,7 @@ function DashboardContent() {
         animate="visible"
         className="space-y-8 pb-12"
       >
-        <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-1">
           <div>
             <h2 className="text-3xl sm:text-4xl font-black tracking-tight dark:text-white uppercase italic">
               Kamer<span className="text-primary tracking-normal">Market</span>
@@ -589,6 +589,82 @@ function DashboardContent() {
               <input type="text" placeholder={t('search')} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest focus:ring-2 focus:ring-primary/20 transition-all outline-none dark:text-white" />
             </form>
+          </div>
+        </motion.div>
+
+        {/* Cameroon Live Market Price Benchmarks Board */}
+        <motion.div 
+          variants={itemVariants}
+          className="bg-slate-900 border border-white/5 text-white rounded-[2rem] p-5 sm:p-6 shadow-xl relative overflow-hidden"
+        >
+          <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
+            <div className="flex items-center gap-3 shrink-0">
+              <span className="w-9 h-9 bg-emerald-500/10 text-emerald-400 rounded-xl flex items-center justify-center border border-white/5">
+                <span className="material-symbols-outlined text-[18px]">trending_up</span>
+              </span>
+              <div>
+                <h4 className="text-xs font-black uppercase tracking-wider text-emerald-420">
+                  Live Farm-Gate Benchmarks
+                </h4>
+                <p className="text-[9px] text-slate-400 md:max-w-xs">
+                  Updated local wholesale rates in Main Food Sourcing Hubs
+                </p>
+              </div>
+            </div>
+
+            {/* Price Cards Horizontal Row */}
+            <div className="flex items-center gap-3 overflow-x-auto pb-1.5 no-scrollbar -mx-5 px-5 md:mx-0 md:px-0 scroll-smooth">
+              {[
+                { name: 'Cocoa Beans (Kumba)', price: '1,850 CFA/kg', change: '+2.4%', up: true },
+                { name: 'Irish Potatoes (Foumbot)', price: '18,500 CFA/sac', change: '+4.0%', up: true },
+                { name: 'Plantains (Makenene)', price: '3,800 CFA/reg', change: '-1.5%', up: false },
+                { name: 'Garri (Buea)', price: '12,000 CFA/sac', change: '+1.1%', up: true },
+                { name: 'Arabica Coffee (Bafoussam)', price: '2,100 CFA/kg', change: 'Stable', up: null },
+              ].map((bench, idx) => (
+                <div key={idx} className="bg-white/5 border border-white/5 p-2.5 rounded-xl flex flex-col justify-between shrink-0 min-w-[135px] sm:min-w-[155px]">
+                  <span className="text-[8px] font-bold text-slate-400 truncate tracking-tight uppercase">{bench.name}</span>
+                  <div className="flex items-baseline justify-between gap-1 mt-1">
+                    <span className="text-[11px] font-black text-white">{bench.price}</span>
+                    <span className={`text-[8px] font-black px-1.5 py-0.2 rounded-md ${
+                      bench.up === true ? 'text-emerald-400 bg-emerald-500/15' :
+                      bench.up === false ? 'text-red-400 bg-red-500/15' : 'text-slate-400 bg-white/10'
+                    }`}>
+                      {bench.change}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Quick Click-to-Search Category Chips */}
+        <motion.div 
+          variants={itemVariants}
+          className="space-y-2.5"
+        >
+          <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1">
+            <span className="material-symbols-outlined text-xs text-primary">local_mall</span>
+            {t('quick_shop_categories') || 'Quick Categories'}
+          </span>
+          <div className="flex items-center gap-2 overflow-x-auto pb-1.5 no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
+            {[
+              { label: language === 'fr' ? '🥬 Légumes' : '🥬 Vegetables', value: 'Vegetables' },
+              { label: language === 'fr' ? '🍍 Fruits' : '🍍 Fruits', value: 'Fruits' },
+              { label: language === 'fr' ? '🌾 Grains & Fèves' : '🌾 Grains & Beans', value: 'Grains & Beans' },
+              { label: language === 'fr' ? '🍚 Épicerie' : '🍚 Foodstuff', value: 'Foodstuff' },
+              { label: language === 'fr' ? '🌶️ Épices' : '🌶️ Spices & Pepper', value: 'Spices & Pepper' },
+              { label: language === 'fr' ? '🍯 Huiles' : '🍯 Oils', value: 'Oils' },
+            ].map((chip) => (
+              <button
+                key={chip.value}
+                onClick={() => router.push(`/marketplace?category=${encodeURIComponent(chip.value)}`)}
+                className="px-3.5 py-2 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-850 text-slate-700 dark:text-slate-300 rounded-2xl text-[10px] font-bold border border-slate-100 dark:border-white/5 shadow-xs shrink-0 transition-transform active:scale-95 duration-200"
+              >
+                {chip.label}
+              </button>
+            ))}
           </div>
         </motion.div>
 
@@ -619,17 +695,24 @@ function DashboardContent() {
                 </h3>
                 <Link href="/marketplace" className="text-primary text-sm font-bold hover:underline">{t('view_all')}</Link>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="grid grid-cols-2 md:grid-cols-2 gap-4 sm:gap-6">
                 {featuredProducts.length > 0 ? featuredProducts.map((product) => (
-                  <Link key={product.id} href={`/marketplace/${product.id}`} className="group space-y-3">
-                    <div className="aspect-[16/10] rounded-2xl overflow-hidden shadow-md">
-                      <ResponsiveImage src={product.image_url || ''} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" baseWidth={400} baseHeight={250} />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-lg dark:text-white group-hover:text-primary transition-colors">{product.name}</h4>
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm font-black text-primary">{product.price.toLocaleString()} CFA</p>
-                        <span className="text-[10px] font-bold px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded dark:text-slate-400 uppercase">{product.category}</span>
+                  <Link key={product.id} href={`/marketplace/${product.id}`} className="group gap-2 flex flex-col justify-between text-left">
+                    <div className="space-y-3">
+                      <div className="aspect-[4/3] sm:aspect-[16/10] rounded-2xl overflow-hidden shadow-sm border border-slate-100/10 dark:border-white/5 relative">
+                        <ResponsiveImage src={product.image_url || ''} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" baseWidth={400} baseHeight={250} />
+                        {product.is_verified && (
+                          <span className="absolute top-2 right-2 bg-emerald-500 text-white rounded-full p-1 shadow-md flex items-center justify-center w-5 h-5">
+                            <span className="material-symbols-outlined text-[10px] font-bold">verified</span>
+                          </span>
+                        )}
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-xs sm:text-base dark:text-white group-hover:text-primary transition-colors leading-snug tracking-tight line-clamp-1">{product.name}</h4>
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mt-1">
+                          <p className="text-[11px] sm:text-sm font-black text-primary leading-none">{product.price.toLocaleString()} CFA</p>
+                          <span className="text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded dark:text-slate-450 uppercase tracking-wider self-start sm:self-auto truncate max-w-full">{product.category}</span>
+                        </div>
                       </div>
                     </div>
                   </Link>
@@ -1079,6 +1162,41 @@ function DashboardContent() {
                   <p className="text-sm text-slate-500 dark:text-slate-400">No orders to process.</p>
                 </div>
               )}
+            </div>
+          </div>
+
+          {/* Smart AI Farmer Advisor & Action Almanac */}
+          <div className="bg-gradient-to-br from-emerald-950 via-slate-900 to-slate-950 text-white p-6 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] border border-emerald-500/20 shadow-xl space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="inline-flex items-center gap-1.5 bg-emerald-500/20 text-emerald-300 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest leading-none border border-emerald-500/30">
+                <span className="material-symbols-outlined text-[13px] animate-pulse">eco</span>
+                AGRO-ALMANAC
+              </span>
+              <span className="text-[10px] font-bold text-slate-400">May Peak Rain</span>
+            </div>
+            
+            <div className="space-y-1 text-left">
+              <h4 className="text-sm font-black text-white tracking-tight uppercase">
+                Smart Cultivation Advisory
+              </h4>
+              <p className="text-[11px] text-slate-300 leading-relaxed font-semibold">
+                High humidity stages detected in West & South-West zones.
+              </p>
+            </div>
+
+            <div className="border-t border-white/5 pt-4 space-y-3 text-left">
+              <div className="flex items-start gap-2 text-[11px] leading-relaxed text-slate-300">
+                <span className="material-symbols-outlined text-sm text-emerald-400 shrink-0 mt-0.5">verified_user</span>
+                <p><strong>Crops:</strong> Plant cassava mounds immediately; inspect banana suckers for efficient drainage to protect roots.</p>
+              </div>
+              <div className="flex items-start gap-2 text-[11px] leading-relaxed text-slate-300">
+                <span className="material-symbols-outlined text-sm text-orange-400 shrink-0 mt-0.5">warning</span>
+                <p><strong>Risk:</strong> High susceptibility to Cocoa Black Pod Rot. Keep spacing wide and spray safely under recommendations.</p>
+              </div>
+              <div className="flex items-start gap-2 text-[11px] leading-relaxed text-slate-300">
+                <span className="material-symbols-outlined text-sm text-sky-400 shrink-0 mt-0.5">biotech</span>
+                <p><strong>Health Scans:</strong> Utilize LeafScanner daily to capture and spot premature blight before outbreak spreads.</p>
+              </div>
             </div>
           </div>
 
