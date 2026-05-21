@@ -44,6 +44,7 @@ function DiagnosisContent() {
   const [showCamera, setShowCamera] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -138,6 +139,46 @@ function DiagnosisContent() {
       setSelectedCrop('Other');
     }
     analyzeImage(selectedImage, crop);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    if (!isAnalyzing && !showCamera) {
+      setIsDragging(true);
+    }
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (isAnalyzing || showCamera) return;
+
+    setError(null);
+    setSuccess(null);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        setError('Please submit an image file.');
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Image size too large (max 5MB)');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSelectedImage(reader.result as string);
+        if (!selectedCrop) {
+          setSelectedCrop('Other');
+          toast.info("No crop selected. Defaulted to 'Other'.");
+        }
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const [analysisStep, setAnalysisStep] = useState(0);
@@ -295,7 +336,19 @@ function DiagnosisContent() {
         )}
       </div>
 
-      <div className="bg-slate-950 rounded-[2.5rem] sm:rounded-[3rem] overflow-hidden shadow-2xl relative aspect-[3/4] sm:aspect-[4/3] flex items-center justify-center border border-white/5">
+      <div 
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        className={`bg-slate-950 rounded-[2.5rem] sm:rounded-[3rem] overflow-hidden shadow-2xl relative aspect-[3/4] sm:aspect-[4/3] flex items-center justify-center border transition-all duration-300 ${isDragging ? 'border-primary ring-4 ring-primary/20 scale-[0.99]' : 'border-white/5'}`}
+      >
+        {isDragging && (
+          <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-md z-30 flex flex-col items-center justify-center p-8 border-2 border-dashed border-primary rounded-[2.5rem] sm:rounded-[3rem] pointer-events-none">
+            <span className="material-symbols-outlined text-6xl text-primary animate-bounce mb-4">upload_file</span>
+            <p className="text-lg font-black text-white uppercase italic tracking-wider">Drop leaf image here</p>
+            <p className="text-xs text-slate-400 mt-2">Release file to diagnose instantly</p>
+          </div>
+        )}
         {!isAnalyzing ? (
           <>
             {showCamera ? (
@@ -321,7 +374,7 @@ function DiagnosisContent() {
                 <div className="absolute top-8 right-8">
                   <button 
                     onClick={stopCamera}
-                    className="w-12 h-12 bg-black/40 backdrop-blur-xl rounded-2xl flex items-center justify-center text-white border border-white/10"
+                    className="w-12 h-12 bg-black/40 backdrop-blur-xl rounded-2xl flex items-center justify-center text-white border border-white/10 cursor-pointer"
                   >
                     <span className="material-symbols-outlined">close</span>
                   </button>
@@ -330,14 +383,14 @@ function DiagnosisContent() {
                 <div className="absolute bottom-12 flex items-center gap-8 px-8 w-full justify-center">
                   <button 
                     onClick={() => fileInputRef.current?.click()}
-                    className="w-14 h-14 bg-white/10 backdrop-blur-xl rounded-2xl flex items-center justify-center text-white border border-white/10"
+                    className="w-14 h-14 bg-white/10 backdrop-blur-xl rounded-2xl flex items-center justify-center text-white border border-white/10 cursor-pointer"
                   >
                     <span className="material-symbols-outlined">photo_library</span>
                   </button>
                   
                   <button 
                     onClick={capturePhoto}
-                    className="w-24 h-24 bg-white rounded-full flex items-center justify-center p-2 shadow-[0_0_30px_rgba(255,255,255,0.3)] group active:scale-90 transition-transform"
+                    className="w-24 h-24 bg-white rounded-full flex items-center justify-center p-2 shadow-[0_0_30px_rgba(255,255,255,0.3)] group active:scale-90 transition-transform cursor-pointer"
                   >
                     <div className="w-full h-full border-4 border-slate-900 rounded-full flex items-center justify-center">
                        <div className="w-4 h-4 bg-primary rounded-full animate-pulse"></div>
@@ -368,7 +421,7 @@ function DiagnosisContent() {
                     </div>
                   ) : (
                     <div className="absolute top-6 right-6">
-                       <button onClick={() => setSelectedImage(null)} className="w-10 h-10 bg-black/40 backdrop-blur rounded-xl text-white flex items-center justify-center border border-white/10">
+                       <button onClick={() => setSelectedImage(null)} className="w-10 h-10 bg-black/40 backdrop-blur rounded-xl text-white flex items-center justify-center border border-white/10 cursor-pointer">
                           <span className="material-symbols-outlined text-sm">delete</span>
                        </button>
                     </div>
@@ -385,14 +438,14 @@ function DiagnosisContent() {
           <div className="absolute bottom-12 flex flex-col gap-3 w-full max-w-[280px]">
                     <button 
                       onClick={startCamera}
-                      className="w-full bg-primary text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl shadow-primary/40 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3"
+                      className="w-full bg-primary text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl shadow-primary/40 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3 cursor-pointer"
                     >
                       <span className="material-symbols-outlined">camera</span>
                       Take Photo
                     </button>
                     <button 
                       onClick={() => fileInputRef.current?.click()}
-                      className="w-full bg-white/10 backdrop-blur-xl text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest border border-white/10 hover:bg-white/20 transition-all"
+                      className="w-full bg-white/10 backdrop-blur-xl text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest border border-white/10 hover:bg-white/20 transition-all cursor-pointer"
                     >
                       Choose from Gallery
                     </button>
@@ -459,7 +512,7 @@ function DiagnosisContent() {
         <button 
           onClick={handleDiagnose}
           disabled={!selectedImage || !selectedCrop || isAnalyzing}
-          className="w-full max-w-md bg-primary text-white py-5 rounded-[2rem] font-black text-xl shadow-2xl shadow-primary/30 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed flex items-center justify-center gap-4"
+          className="w-full max-w-md bg-primary text-white py-5 rounded-[2rem] font-black text-xl shadow-2xl shadow-primary/30 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed flex items-center justify-center gap-4 cursor-pointer"
         >
           <span className="material-symbols-outlined text-3xl">biotech</span>
           {isAnalyzing ? t('analyzing') : t('start_analysis')}

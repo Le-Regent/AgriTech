@@ -12,6 +12,7 @@ function DiagnosisResultContent() {
   const [report, setReport] = useState<any>(null);
   const [image, setImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isSpeaking, setIsSpeaking] = useState(false);
 
   useEffect(() => {
     const storedReport = sessionStorage.getItem('diagnosis_report');
@@ -25,6 +26,31 @@ function DiagnosisResultContent() {
       setLoading(false);
     }
   }, [router]);
+
+  useEffect(() => {
+    return () => {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
+
+  const handleSpeechToggle = () => {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    } else {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(report?.recommendations || '');
+      utterance.lang = 'en-US';
+      utterance.onend = () => setIsSpeaking(false);
+      utterance.onerror = () => setIsSpeaking(false);
+      window.speechSynthesis.speak(utterance);
+      setIsSpeaking(true);
+    }
+  };
 
   if (loading || !report) return null;
 
@@ -71,18 +97,18 @@ function DiagnosisResultContent() {
   return (
     <div className="max-w-5xl mx-auto space-y-8">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <Link href="/diagnosis" className="flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary font-bold transition-colors">
+        <Link href="/diagnosis" className="flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary font-bold transition-colors cursor-pointer">
           <span className="material-symbols-outlined">arrow_back</span>
           Back to Analysis
         </Link>
         <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
-          <button className="flex-1 sm:flex-none bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+          <button className="flex-1 sm:flex-none bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer">
             <span className="material-symbols-outlined text-[18px] sm:text-[20px]">share</span>
             Share
           </button>
           <button 
             onClick={handleDownload}
-            className="flex-1 sm:flex-none bg-primary text-white px-3 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
+            className="flex-1 sm:flex-none bg-primary text-white px-3 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 cursor-pointer"
           >
             <span className="material-symbols-outlined text-[18px] sm:text-[20px]">download</span>
             Download
@@ -158,16 +184,25 @@ function DiagnosisResultContent() {
                     AI Recommendations
                   </h4>
                   <button 
-                    onClick={() => {
-                      const utterance = new SpeechSynthesisUtterance(report.recommendations);
-                      utterance.lang = 'en-US';
-                      window.speechSynthesis.speak(utterance);
-                    }}
-                    className="p-2 bg-primary/10 text-primary rounded-xl hover:bg-primary/20 transition-all flex items-center gap-2 group"
-                    title="Read aloud"
+                    onClick={handleSpeechToggle}
+                    className={`p-2 rounded-xl transition-all flex items-center gap-2 group cursor-pointer ${
+                      isSpeaking ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 border border-amber-300/30' : 'bg-primary/10 text-primary hover:bg-primary/20'
+                    }`}
+                    title={isSpeaking ? "Mute / Stop reading" : "Read aloud"}
                   >
-                    <span className="material-symbols-outlined text-[18px] group-active:scale-90 transition-transform">volume_up</span>
-                    <span className="text-[10px] font-black uppercase tracking-widest hidden sm:inline">Voice Assistant</span>
+                    <span className="material-symbols-outlined text-[18px] group-active:scale-90 transition-transform">
+                      {isSpeaking ? 'volume_off' : 'volume_up'}
+                    </span>
+                    <span className="text-[10px] font-black uppercase tracking-widest hidden sm:inline">
+                      {isSpeaking ? 'Stop Reading' : 'Voice Assistant'}
+                    </span>
+                    {isSpeaking && (
+                      <span className="flex items-center gap-0.5 ml-1 select-none">
+                        <span className="w-0.5 h-3 bg-amber-500 rounded-full animate-bounce [animation-delay:0.1s]"></span>
+                        <span className="w-0.5 h-4 bg-amber-500 rounded-full animate-bounce [animation-delay:0.2s]"></span>
+                        <span className="w-0.5 h-2 bg-amber-500 rounded-full animate-bounce [animation-delay:0.3s]"></span>
+                      </span>
+                    )}
                   </button>
                 </div>
                 <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl space-y-3 transition-colors">
