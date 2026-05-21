@@ -8,6 +8,7 @@ import ResponsiveImage from '@/components/ui/ResponsiveImage';
 import { useUser } from '@/context/UserContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { useOffline } from '@/context/OfflineContext';
+import { useCart } from '@/context/CartContext';
 import { INITIAL_PRODUCTS } from '@/constants';
 import { getWeatherData, getCurrentPosition, getForecastData, WeatherData, ForecastData } from '@/lib/weatherService';
 import { supabaseService } from '@/services/supabaseService';
@@ -37,8 +38,9 @@ import { supabase } from '@/lib/supabase';
 import KamerCalendar from '@/components/ui/AgriCalendar';
 
 function DashboardContent() {
-  const { user } = useUser();
+  const { user, updateProfile } = useUser();
   const { t } = useLanguage();
+  const { cart } = useCart();
   const { isOnline, saveToCache, getFromCache, addToSyncQueue } = useOffline();
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
@@ -293,220 +295,243 @@ function DashboardContent() {
   const quickActionsHub = (
     <motion.div 
       variants={itemVariants} 
-      className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 mb-6 sm:mb-8"
+      className="w-full mb-8"
     >
-      {/* Left Side: Role Quick Actions (Downward Stack) */}
-      <div className="lg:col-span-2 bg-gradient-to-br from-white via-slate-50/50 to-emerald-50/20 dark:from-slate-900 dark:via-slate-900 dark:to-emerald-950/10 p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-all relative overflow-hidden flex flex-col justify-between">
-        {/* Decorative ambient background glows */}
-        <div className="absolute right-0 top-0 -mt-20 -mr-20 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute left-1/3 bottom-0 -mb-20 w-60 h-60 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="w-full bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-950 dark:from-slate-950 dark:via-slate-950 dark:to-emerald-950 text-white rounded-[2rem] sm:rounded-[2.5rem] border border-slate-800/80 shadow-xl overflow-hidden relative">
+        {/* Animated fluid decorative background blobs */}
+        <div className="absolute -right-20 -top-20 w-80 h-80 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none animate-pulse duration-10000" />
+        <div className="absolute left-1/4 -bottom-20 w-80 h-80 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+        
+        {/* Inner Card Content: Responsive multi-layout grid */}
+        <div className="p-6 sm:p-8 lg:p-10 relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          {/* Section 1: Dynamic Personalized Welcome Header */}
+          <div className="lg:col-span-2 flex flex-col justify-between space-y-6">
+            <div className="space-y-4">
+              {/* Top line with Active Status Badges and Immediate Role Switch */}
+              <div className="flex flex-wrap items-center gap-2.5">
+                <div className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-md text-emerald-300 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest leading-none border border-white/5">
+                  <span className="material-symbols-outlined text-[13px]">person_play</span>
+                  {isFarmer ? 'Active: Farmer / Producteur' : 'Active: Buyer / Acheteur'}
+                </div>
+                
+                {/* Micro-Toggle Role Switch with high accessibility click layer */}
+                <button
+                  onClick={async () => {
+                    const targetRole = isFarmer ? 'buyer' : 'farmer';
+                    const res = await updateProfile({ user_type: targetRole });
+                    if (res?.error) {
+                      toast.error(res.error);
+                    } else {
+                      toast.success(`Active mode: ${targetRole === 'farmer' ? 'Farmer' : 'Buyer'}`, {
+                        description: `Seamlessly loaded ${targetRole} workspace.`
+                      });
+                    }
+                  }}
+                  className="inline-flex items-center gap-1 bg-primary/20 hover:bg-primary text-primary hover:text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest leading-none transition-all duration-200 border border-primary/30 active:scale-95"
+                >
+                  <span className="material-symbols-outlined text-[12px]">swap_horiz</span>
+                  {isFarmer ? 'Switch to Buyer' : 'Switch to Farmer'}
+                </button>
+              </div>
 
-        <div className="relative z-10 space-y-4">
-          <div className="space-y-1">
-            <div className="inline-flex items-center gap-2 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest leading-none">
-              <span className="material-symbols-outlined text-[12px] animate-pulse">flash_on</span>
-              {t('quick_actions')}
+              {/* Dynamic Welcome Heading with User Name */}
+              <div className="space-y-1">
+                <h3 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+                  Hello, {user?.full_name ? user.full_name.split(' ')[0] : (isFarmer ? 'Farmer' : 'Buyer')}! 👋
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-305 max-w-xl leading-relaxed font-medium">
+                  {isFarmer 
+                    ? t('farmer_onboarding_desc')
+                    : t('buyer_onboarding_desc')}
+                </p>
+              </div>
             </div>
-            <h3 className="text-xl sm:text-2xl font-black dark:text-white tracking-tight">
-              {isFarmer ? t('farmer_onboarding_title') : t('buyer_onboarding_title')}
-            </h3>
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 tracking-tight">
-              {isFarmer 
-                ? t('farmer_onboarding_desc')
-                : t('buyer_onboarding_desc')}
-            </p>
+
+            {/* Quick Action Buttons for both roles (Responsive Row of actions list) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-4">
+              {isFarmer ? (
+                <>
+                  {/* Action 1: Diagnosis */}
+                  <button 
+                    onClick={() => router.push('/diagnosis')}
+                    className="flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 backdrop-blur-md border border-white/10 hover:border-emerald-500/40 rounded-2xl shadow-sm transition-all duration-200 group text-left min-h-[48px] active:scale-[0.99]"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center group-hover:scale-105 transition-transform">
+                        <span className="material-symbols-outlined text-[20px]">add_a_photo</span>
+                      </div>
+                      <div>
+                        <span className="block text-xs font-black text-white group-hover:text-emerald-300 transition-colors uppercase tracking-tight">
+                          {t('onboarding_diagnose_title')}
+                        </span>
+                        <span className="block text-[9px] text-slate-400 mt-0.5 max-w-[150px] sm:max-w-none truncate sm:whitespace-normal">
+                          {t('onboarding_diagnose_subtitle')}
+                        </span>
+                      </div>
+                    </div>
+                    <span className="material-symbols-outlined text-slate-400 group-hover:translate-x-1 group-hover:text-emerald-400 transition-all text-sm ml-2">
+                      arrow_forward_ios
+                    </span>
+                  </button>
+
+                  {/* Action 2: Go to Marketplace */}
+                  <button 
+                    onClick={() => router.push('/marketplace')}
+                    className="flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 backdrop-blur-md border border-white/10 hover:border-orange-500/40 rounded-2xl shadow-sm transition-all duration-200 group text-left min-h-[48px] active:scale-[0.99]"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-orange-500/10 text-orange-400 flex items-center justify-center group-hover:scale-105 transition-transform">
+                        <span className="material-symbols-outlined text-[20px]">storefront</span>
+                      </div>
+                      <div>
+                        <span className="block text-xs font-black text-white group-hover:text-orange-300 transition-colors uppercase tracking-tight">
+                          {t('onboarding_marketplace_title')}
+                        </span>
+                        <span className="block text-[9px] text-slate-400 mt-0.5 max-w-[150px] sm:max-w-none truncate sm:whitespace-normal">
+                          {t('onboarding_marketplace_subtitle')}
+                        </span>
+                      </div>
+                    </div>
+                    <span className="material-symbols-outlined text-slate-400 group-hover:translate-x-1 group-hover:text-orange-400 transition-all text-sm ml-2">
+                      arrow_forward_ios
+                    </span>
+                  </button>
+                </>
+              ) : (
+                <>
+                  {/* Action 1: Browse Produce */}
+                  <button 
+                    onClick={() => router.push('/marketplace')}
+                    className="flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 backdrop-blur-md border border-white/10 hover:border-indigo-500/40 rounded-2xl shadow-sm transition-all duration-200 group text-left min-h-[48px] active:scale-[0.99]"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center group-hover:scale-105 transition-transform">
+                        <span className="material-symbols-outlined text-[20px]">shopping_cart</span>
+                      </div>
+                      <div>
+                        <span className="block text-xs font-black text-white group-hover:text-indigo-300 transition-colors uppercase tracking-tight">
+                          {t('onboarding_shop_title')}
+                        </span>
+                        <span className="block text-[9px] text-slate-400 mt-0.5 max-w-[150px] sm:max-w-none truncate sm:whitespace-normal">
+                          {t('onboarding_shop_subtitle')}
+                        </span>
+                      </div>
+                    </div>
+                    <span className="material-symbols-outlined text-slate-400 group-hover:translate-x-1 group-hover:text-indigo-400 transition-all text-sm ml-2">
+                      arrow_forward_ios
+                    </span>
+                  </button>
+
+                  {/* Action 2: Track Orders */}
+                  <button 
+                    onClick={() => router.push('/orders')}
+                    className="flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 backdrop-blur-md border border-white/10 hover:border-purple-500/40 rounded-2xl shadow-sm transition-all duration-200 group text-left min-h-[48px] active:scale-[0.99]"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center group-hover:scale-105 transition-transform">
+                        <span className="material-symbols-outlined text-[20px]">local_shipping</span>
+                      </div>
+                      <div>
+                        <span className="block text-xs font-black text-white group-hover:text-purple-300 transition-colors uppercase tracking-tight">
+                          {t('onboarding_orders_title')}
+                        </span>
+                        <span className="block text-[9px] text-slate-400 mt-0.5 max-w-[150px] sm:max-w-none truncate sm:whitespace-normal">
+                          {t('onboarding_orders_subtitle')}
+                        </span>
+                      </div>
+                    </div>
+                    <span className="material-symbols-outlined text-slate-400 group-hover:translate-x-1 group-hover:text-purple-400 transition-all text-sm ml-2">
+                      arrow_forward_ios
+                    </span>
+                  </button>
+                </>
+              )}
+            </div>
           </div>
 
-          {/* Downward Stack of concise primary action buttons */}
-          <div className="flex flex-col gap-3 pt-2">
+          {/* Section 2: Interactive Role Status Sidebar Card - Responsive (stacked on mobile/tablet, visual block on desktop) */}
+          <div className="w-full bg-slate-950/40 backdrop-blur-xl p-5 sm:p-6 rounded-3xl border border-white/5 flex flex-col justify-between space-y-4 shadow-inner">
             {isFarmer ? (
               <>
-                {/* Farmer Action 1: AI Diagnostics */}
-                <button 
-                  onClick={() => router.push('/diagnosis')}
-                  className="w-full flex items-center justify-between p-4 bg-white dark:bg-slate-800/80 hover:bg-emerald-50/50 dark:hover:bg-emerald-500/5 border border-slate-100/50 dark:border-slate-800/80 hover:border-emerald-500/30 dark:hover:border-emerald-500/20 rounded-2xl shadow-xs transition-all duration-200 group text-left"
-                >
-                  <div className="flex items-center gap-3.5">
-                    <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-black group-hover:scale-105 transition-all">
-                      <span className="material-symbols-outlined text-[20px]">add_a_photo</span>
-                    </div>
-                    <div>
-                      <span className="block text-xs sm:text-sm font-black text-slate-900 dark:text-white group-hover:text-primary transition-colors">
-                        {t('onboarding_diagnose_title')}
-                      </span>
-                      <span className="block text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                        {t('onboarding_diagnose_subtitle')}
+                <div className="space-y-4 text-left">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1.5 leading-none">
+                      <span className="material-symbols-outlined text-sm text-primary">storefront</span>
+                      {t('my_store_badge') || 'My Store'}
+                    </span>
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-black text-white tracking-tight leading-snug">
+                      {t('my_store_title') || 'Your Digital Farm Stall'}
+                    </h4>
+                    <p className="text-[11px] text-slate-300 leading-relaxed mt-1">
+                      {t('my_store_desc') || "Check pricing benchmarks or list new items for escrow purchase instantly."}
+                    </p>
+                  </div>
+                  <div className="border-t border-white/5 pt-3.5 space-y-2">
+                    <div className="flex items-center justify-between text-[11px] text-slate-400">
+                      <span>{t('active_catalog') || 'My Listings'}</span>
+                      <span className="font-extrabold text-primary">
+                        {dataLoading ? "..." : myProducts.length} {t('listings') || 'Listings'}
                       </span>
                     </div>
                   </div>
-                  <span className="material-symbols-outlined text-slate-400 group-hover:translate-x-1 group-hover:text-primary transition-all text-[18px] ml-2">
-                    arrow_forward_ios
-                  </span>
-                </button>
+                </div>
 
-                {/* Farmer Action 2: Go to Marketplace */}
-                <button 
-                  onClick={() => router.push('/marketplace')}
-                  className="w-full flex items-center justify-between p-4 bg-white dark:bg-slate-800/80 hover:bg-emerald-50/50 dark:hover:bg-emerald-500/5 border border-slate-100/50 dark:border-slate-800/80 hover:border-emerald-500/30 dark:hover:border-emerald-500/20 rounded-2xl shadow-xs transition-all duration-200 group text-left"
+                <button
+                  onClick={() => router.push(`/farmer/${user?.id || 'profile'}`)}
+                  className="w-full h-11 inline-flex items-center justify-center gap-2 px-5 bg-primary hover:bg-primary/95 text-white font-black text-[11px] uppercase tracking-wider rounded-2xl transition-all shadow-md active:scale-95 duration-200"
                 >
-                  <div className="flex items-center gap-3.5">
-                    <div className="w-10 h-10 rounded-xl bg-orange-50 dark:bg-orange-500/10 text-orange-500 flex items-center justify-center font-black group-hover:scale-105 transition-all">
-                      <span className="material-symbols-outlined text-[20px]">storefront</span>
-                    </div>
-                    <div>
-                      <span className="block text-xs sm:text-sm font-black text-slate-900 dark:text-white group-hover:text-primary transition-colors">
-                        {t('onboarding_marketplace_title')}
-                      </span>
-                      <span className="block text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                        {t('onboarding_marketplace_subtitle')}
-                      </span>
-                    </div>
-                  </div>
-                  <span className="material-symbols-outlined text-slate-400 group-hover:translate-x-1 group-hover:text-primary transition-all text-[18px] ml-2">
-                    arrow_forward_ios
-                  </span>
+                  <span className="material-symbols-outlined text-sm">point_of_sale</span>
+                  {t('go_to_store_btn') || 'Go to My Farm Stall'}
                 </button>
               </>
             ) : (
               <>
-                {/* Buyer Action 1: Marketplace */}
-                <button 
-                  onClick={() => router.push('/marketplace')}
-                  className="w-full flex items-center justify-between p-4 bg-white dark:bg-slate-800/80 hover:bg-indigo-50/50 dark:hover:bg-indigo-500/5 border border-slate-100/50 dark:border-slate-800/80 hover:border-indigo-500/30 dark:hover:border-indigo-500/20 rounded-2xl shadow-xs transition-all duration-200 group text-left"
-                >
-                  <div className="flex items-center gap-3.5">
-                    <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-500 flex items-center justify-center font-black group-hover:scale-105 transition-all">
-                      <span className="material-symbols-outlined text-[20px]">shopping_cart</span>
-                    </div>
-                    <div>
-                      <span className="block text-xs sm:text-sm font-black text-slate-900 dark:text-white group-hover:text-indigo-500 transition-colors">
-                        {t('onboarding_shop_title')}
+                <div className="space-y-4 text-left">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1.5 leading-none">
+                      <span className="material-symbols-outlined text-sm text-primary animate-bounce">shopping_cart</span>
+                      {t('my_basket_badge') || 'My Basket'}
+                    </span>
+                    {cart.length > 0 && (
+                      <span className="text-[9px] font-black uppercase tracking-widest bg-primary/20 text-primary border border-primary/30 px-2 py-0.5 rounded-full">
+                        {cart.length} item{cart.length !== 1 ? 's' : ''}
                       </span>
-                      <span className="block text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                        {t('onboarding_shop_subtitle')}
+                    )}
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-black text-white tracking-tight leading-snug">
+                      {t('my_basket_title') || 'Fresh Local Shopping'}
+                    </h4>
+                    <p className="text-[11px] text-slate-300 leading-relaxed mt-1">
+                      {t('my_basket_desc') || "Track item transit or continue to checkout with your active cooperative basket."}
+                    </p>
+                  </div>
+                  <div className="border-t border-white/5 pt-3.5 space-y-2">
+                    <div className="flex items-center justify-between text-[11px] text-slate-400">
+                      <span>{t('checkout_ready') || 'Basket Status'}</span>
+                      <span className="font-extrabold text-primary">
+                        {cart.length > 0 ? (t('ready_now') || 'Ready now') : 'Empty'}
                       </span>
                     </div>
                   </div>
-                  <span className="material-symbols-outlined text-slate-400 group-hover:translate-x-1 group-hover:text-indigo-500 transition-all text-[18px] ml-2">
-                    arrow_forward_ios
-                  </span>
-                </button>
+                </div>
 
-                {/* Buyer Action 2: Order History */}
-                <button 
-                  onClick={() => router.push('/orders')}
-                  className="w-full flex items-center justify-between p-4 bg-white dark:bg-slate-800/80 hover:bg-indigo-50/50 dark:hover:bg-indigo-500/5 border border-slate-100/50 dark:border-slate-800/80 hover:border-indigo-500/30 dark:hover:border-indigo-500/20 rounded-2xl shadow-xs transition-all duration-200 group text-left"
+                <button
+                  onClick={() => router.push('/cart')}
+                  className="w-full h-11 inline-flex items-center justify-center gap-2 px-5 bg-primary hover:bg-primary/95 text-white font-black text-[11px] uppercase tracking-wider rounded-2xl transition-all shadow-md active:scale-95 duration-200"
                 >
-                  <div className="flex items-center gap-3.5">
-                    <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-500/10 text-purple-500 flex items-center justify-center font-black group-hover:scale-105 transition-all">
-                      <span className="material-symbols-outlined text-[20px]">local_shipping</span>
-                    </div>
-                    <div>
-                      <span className="block text-xs sm:text-sm font-black text-slate-900 dark:text-white group-hover:text-indigo-500 transition-colors">
-                        {t('onboarding_orders_title')}
-                      </span>
-                      <span className="block text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                        {t('onboarding_orders_subtitle')}
-                      </span>
-                    </div>
-                  </div>
-                  <span className="material-symbols-outlined text-slate-400 group-hover:translate-x-1 group-hover:text-indigo-500 transition-all text-[18px] ml-2">
-                    arrow_forward_ios
-                  </span>
+                  <span className="material-symbols-outlined text-sm">shopping_cart</span>
+                  {t('checkout_cart_btn') || 'Go to Basket'}
                 </button>
               </>
             )}
           </div>
+
         </div>
-      </div>
-
-      {/* Right Side: Contextual Call-To-Action Card (Storefront or Basket) */}
-      <div className="hidden lg:flex bg-gradient-to-br from-slate-900 to-emerald-950 text-white p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-800 shadow-md relative overflow-hidden flex-col justify-between group">
-        {/* Decorative design aesthetics */}
-        <div className="absolute right-0 bottom-0 -mb-24 -mr-16 w-56 h-56 bg-primary/20 rounded-full blur-2xl pointer-events-none" />
-        <div className="absolute top-0 left-0 w-full h-full bg-grid-white/[0.02] pointer-events-none" />
-
-        {isFarmer ? (
-          <>
-            {/* Farmer Storefront CTA */}
-            <div className="relative z-10 space-y-4">
-              <div className="inline-flex items-center gap-1.5 bg-primary/20 text-primary border border-primary/30 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest leading-none">
-                <span className="material-symbols-outlined text-[13px]">storefront</span>
-                {t('my_store_badge')}
-              </div>
-              <div>
-                <h4 className="text-xl font-black text-white tracking-tight leading-snug">
-                  {t('my_store_title')}
-                </h4>
-                <p className="text-[11px] text-slate-350 leading-relaxed mt-2">
-                  {t('my_store_desc')}
-                </p>
-              </div>
-
-              <div className="pt-2">
-                <div className="bg-white/5 border border-white/10 p-3.5 rounded-2xl flex items-center justify-between">
-                  <span className="text-[11px] text-slate-400 flex items-center gap-1.5 font-medium">
-                    <span className="material-symbols-outlined text-xs text-primary">inventory_2</span>
-                    {t('active_catalog')}
-                  </span>
-                  <span className="text-xs font-black text-primary">
-                    {dataLoading ? "..." : myProducts.length} {t('listings')}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="relative z-10 pt-6">
-              <button
-                onClick={() => router.push(`/farmer/${user?.id || 'profile'}`)}
-                className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 bg-primary hover:bg-primary/95 text-white font-black text-[11px] uppercase tracking-wider rounded-2xl transition-all shadow-md active:scale-98"
-              >
-                <span className="material-symbols-outlined text-[16px]">point_of_sale</span>
-                {t('go_to_store_btn')}
-              </button>
-            </div>
-          </>
-        ) : (
-          <>
-            {/* Buyer Basket CTA */}
-            <div className="relative z-10 space-y-4">
-              <div className="inline-flex items-center gap-1.5 bg-primary/20 text-primary border border-primary/30 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest leading-none">
-                <span className="material-symbols-outlined text-[13px]">shopping_bag</span>
-                {t('my_basket_badge')}
-              </div>
-              <div>
-                <h4 className="text-xl font-black text-white tracking-tight leading-snug">
-                  {t('my_basket_title')}
-                </h4>
-                <p className="text-[11px] text-slate-350 leading-relaxed mt-2">
-                  {t('my_basket_desc')}
-                </p>
-              </div>
-
-              <div className="pt-2">
-                <div className="bg-white/5 border border-white/10 p-3.5 rounded-2xl flex items-center justify-between">
-                  <span className="text-[11px] text-slate-400 flex items-center gap-1.5 font-medium">
-                    <span className="material-symbols-outlined text-xs text-primary">shopping_bag</span>
-                    {t('checkout_ready')}
-                  </span>
-                  <span className="text-xs font-black text-primary uppercase">
-                    {t('ready_now')}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="relative z-10 pt-6">
-              <button
-                onClick={() => router.push('/cart')}
-                className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 bg-primary hover:bg-primary/95 text-white font-black text-[11px] uppercase tracking-wider rounded-2xl transition-all shadow-md active:scale-98"
-              >
-                <span className="material-symbols-outlined text-[16px]">shopping_cart</span>
-                {t('checkout_cart_btn')}
-              </button>
-            </div>
-          </>
-        )}
       </div>
     </motion.div>
   );
@@ -567,6 +592,8 @@ function DashboardContent() {
           </div>
         </motion.div>
 
+        {quickActionsHub}
+
         <motion.div 
           variants={containerVariants} 
           className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6"
@@ -582,8 +609,6 @@ function DashboardContent() {
             </motion.div>
           ))}
         </motion.div>
-
-        {quickActionsHub}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
