@@ -33,33 +33,44 @@ function ProductDetailContent() {
   useEffect(() => {
     const fetchProduct = async () => {
       if (!id) return;
-      setLoading(true);
+      
+      // 1. Try to load from cache IMMEDIATELY to avoid ANY layout shift or UI block
+      let cachedData = await getFromCache(`product_${id}`);
+      
+      if (!cachedData) {
+        // Fallback: look in the main list cache
+        const allCachedProducts = await getFromCache('marketplace_products');
+        if (allCachedProducts && Array.isArray(allCachedProducts)) {
+          cachedData = allCachedProducts.find((p: any) => p.id === id);
+        }
+      }
+
+      if (cachedData) {
+        setProduct(cachedData as Product);
+        setSelectedUnit(cachedData.unit);
+        setQuantity(cachedData.min_quantity || 1);
+        setLoading(false); // Make it INSTANTLY visible! 0ms!
+      } else {
+        setLoading(true); // only show loading if we have absolutely nothing in cache
+      }
+
+      // 2. Regardless of cache, fetch the absolute latest version from Supabase to "revalidate"
       try {
         if (isOnline) {
           const data = await supabaseService.getProductById(id);
           if (data) {
             const prod = data as Product;
             setProduct(prod);
-            setSelectedUnit(prod.unit);
-            setQuantity(prod.min_quantity || 1);
+            setSelectedUnit(prev => prev || prod.unit);
+            setQuantity(prev => {
+              if (!cachedData) return prod.min_quantity || 1;
+              return prev;
+            });
             saveToCache(`product_${id}`, data);
-          }
-        } else {
-          const cached = await getFromCache(`product_${id}`);
-          if (cached) {
-            setProduct(cached);
-            setSelectedUnit(cached.unit);
-            setQuantity(cached.min_quantity || 1);
           }
         }
       } catch (error) {
-        console.error('Failed to fetch product:', error);
-        const cached = await getFromCache(`product_${id}`);
-        if (cached) {
-          setProduct(cached);
-          setSelectedUnit(cached.unit);
-          setQuantity(cached.min_quantity || 1);
-        }
+        console.error('Failed to update product details from service:', error);
       } finally {
         setLoading(false);
       }

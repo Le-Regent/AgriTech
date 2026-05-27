@@ -13,6 +13,7 @@ import ProductCard from '@/components/features/marketplace/ProductCard';
 import { useUser } from '@/context/UserContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { useMarketplace } from '@/hooks/useMarketplace';
+import { useOffline } from '@/context/OfflineContext';
 
 // Sub-components
 import MarketplaceHeader from '@/components/features/marketplace/MarketplaceHeader';
@@ -28,6 +29,7 @@ function MarketplaceContent() {
   const { user } = useUser();
   const { t } = useLanguage();
   const { addToCart } = useCart();
+  const { saveToCache } = useOffline();
   const router = useRouter();
   
   const {
@@ -42,6 +44,13 @@ function MarketplaceContent() {
     fetchProducts,
     setAllProducts
   } = useMarketplace();
+
+  const handlePrefetchProduct = (product: Product) => {
+    // 1. Warm Next.js page prefetch chunk
+    router.prefetch(`/marketplace/${product.id}`);
+    // 2. Pre-seed the detail cache so it opens instantaneously from state with zero delay
+    saveToCache(`product_${product.id}`, product);
+  };
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
@@ -286,7 +295,7 @@ function MarketplaceContent() {
           sortedProducts.map((product, index) => (
             <motion.div key={product.id} variants={itemVariants} className={index === 0 ? 'product-card-first' : ''}>
               {viewMode === 'grid' ? (
-                <div className="relative h-full">
+                <div className="relative h-full" onMouseEnter={() => handlePrefetchProduct(product)}>
                   <ProductCard 
                     product={product} 
                     onClick={() => {
@@ -334,7 +343,7 @@ function MarketplaceContent() {
                   </ProductCard>
                 </div>
               ) : (
-                <Link href={`/marketplace/${product.id}`} className="bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-100 dark:border-slate-800 flex gap-4">
+                <Link href={`/marketplace/${product.id}`} onMouseEnter={() => handlePrefetchProduct(product)} className="bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-100 dark:border-slate-800 flex gap-4">
                   <div className="w-24 h-24 rounded-2xl overflow-hidden shrink-0">
                     <ResponsiveImage src={product.image_url || ''} alt={product.name} className="w-full h-full object-cover" baseWidth={200} baseHeight={200} />
                   </div>

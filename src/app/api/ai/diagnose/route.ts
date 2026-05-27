@@ -34,14 +34,21 @@ export async function POST(req: NextRequest) {
 
     logger.info('Initiating AI diagnosis', { cropType });
 
-    const ai = new GoogleGenAI({ apiKey });
+    const ai = new GoogleGenAI({ 
+      apiKey,
+      httpOptions: {
+        headers: {
+          'User-Agent': 'aistudio-build',
+        }
+      }
+    });
     const model = "gemini-3.5-flash"; // Standard, modern, non-deprecated model for basic/complex text/multimodal tasks
 
     const prompt = `Analyze this ${cropType} leaf image for diseases or health issues. 
     ${weatherContext || ''}
     If the selected cropType input is 'Other' or is unspecified, identify the specific plant or crop type from the image (e.g. Cassava, Plantain, Mango, Groundnut, etc.) and specify it in 'detectedCropType'. Otherwise, set 'detectedCropType' to ${cropType}.
     Provide a detailed report in JSON format.
-    IMPORTANT: For all "icon" fields, use ONLY valid Material Symbol names.`;
+    IMPORTANT: Provide brief, concise descriptions, symptoms, recommendations, and causes to minimize latency and optimize response speed. For all "icon" fields, use ONLY valid Material Symbol names.`;
 
     const response = await ai.models.generateContent({
       model,

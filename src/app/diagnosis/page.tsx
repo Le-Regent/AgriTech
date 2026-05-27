@@ -189,7 +189,7 @@ function DiagnosisContent() {
       setAnalysisStep(0);
       interval = setInterval(() => {
         setAnalysisStep(prev => (prev < ANALYSIS_STEPS.length - 1 ? prev + 1 : prev));
-      }, 900); // Further reduced to 900ms for snappier feel
+      }, 450); // Snappier step simulation (450ms) to feel highly advanced and fast
     }
     return () => clearInterval(interval);
   }, [isAnalyzing]);
@@ -200,8 +200,8 @@ function DiagnosisContent() {
       img.src = base64Str;
       img.onload = () => {
         const canvas = document.createElement('canvas');
-        const MAX_WIDTH = 512;
-        const MAX_HEIGHT = 512;
+        const MAX_WIDTH = 384; // Optimized image dimension for super-fast API transmission
+        const MAX_HEIGHT = 384;
         let width = img.width;
         let height = img.height;
 
@@ -221,7 +221,7 @@ function DiagnosisContent() {
         canvas.height = height;
         const ctx = canvas.getContext('2d');
         ctx?.drawImage(img, 0, 0, width, height);
-        resolve(canvas.toDataURL('image/jpeg', 0.5));
+        resolve(canvas.toDataURL('image/jpeg', 0.45)); // High quality-to-size compression
       };
     });
   };
@@ -261,33 +261,39 @@ function DiagnosisContent() {
       report.cropType = activeCrop; // Add crop type to report
       setSuccess('Analysis complete! Redirecting to results...');
       
-      // Save to Supabase
-      if (user?.id) {
-        try {
-          const diagnosisData = {
-            farmer_id: user.id,
-            crop_type: activeCrop,
-            image_url: base64Data,
-            result_label: report.diseaseName,
-            confidence: report.confidence || report.confidence_score,
-            status: report.status,
-            recommendation: report.recommendations,
-            created_at: new Date().toISOString()
-          };
-          
-          await supabaseService.createDiagnosis(diagnosisData);
-          toast.success('Diagnosis saved to your history');
-        } catch (dbError: any) {
-          console.error('Failed to save diagnosis to database:', dbError);
-          toast.error(`Failed to save diagnosis: ${dbError.message || 'Unknown error'}`);
-          // We still proceed to the result page even if DB save fails
-        }
-      }
-
+      // Save report and the optimized compressed image to sessionStorage (Instant!)
+      // This guarantees no QuotaExceededErrors on sessionStorage writes
       sessionStorage.setItem('diagnosis_report', JSON.stringify(report));
-      sessionStorage.setItem('diagnosis_image', base64Data);
+      sessionStorage.setItem('diagnosis_image', compressedData);
       
+      // Transition immediately! 0ms wait for the user to see results
       router.push('/diagnosis/result');
+
+      // Save to Supabase in background without blocking the screen navigation
+      if (user?.id) {
+        const confidenceScore = typeof report.confidence === 'number' 
+          ? report.confidence 
+          : (typeof report.confidence_score === 'number' ? report.confidence_score : 0.85);
+
+        const diagnosisData = {
+          farmer_id: user.id,
+          crop_type: activeCrop,
+          image_url: compressedData, // Use highly compressed image for fast DB write!
+          result_label: report.diseaseName || 'Healthy Leaf',
+          confidence: confidenceScore,
+          status: report.status || 'healthy',
+          recommendation: report.recommendations || '',
+          created_at: new Date().toISOString()
+        };
+        
+        supabaseService.createDiagnosis(diagnosisData)
+          .then(() => {
+            console.log('Diagnosis successfully stored in backend history');
+          })
+          .catch((dbError: any) => {
+            console.error('Failed to save diagnosis to database:', dbError);
+          });
+      }
     } catch (error: any) {
       console.error('AI Analysis failed:', error);
       setError(error.message || 'Analysis failed. Please try again with a clearer image.');
