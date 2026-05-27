@@ -229,10 +229,10 @@ export default function HistoryContent() {
           </p>
         </div>
         
-        <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl">
+         <div className="flex w-full md:w-auto bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl overflow-x-auto scrollbar-none whitespace-nowrap">
           <button 
             onClick={() => setActiveTab('transactions')}
-            className={`px-6 py-2.5 rounded-xl text-sm font-black transition-all ${
+            className={`flex-1 md:flex-initial px-4 sm:px-6 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all ${
               activeTab === 'transactions' 
                 ? 'bg-white dark:bg-slate-700 text-primary shadow-sm' 
                 : 'text-slate-500 hover:text-slate-700'
@@ -244,7 +244,7 @@ export default function HistoryContent() {
             <>
               <button 
                 onClick={() => setActiveTab('diagnoses')}
-                className={`px-6 py-2.5 rounded-xl text-sm font-black transition-all ${
+                className={`flex-1 md:flex-initial px-4 sm:px-6 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all ${
                   activeTab === 'diagnoses' 
                     ? 'bg-white dark:bg-slate-700 text-primary shadow-sm' 
                     : 'text-slate-500 hover:text-slate-700'
@@ -254,7 +254,7 @@ export default function HistoryContent() {
               </button>
               <button 
                 onClick={() => setActiveTab('trends')}
-                className={`px-6 py-2.5 rounded-xl text-sm font-black transition-all ${
+                className={`flex-1 md:flex-initial px-4 sm:px-6 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all ${
                   activeTab === 'trends' 
                     ? 'bg-white dark:bg-slate-700 text-primary shadow-sm' 
                     : 'text-slate-500 hover:text-slate-700'
@@ -329,7 +329,79 @@ export default function HistoryContent() {
                 )}
               </div>
               
-              <div className="overflow-x-auto">
+              <div className="md:hidden block p-4 divide-y divide-slate-100 dark:divide-slate-800">
+                {loading && history.length === 0 ? (
+                  [...Array(3)].map((_, i) => (
+                    <div key={i} className="py-4 animate-pulse space-y-2">
+                      <div className="flex justify-between">
+                        <div className="h-4 bg-slate-100 dark:bg-muted-dark rounded w-1/4"></div>
+                        <div className="h-4 bg-slate-100 dark:bg-muted-dark rounded w-1/6"></div>
+                      </div>
+                      <div className="h-4 bg-slate-100 dark:bg-muted-dark rounded w-1/2"></div>
+                      <div className="h-8 bg-slate-100 dark:bg-muted-dark rounded w-1/3"></div>
+                    </div>
+                  ))
+                ) : history.length === 0 ? (
+                  <div className="py-8 text-center text-slate-400 dark:text-slate-500 font-bold text-sm">
+                    No transactions found
+                  </div>
+                ) : (
+                  history.map((item) => (
+                    <div key={item.id} className="py-4 space-y-3">
+                      <div className="flex justify-between items-start">
+                        <div className="flex flex-col">
+                          <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{item.date}</span>
+                          <span className="text-base font-black text-slate-900 dark:text-white mt-0.5">{item.crop || item.item}</span>
+                          {item.type === 'Sale' && item.buyer && (
+                            <span className="text-[10px] text-slate-400 font-black uppercase mt-0.5">To: {item.buyer}</span>
+                          )}
+                          {item.type === 'Purchase' && item.seller && (
+                            <span className="text-[10px] text-slate-400 font-black uppercase mt-0.5">From: {item.seller}</span>
+                          )}
+                        </div>
+                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest leading-none ${
+                          item.type === 'Sale' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
+                        }`}>
+                          {item.type}
+                        </span>
+                      </div>
+                      
+                      <div className="flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/40 p-3 rounded-2xl">
+                        <div>
+                          <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Total Amount</p>
+                          <p className="text-sm font-black text-slate-900 dark:text-white">{item.amount.toLocaleString()} CFA</p>
+                        </div>
+                        <div>
+                          <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest leading-none ${
+                            item.status === 'Delivered' || item.status === 'Completed' ? 'bg-green-50 text-green-600' : 
+                            item.status === 'Pending' ? 'bg-amber-50 text-amber-600' : 'bg-blue-50 text-blue-600'
+                          }`}>
+                            {item.status}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex justify-end pt-1">
+                        {isFarmer && item.type === 'Sale' && item.originalStatus !== 'delivered' && item.originalStatus !== 'completed' ? (
+                          <button
+                            onClick={() => updateOrderStatus(item.id, 'delivered')}
+                            disabled={isUpdatingStatus === item.id || !isOnline}
+                            className={`w-full py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all text-center ${
+                              isUpdatingStatus === item.id || !isOnline
+                                ? 'bg-slate-100 text-slate-400'
+                                : 'bg-primary text-white hover:bg-primary-dark cursor-pointer'
+                            }`}
+                          >
+                            {isUpdatingStatus === item.id ? 'Updating...' : 'Mark Delivered'}
+                          </button>
+                        ) : null}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              <div className="hidden md:block overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="bg-slate-50/50 dark:bg-muted-dark/50 border-y border-slate-100 dark:border-border-dark">
