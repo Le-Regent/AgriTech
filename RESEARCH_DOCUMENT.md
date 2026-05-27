@@ -57,17 +57,8 @@ Agriculture remains the backbone of economic development in many developing nati
 ### [CHAPTER 3: MATERIALS AND METHODS](./CHAPTER_3_MATERIALS_AND_METHODS.md)
 *Detailed materials, system engineering, relational schemas, AI classification algorithms, and UX designs provided in the auxiliary file.*
 
-### CHAPTER 4: RESULTS AND DISCUSSIONS
-**Prototype Version 1.0 (Gemini Integrated):**
-- Successful implementation of Gemini AI Diagnosis Center (incorporating zero-shot botanical plant species identification for unspecified 'Other' inputs).
-- Dynamic Interactive Onboarding Hub with sliding spring modes for Farmer and Buyer access paths.
-- Highly optimized mobile dual-grid viewport preserving visual cards and listing discovery.
-- Absolute role governance restricting the Admin Panel from non-administrative elevations.
-- Integrated human-centric conversational advisory for cooperative networks.
-- Implementation of Chapter 1 (Introduction), Chapter 2 (Literature Review), and Chapter 3 (Materials and Methods).
-- Live weather dashboard with localized soil moisture estimators and planting warnings.
-- Secure direct-to-consumer (D2C) marketplace with integrated escrow controls and dual-handshake delivery validations.
-- Real-time GPS-simulated shipment tracking modules.
+### [CHAPTER 4: RESULTS AND DISCUSSIONS](./CHAPTER_4_RESULTS_AND_DISCUSSIONS.md)
+*Detailed empirical analysis, performance benchmarks under simulated 3G low-bandwidth trials, zero-shot plant pathology diagnostics metrics, mobile dual-grid optimizations, transactional escrow operations, and RLS security auditing provided in the auxiliary file.*
 
 ---
 

@@ -8,6 +8,7 @@ import { CartProvider } from '@/context/CartContext';
 import { LanguageProvider } from '@/context/LanguageContext';
 import SyncManager from '@/components/features/sync/SyncManager';
 import { RoleSelectionGuard } from '@/components/auth/RoleSelectionGuard';
+import { SvgIconHydrator } from '@/components/ui/MaterialIcon';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -19,6 +20,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
               <NotificationProvider>
                 <CartProvider>
                   <SyncManager />
+                  <SvgIconHydrator />
                   {children}
                 </CartProvider>
               </NotificationProvider>
