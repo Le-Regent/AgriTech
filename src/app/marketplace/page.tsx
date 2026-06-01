@@ -140,7 +140,15 @@ function MarketplaceContent() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ productName })
       });
-      if (!response.ok) throw new Error('Failed to generate image');
+      if (!response.ok) {
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch {
+          errorData = { error: 'Failed to generate image' };
+        }
+        throw new Error(errorData.friendlyMessage || errorData.error || 'Failed to generate image');
+      }
       const { image } = await response.json();
       if (image) {
         setAllProducts(prev => prev.map(p => p.id === productId ? { ...p, image_url: image } : p));

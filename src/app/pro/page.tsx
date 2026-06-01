@@ -221,7 +221,7 @@ export default function ProPage() {
 
       {/* Simple Footer */}
       <footer className="py-12 border-t border-slate-100 dark:border-slate-900 text-center">
-         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Secure Payments Powered by KamerPay and MTN MoMo</p>
+         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Secure Payments Powered by KamerFresh and MTN MoMo</p>
          <button 
           onClick={() => router.push('/')}
           className="text-slate-600 dark:text-slate-400 text-xs font-bold hover:text-primary transition-colors underline underline-offset-4"

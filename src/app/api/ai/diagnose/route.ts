@@ -3,6 +3,7 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { logger } from '@/lib/logger';
 import { handleRateLimit } from '@/lib/security/rateLimit';
 import { diagnoseSchema } from '@/lib/validations/ai';
+import { getFriendlyAiError } from '@/lib/aiErrorHelper';
 
 export async function POST(req: NextRequest) {
   try {
@@ -138,6 +139,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(JSON.parse(response.text));
   } catch (error: any) {
     logger.error('AI Diagnosis API Error', error);
-    return NextResponse.json({ error: error.message || 'Internal server error during analysis' }, { status: 500 });
+    const friendly = getFriendlyAiError(error);
+    return NextResponse.json(friendly, { status: friendly.status });
   }
 }

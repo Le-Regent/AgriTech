@@ -416,7 +416,7 @@ function CheckoutContent() {
                             {method.label}
                           </span>
                           {method.id === 'mobile-money' && (
-                            <span className="text-[10px] text-slate-400 font-medium tracking-tight">KamerPay Secured Checkout</span>
+                            <span className="text-[10px] text-slate-400 font-medium tracking-tight">KamerFresh Secured Checkout</span>
                           )}
                         </div>
                       </div>

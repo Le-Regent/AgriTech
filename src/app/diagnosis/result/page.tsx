@@ -101,7 +101,17 @@ function DiagnosisResultContent() {
           <span className="material-symbols-outlined">arrow_back</span>
           Back to Analysis
         </Link>
-        <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
+        <div className="flex flex-wrap gap-2 sm:gap-3 w-full sm:w-auto">
+          <button 
+            onClick={() => {
+              const text = `KamerFresh Crop Diagnostic Status for ${report.cropType || 'Crop'}: *${report.diseaseName}* (${((report.confidence || report.confidence_score || 0) * 100).toFixed(1)}% confidence). Recommendations: ${report.recommendations}`;
+              window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+            }}
+            className="flex-1 sm:flex-none bg-emerald-600 hover:bg-emerald-700 text-white px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-colors shadow-lg shadow-emerald-500/20 cursor-pointer"
+          >
+            <span className="material-symbols-outlined text-[18px] sm:text-[20px]">chat</span>
+            Share via WhatsApp
+          </button>
           <button className="flex-1 sm:flex-none bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer">
             <span className="material-symbols-outlined text-[18px] sm:text-[20px]">share</span>
             Share
@@ -118,7 +128,7 @@ function DiagnosisResultContent() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
         <div className="lg:col-span-2 space-y-6 sm:space-y-8">
-          <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-all">
+          <div className="diagnosis-result-report-card bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-all">
             <div className="flex flex-col sm:flex-row items-start justify-between mb-6 sm:mb-8 gap-4">
               <div className="space-y-1">
                 <div className="flex flex-wrap items-center gap-2">
@@ -134,6 +144,11 @@ function DiagnosisResultContent() {
                       {report.cropType || 'Plant'}
                     </span>
                   )}
+                  {/* Small, high-visibility Confidence Score badge */}
+                  <span className="px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-full bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-500/20 flex items-center gap-1 shadow-sm">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    Confidence: {((report.confidence || report.confidence_score || 0) * 100).toFixed(0)}%
+                  </span>
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-black dark:text-white">{report.diseaseName}</h2>
                 {report.cropType === 'Other' && report.detectedCropType && (

@@ -25,25 +25,42 @@ interface Stats {
 export default function AdminDashboard() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [autoRefresh, setAutoRefresh] = useState(false);
   const [recentOrders, setRecentOrders] = useState<any[]>([]);
 
-  useEffect(() => {
-    async function loadData() {
-      try {
-        const [s, orders] = await Promise.all([
-          supabaseService.getAdminStats(),
-          supabaseService.getAllOrders()
-        ]);
-        setStats(s);
-        setRecentOrders(orders.slice(0, 5));
-      } catch (error) {
-        console.error('Error loading admin stats:', error);
-      } finally {
-        setLoading(false);
+  const loadData = async (toastOnSuccess = false) => {
+    try {
+      if (toastOnSuccess) {
+        setIsRefreshing(true);
       }
+      const [s, orders] = await Promise.all([
+        supabaseService.getAdminStats(),
+        supabaseService.getAllOrders()
+      ]);
+      setStats(s);
+      setRecentOrders(orders.slice(0, 5));
+    } catch (error) {
+      console.error('Error loading admin stats:', error);
+    } finally {
+      if (toastOnSuccess) {
+        setIsRefreshing(false);
+      }
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
     loadData();
   }, []);
+
+  useEffect(() => {
+    if (!autoRefresh) return;
+    const interval = setInterval(() => {
+      loadData();
+    }, 6000);
+    return () => clearInterval(interval);
+  }, [autoRefresh]);
 
   const statCards = [
     { label: 'Total Users', value: stats?.users || 0, icon: Users, color: 'text-blue-600 bg-blue-100 dark:bg-blue-900/30', trend: '+5.2%', positive: true },
@@ -67,13 +84,32 @@ export default function AdminDashboard() {
           <h1 className="text-4xl font-black tracking-tighter text-slate-900 dark:text-white uppercase italic">Command Center</h1>
           <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 mt-1">Platform Intelligence & Global Operations</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          <button 
+            type="button"
+            onClick={() => setAutoRefresh(prev => !prev)}
+            className={`flex items-center gap-2 px-3 py-1.5 border rounded-full transition-all text-[10px] font-black uppercase tracking-widest cursor-pointer ${
+              autoRefresh 
+                ? 'bg-amber-500/10 border-amber-500/30 text-amber-500' 
+                : 'bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-400'
+            }`}
+          >
+            <span className={`w-1.5 h-1.5 rounded-full ${autoRefresh ? 'bg-amber-505 animate-ping' : 'bg-slate-400'}`} />
+            {autoRefresh ? 'Auto Sync ON' : 'Auto Sync OFF'}
+          </button>
+
           <div className="flex items-center gap-2 px-3 py-1.5 bg-green-500/10 border border-green-500/20 rounded-full">
-            <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+            <span className="w-2 h-2 bg-green-505 rounded-full animate-pulse" />
             <span className="text-[10px] font-black uppercase tracking-widest text-green-600">System Live</span>
           </div>
-          <button className="p-2 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl text-slate-400">
-            <span className="material-symbols-outlined text-[20px]">refresh</span>
+
+          <button 
+            type="button"
+            onClick={() => loadData(true)}
+            disabled={isRefreshing}
+            className="p-2 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl text-slate-400 hover:text-primary transition-all cursor-pointer disabled:opacity-50"
+          >
+            <span className={`material-symbols-outlined text-[20px] block ${isRefreshing ? 'animate-spin text-primary' : ''}`}>refresh</span>
           </button>
         </div>
       </div>

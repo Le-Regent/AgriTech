@@ -915,7 +915,7 @@ export const supabaseService = {
       supabase.from('profiles').select('id', { count: 'exact', head: true }),
       supabase.from('orders').select('id', { count: 'exact', head: true }),
       supabase.from('products').select('id', { count: 'exact', head: true }),
-      supabase.from('orders').select('total_amount').eq('status', 'delivered')
+      supabase.from('orders').select('total_amount').in('status', ['delivered', 'COMPLETED', 'ESCROW_HELD'])
     ]);
 
     const revenue = totalRevenue.data?.reduce((acc, curr) => acc + (curr.total_amount || 0), 0) || 0;

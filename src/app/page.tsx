@@ -47,6 +47,7 @@ function DashboardContent() {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [forecast, setForecast] = useState<ForecastData | null>(null);
   const [diagnoses, setDiagnoses] = useState<CropDiagnosis[]>([]);
+  const [expandedDiagnosisId, setExpandedDiagnosisId] = useState<string | null>(null);
   const [myProducts, setMyProducts] = useState<Product[]>([]);
   const [sellerOrders, setSellerOrders] = useState<any[]>([]);
   const [otpInputOrderId, setOtpInputOrderId] = useState<string | null>(null);
@@ -579,7 +580,7 @@ function DashboardContent() {
         <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-1">
           <div>
             <h2 className="text-3xl sm:text-4xl font-black tracking-tight dark:text-white uppercase italic">
-              Kamer<span className="text-primary tracking-normal">Market</span>
+              Kamer<span className="text-primary tracking-normal">Fresh</span>
             </h2>
             <p className="text-xs sm:text-base text-slate-500 dark:text-slate-400 font-medium tracking-tight">Fresh produce from Cameroon&apos;s finest farms.</p>
           </div>
@@ -1287,7 +1288,7 @@ function DashboardContent() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-surface-dark p-4 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] border border-slate-100 dark:border-border-dark shadow-sm transition-all">
+          <div className="diagnosis-history-widget bg-white dark:bg-surface-dark p-4 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] border border-slate-100 dark:border-border-dark shadow-sm transition-all">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <h3 className="text-base sm:text-xl font-bold dark:text-white">{t('past_diagnoses')}</h3>
@@ -1304,44 +1305,98 @@ function DashboardContent() {
               </div>
             </div>
             <div className="space-y-4">
-              {diagnoses.length > 0 ? diagnoses.slice(0, 3).map((diagnosis) => (
-                <div key={diagnosis.id} className="flex items-center gap-4 p-3 bg-slate-50 dark:bg-muted-dark/50 rounded-2xl border border-slate-100 dark:border-border-dark">
-                  <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0">
-                    <ResponsiveImage 
-                      src={diagnosis.image_url} 
-                      alt={diagnosis.crop_type} 
-                      className="w-full h-full object-cover"
-                      baseWidth={100}
-                      baseHeight={100}
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-0.5">
-                      <h4 className="font-bold text-sm dark:text-white truncate">{diagnosis.crop_type}</h4>
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                        diagnosis.status === 'healthy' ? 'bg-green-100 text-green-600' :
-                        diagnosis.status === 'warning' ? 'bg-yellow-100 text-yellow-600' : 'bg-red-100 text-red-600'
-                      }`}>
-                        {diagnosis.result_label || diagnosis.status}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <p className="text-[10px] text-slate-500 dark:text-slate-400">Confidence: {((diagnosis.confidence || 0) * 100).toFixed(0)}%</p>
-                      <p className="text-[10px] text-slate-400">{new Date(diagnosis.created_at).toLocaleDateString()}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button 
-                      onClick={() => downloadDiagnosisReport(diagnosis)}
-                      className="material-symbols-outlined text-slate-400 hover:text-primary transition-colors"
-                      title="Download Report"
+              {diagnoses.length > 0 ? diagnoses.slice(0, 3).map((diagnosis) => {
+                const isExpanded = expandedDiagnosisId === diagnosis.id;
+                return (
+                  <div key={diagnosis.id} className="flex flex-col gap-3 p-4 bg-slate-50 dark:bg-muted-dark/40 rounded-2xl border border-slate-100 dark:border-border-dark transition-all duration-300">
+                    <div 
+                      onClick={() => setExpandedDiagnosisId(isExpanded ? null : diagnosis.id)}
+                      className="flex items-center gap-4 cursor-pointer select-none"
                     >
-                      download
-                    </button>
-                    <Link href={`/diagnosis/result?id=${diagnosis.id}`} className="material-symbols-outlined text-slate-400 hover:text-primary transition-colors">chevron_right</Link>
+                      <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0">
+                        <ResponsiveImage 
+                          src={diagnosis.image_url} 
+                          alt={diagnosis.crop_type} 
+                          className="w-full h-full object-cover"
+                          baseWidth={100}
+                          baseHeight={100}
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-0.5">
+                          <h4 className="font-bold text-sm dark:text-white truncate">{diagnosis.crop_type}</h4>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                            diagnosis.status === 'healthy' ? 'bg-green-100 text-green-600' :
+                            diagnosis.status === 'warning' ? 'bg-yellow-100 text-yellow-600' : 'bg-red-100 text-red-600'
+                          }`}>
+                            {diagnosis.result_label || diagnosis.status}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <p className="text-[10px] text-slate-500 dark:text-slate-400">Confidence: {((diagnosis.confidence || 0) * 100).toFixed(0)}%</p>
+                          <p className="text-[10px] text-slate-400">{new Date(diagnosis.created_at).toLocaleDateString()}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="material-symbols-outlined text-slate-400 transition-transform duration-300" style={{ transform: isExpanded ? 'rotate(90deg)' : 'none' }}>
+                          chevron_right
+                        </span>
+                      </div>
+                    </div>
+
+                    {isExpanded && (
+                      <div className="border-t border-slate-200/50 dark:border-slate-800/50 pt-3 mt-1 space-y-3 overflow-hidden">
+                        <div className="text-xs space-y-2">
+                          <div>
+                            <span className="font-black text-[9px] uppercase tracking-wider text-slate-400 dark:text-slate-500">Diagnostic Details</span>
+                            <p className="text-slate-700 dark:text-slate-300 font-medium leading-relaxed mt-0.5">{diagnosis.result_label || 'Healthy Leaf'}</p>
+                          </div>
+                          {diagnosis.recommendation && (
+                            <div>
+                              <span className="font-black text-[9px] uppercase tracking-wider text-slate-400 dark:text-slate-500">Prescription / Action Plan</span>
+                              <p className="text-slate-700 dark:text-slate-300 font-medium leading-relaxed mt-0.5">{diagnosis.recommendation}</p>
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 pt-1">
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              downloadDiagnosisReport(diagnosis);
+                            }}
+                            className="bg-primary/10 hover:bg-primary/20 text-primary text-xs font-black px-4 py-2 rounded-xl flex items-center gap-2 transition-colors cursor-pointer"
+                          >
+                            <span className="material-symbols-outlined text-[16px]">picture_as_pdf</span>
+                            View PDF Report
+                          </button>
+                          <Link 
+                            href={`/diagnosis/result?id=${diagnosis.id}`} 
+                            onClick={() => {
+                              sessionStorage.setItem('diagnosis_report', JSON.stringify({
+                                id: diagnosis.id,
+                                cropType: diagnosis.crop_type,
+                                diseaseName: diagnosis.result_label || 'Healthy Leaf',
+                                status: diagnosis.status,
+                                confidence: diagnosis.confidence,
+                                recommendations: diagnosis.recommendation || 'Detailed insights of KamerFresh diagnostic.',
+                                scientificName: 'Sourced from local scan database',
+                                symptoms: [],
+                                treatmentSteps: [],
+                                causes: [],
+                                preventions: []
+                              }));
+                              sessionStorage.setItem('diagnosis_image', diagnosis.image_url);
+                            }}
+                            className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-black px-4 py-2 rounded-xl transition-colors cursor-pointer"
+                          >
+                            Full Details
+                          </Link>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                </div>
-              )) : (
+                );
+              }) : (
                 <div className="text-center py-8">
                   <p className="text-sm text-slate-500 dark:text-slate-400">No diagnoses recorded yet.</p>
                 </div>

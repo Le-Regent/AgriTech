@@ -42,13 +42,23 @@ function DiagnosisContent() {
   const [selectedCrop, setSelectedCrop] = useState<string>('');
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [showCamera, setShowCamera] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [lowPowerMode, setLowPowerMode] = useState(false);
+  const [error, setError] = useState<{ message: string; technical?: string; isQuota?: boolean } | string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [cooldown, setCooldown] = useState<number>(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = setTimeout(() => {
+      setCooldown(c => c - 1);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [cooldown]);
 
   useEffect(() => {
     async function fetchWeather() {
@@ -253,8 +263,13 @@ function DiagnosisContent() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to analyze image');
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch {
+          errorData = { error: 'Failed to analyze image', friendlyMessage: 'An unexpected response was received from the server.' };
+        }
+        throw errorData;
       }
 
       const report = await response.json();
@@ -294,9 +309,17 @@ function DiagnosisContent() {
             console.error('Failed to save diagnosis to database:', dbError);
           });
       }
-    } catch (error: any) {
-      console.error('AI Analysis failed:', error);
-      setError(error.message || 'Analysis failed. Please try again with a clearer image.');
+    } catch (err: any) {
+      console.error('AI Analysis failed:', err);
+      const isQuota = !!err.isQuotaExceeded || err.code === 'RESOURCE_EXHAUSTED' || err.status === 429;
+      setError({
+        message: err.friendlyMessage || err.error || 'Analysis failed. Please try again with a clearer image.',
+        technical: err.technicalDetails || err.error || err.message || err.toString() || '',
+        isQuota
+      });
+      if (isQuota) {
+        setCooldown(45);
+      }
       setIsAnalyzing(false);
     }
   };
@@ -367,14 +390,34 @@ function DiagnosisContent() {
                 />
                 
                 {/* Scanner Overlay */}
-                <div className="absolute inset-x-8 top-1/4 bottom-1/4 border border-primary/30 rounded-3xl overflow-hidden pointer-events-none">
-                  <motion.div 
-                    initial={{ top: '0%' }}
-                    animate={{ top: '100%' }}
-                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                    className="absolute inset-x-0 h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent shadow-[0_0_15px_rgba(16,185,129,0.5)] z-20"
-                  />
-                  <div className="absolute inset-0 bg-primary/5"></div>
+                <div className="diagnosis-scanner-overlay absolute inset-x-8 top-1/4 bottom-1/4 border border-primary/30 rounded-3xl overflow-hidden pointer-events-none">
+                  {lowPowerMode ? (
+                    <div className="absolute inset-0 border-2 border-primary/50 rounded-3xl animate-pulse bg-primary/5" />
+                  ) : (
+                    <>
+                      <motion.div 
+                        initial={{ top: '0%' }}
+                        animate={{ top: '100%' }}
+                        transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                        className="absolute inset-x-0 h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent shadow-[0_0_15px_rgba(16,185,129,0.5)] z-20"
+                      />
+                      <div className="absolute inset-0 bg-primary/5"></div>
+                    </>
+                  )}
+                </div>
+
+                <div className="absolute top-8 left-8">
+                  <button 
+                    onClick={() => setLowPowerMode(!lowPowerMode)}
+                    className={`h-12 px-4 rounded-2xl flex items-center justify-center gap-2 border text-xs font-black uppercase tracking-wider transition-all duration-300 transform active:scale-95 pointer-events-auto cursor-pointer ${
+                      lowPowerMode 
+                        ? 'bg-amber-500 hover:bg-amber-600 text-slate-950 border-amber-400 font-extrabold shadow-lg shadow-amber-500/20' 
+                        : 'bg-black/40 hover:bg-black/60 backdrop-blur-xl text-white border-white/10'
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-[16px] animate-bounce">bolt</span>
+                    <span>{lowPowerMode ? 'Faster Scan On' : 'Lighter Scan'}</span>
+                  </button>
                 </div>
 
                 <div className="absolute top-8 right-8">
@@ -503,12 +546,60 @@ function DiagnosisContent() {
       </div>
 
       <div className="flex flex-col items-center gap-4 fixed bottom-24 left-4 right-4 z-40 md:static md:bottom-auto">
-        {error && (
-          <div className="w-full max-w-md bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-4 rounded-2xl border border-red-100 dark:border-red-800 flex items-center gap-3">
-            <span className="material-symbols-outlined">error</span>
-            <p className="text-sm font-bold">{error}</p>
-          </div>
-        )}
+        {error && (() => {
+          const errorMsg = typeof error === 'string' ? error : error.message;
+          const isQuota = typeof error === 'object' && error !== null && !!error.isQuota;
+          const technical = typeof error === 'object' && error !== null ? error.technical : undefined;
+          
+          return (
+            <div className="w-full max-w-md bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 shadow-xl rounded-3xl p-5 relative overflow-hidden flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-5 duration-300">
+              {/* Highlight bar to look premium */}
+              <div className={`absolute top-0 left-0 right-0 h-1.5 ${isQuota ? 'bg-amber-500' : 'bg-rose-500'}`} />
+              
+              <div className="flex gap-4 items-start">
+                <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 ${isQuota ? 'bg-amber-100 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400' : 'bg-rose-100 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400'}`}>
+                  <span className="material-symbols-outlined text-2xl">{isQuota ? 'hourglass_disabled' : 'gpp_maybe'}</span>
+                </div>
+                
+                <div className="flex-grow space-y-1">
+                  <h3 className="font-bold text-[15px] text-slate-900 dark:text-white leading-tight">
+                    {isQuota ? 'AI Assistant is Resting' : 'Action Required'}
+                  </h3>
+                  <p className="text-slate-600 dark:text-slate-400 text-xs font-semibold leading-relaxed">
+                    {errorMsg}
+                  </p>
+                </div>
+              </div>
+
+              {/* Countdown timer UI for rate limits */}
+              {isQuota && cooldown > 0 && (
+                <div className="bg-amber-50 dark:bg-amber-500/5 rounded-2xl p-3 border border-amber-100 dark:border-amber-500/10 flex items-center justify-between text-xs font-bold text-amber-700 dark:text-amber-400">
+                  <span className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping" />
+                    Pacing request rate...
+                  </span>
+                  <span>Retry in {cooldown}s</span>
+                </div>
+              )}
+
+              {/* Show technical details toggle */}
+              {technical && (
+                <div className="border-t border-slate-100 dark:border-slate-800/60 pt-3 mt-1">
+                  <details className="group">
+                    <summary className="text-[10px] text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 font-bold select-none cursor-pointer flex items-center justify-between">
+                      <span>Developer Diagnostics</span>
+                      <span className="material-symbols-outlined text-xs transition-transform group-open:rotate-180">expand_more</span>
+                    </summary>
+                    <div className="bg-slate-50 dark:bg-slate-900 rounded-xl p-3 border border-slate-100 dark:border-slate-800/40 text-[10px] text-slate-600 dark:text-slate-400 leading-relaxed font-mono mt-2 overflow-auto max-h-32 whitespace-pre-wrap select-text">
+                      {technical}
+                    </div>
+                  </details>
+                </div>
+              )}
+            </div>
+          );
+        })()}
+        
         {success && (
           <div className="w-full max-w-md bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 p-4 rounded-2xl border border-green-100 dark:border-green-800 flex items-center gap-3">
             <span className="material-symbols-outlined">check_circle</span>
@@ -517,11 +608,11 @@ function DiagnosisContent() {
         )}
         <button 
           onClick={handleDiagnose}
-          disabled={!selectedImage || !selectedCrop || isAnalyzing}
+          disabled={!selectedImage || !selectedCrop || isAnalyzing || cooldown > 0}
           className="w-full max-w-md bg-primary text-white py-5 rounded-[2rem] font-black text-xl shadow-2xl shadow-primary/30 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed flex items-center justify-center gap-4 cursor-pointer"
         >
           <span className="material-symbols-outlined text-3xl">biotech</span>
-          {isAnalyzing ? t('analyzing') : t('start_analysis')}
+          {isAnalyzing ? t('analyzing') : cooldown > 0 ? `Cooling Down (${cooldown}s)` : t('start_analysis')}
         </button>
       </div>
 

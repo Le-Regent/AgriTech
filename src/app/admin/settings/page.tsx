@@ -25,7 +25,8 @@ export default function AdminSettingsPage() {
     'maintenance_mode': 'false',
     'admin_protocol_password': '****',
     'feature_logistics': 'true',
-    'feature_crop_doctor': 'true'
+    'feature_crop_doctor': 'true',
+    'payment_sandbox': 'true'
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
@@ -78,6 +79,7 @@ export default function AdminSettingsPage() {
       items: [
         { key: 'platform_commission', label: 'Platform Commission (%)', helper: 'Percentage taken from farmer payouts for infrastructure costs.', type: 'number' },
         { key: 'min_withdrawal', label: 'Minimum Withdrawal (CFA)', helper: 'Smallest amount a farmer can withdraw to MoMo.', type: 'number' },
+        { key: 'payment_sandbox', label: 'Payment Sandbox Simulation', helper: 'Forces virtual MoMo payments allowing you to test checkouts & payouts seamlessly without live money or merchant keys.', type: 'select', options: ['true', 'false'] },
       ]
     },
     {

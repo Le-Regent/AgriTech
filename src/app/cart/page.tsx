@@ -175,7 +175,7 @@ function CartContent() {
               <span className="material-symbols-outlined">arrow_forward</span>
             </button>
             <p className="text-[10px] text-center text-slate-400 mt-4 font-bold uppercase tracking-widest">
-              Secure Checkout Powered by KamerPay
+              Secure Checkout Powered by KamerFresh
             </p>
           </div>
         </div>

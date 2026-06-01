@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenAI } from "@google/genai";
+import { getFriendlyAiError } from '@/lib/aiErrorHelper';
 
 export async function POST(req: NextRequest) {
   try {
@@ -35,6 +36,7 @@ export async function POST(req: NextRequest) {
     }
   } catch (error: any) {
     console.error('AI Image Generation API Error:', error);
-    return NextResponse.json({ error: error.message || 'Internal server error during image generation' }, { status: 500 });
+    const friendly = getFriendlyAiError(error);
+    return NextResponse.json(friendly, { status: friendly.status });
   }
 }

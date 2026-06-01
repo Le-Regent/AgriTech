@@ -133,8 +133,13 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, far
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to generate image');
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch {
+          errorData = { error: 'Failed to generate image' };
+        }
+        throw new Error(errorData.friendlyMessage || errorData.error || 'Failed to generate image');
       }
 
       setAiProgress(80);
