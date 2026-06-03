@@ -60,7 +60,8 @@ The software pipeline is built on the following technologies:
 - **Mapping & Leaflet Geodesics:** Leaflet and React-Leaflet libraries, resolving geodesic positions directly onto OpenStreetMap overlays.
 
 ### 3.3.2 Physical Deployment and Low-Bandwidth Testing Bounds
-To simulate the physical constraints of Cameroon’s farming sectors, the application viewport density and data synchronization systems are audited under the following testing conditions:
+The physical production instance of the KamerFresh application is fully orchestrated and hosted on **Vercel's Serverless Edge Cloud Platform** (accessible at [https://kamerfresh.vercel.app/](https://kamerfresh.vercel.app/)), paired dynamically with a Supabase cloud database instance. To simulate the physical constraints of Cameroon’s farming sectors, the application viewport density and data synchronization systems are audited under the following testing and deployment conditions:
+- **Serverless Production Infrastructure (Vercel):** Frontend layouts, page-level hydration hooks, and secure background API routes are compiled and continuously deployed to Vercel's global CDN nodes. When a farmer triggers a crop diagnosis prompt, the request is routed through serverless boundary functions to securely execute standard `@google/genai` calls without exposing API key secrets to the browser.
 - **Simulated Rural Port (3G Mobile):** Operates on an Android Chrome Mobile client, restricted via developer throttling to a simulated 3G network (300kbps down, 150kbps up, 250ms latency), validating local state preservation when transactions are delayed.
 - **Administrative Station (Desktop):** Evaluated on a 1080p viewport, testing system metrics, system logs, escrow balances, and transaction diagnostics on the secure Admin Panel.
 

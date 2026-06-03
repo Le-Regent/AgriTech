@@ -58,5 +58,14 @@ Contains shared components, logic, and configuration.
 | `app/listings/page.tsx` | The central hub for farmers to manage their inventory. |
 | `src/types.ts` | The source of truth for data structures like `Product`, `Profile`, and `Order`. |
 
+## Production Deployment & Hosting
+
+KamerFresh is officially deployed and hosted on **Vercel** serverless infrastructure:
+- **Production URL:** [https://kamerfresh.vercel.app/](https://kamerfresh.vercel.app/)
+- **Infrastructure Architecture:** 
+  - **Static & SSR Assets:** Distributed via Vercel's global Content Delivery Network (CDN) to ensure low-latency loading profiles even under rural Cameroonian 3G bandwidth bottlenecks.
+  - **Server-Side API Routing:** Next.js App Router API endpoints (e.g., `/api/ai/diagnose`) are executed on Vercel Serverless Functions, keeping sensitive environment credentials (such as `GEMINI_API_KEY` and Supabase service keys) completely secure and invisible to browser clients.
+  - **Continuous Integration (CI/CD):** Integrated via GitHub actions and automated Vercel pull-request preview building configurations.
+
 ---
-*Last updated: April 2, 2026*
+*Last updated: June 3, 2026*

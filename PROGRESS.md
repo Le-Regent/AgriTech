@@ -64,7 +64,18 @@ A comprehensive audit and documentation of the data layer was performed.
 
 ---
 
+## 5. Production Hosting & Deployment (Vercel)
+The physical application has transitioned from local and containerized development into a fully live production ecosystem.
+
+### Milestone Achievements:
+- **Serverless Orchestration**: Successfully deployed the Next.js App Router codebase on **Vercel** (`https://kamerfresh.vercel.app/`).
+- **Edge Performance Optimization**: Configured Vercel global CDN routes to optimize content delivery speeds. Static layout bundles load smoothly within the simulated 3G boundaries tested in rural Cameroon.
+- **Server-Side API Security**: Server-side routes are now managed on edge serverless functions, protecting Google Gemini and Supabase database connection profiles.
+
+---
+
 ## Next Steps
-- Implement Order Management for buyers.
-- Enhance the AI Diagnosis feature with more detailed reports.
+- Implement advanced Order Management for buyers.
+- Enhance the AI Diagnosis feature with more detailed reports in physical print format.
 - Add real-time notifications for price trends and order updates.
+- Continuously monitor performance latency logs via Vercel Console.
