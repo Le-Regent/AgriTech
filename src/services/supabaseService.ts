@@ -473,6 +473,32 @@ export const supabaseService = {
     return data;
   },
 
+  async markMessagesAsRead(userId: string, partnerId: string) {
+    const { data, error } = await supabase
+      .from('messages')
+      .update({ is_read: true })
+      .eq('receiver_id', userId)
+      .eq('sender_id', partnerId)
+      .eq('is_read', false);
+    
+    if (error) console.error("Failed to mark messages as read:", error);
+    return data;
+  },
+
+  async getUnreadMessagesCount(userId: string) {
+    const { count, error } = await supabase
+      .from('messages')
+      .select('*', { count: 'exact', head: true })
+      .eq('receiver_id', userId)
+      .eq('is_read', false);
+    
+    if (error) {
+      console.error("Failed to get unread messages count:", error);
+      return 0;
+    }
+    return count || 0;
+  },
+
   async getConversations(userId: string) {
     const { data, error } = await supabase
       .from('messages')

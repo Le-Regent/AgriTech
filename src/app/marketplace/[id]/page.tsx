@@ -27,6 +27,7 @@ function ProductDetailContent() {
   const [reviews, setReviews] = useState<any[]>([]);
   const [loadingReviews, setLoadingReviews] = useState(true);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+  const [otherProductsForThumbnails, setOtherProductsForThumbnails] = useState<Product[]>([]);
   const [selectedUnit, setSelectedUnit] = useState<string>('');
   const [quantity, setQuantity] = useState(1);
 
@@ -101,10 +102,28 @@ function ProductDetailContent() {
       if (!product) return;
       try {
         const products = await supabaseService.getProducts();
-        const filtered = products
-          .filter(p => (p.category === product.category || p.profiles?.full_name === product.profiles?.full_name) && p.id !== product.id)
-          .slice(0, 3);
-        setRelatedProducts(filtered);
+        const otherAll = products.filter(p => p.id !== product.id);
+        
+        // Match by category or by seller
+        const categoryMatch = otherAll.filter(p => p.category === product.category);
+        const farmerMatch = otherAll.filter(p => p.profiles?.full_name === product.profiles?.full_name);
+        
+        // Merge related products uniquely
+        const combinedRelatedMap = new Map();
+        [...categoryMatch, ...farmerMatch].forEach(p => {
+          combinedRelatedMap.set(p.id, p);
+        });
+        const combinedRelated = Array.from(combinedRelatedMap.values()) as Product[];
+        
+        setRelatedProducts(combinedRelated.slice(0, 3));
+        
+        // Thumbnails list starts with related, pads with others if needed
+        const thumbnailList = [...combinedRelated];
+        if (thumbnailList.length < 4) {
+          const remaining = otherAll.filter(p => !thumbnailList.some(tp => tp.id === p.id));
+          thumbnailList.push(...remaining);
+        }
+        setOtherProductsForThumbnails(thumbnailList.slice(0, 4));
       } catch (error) {
         console.error('Failed to fetch related products:', error);
       }
@@ -303,7 +322,28 @@ function ProductDetailContent() {
             </div>
           </div>
           <div className="grid grid-cols-4 gap-2 sm:gap-4">
-            {[1, 2, 3, 4].map((i) => (
+            {otherProductsForThumbnails.map((rp) => (
+              <Link
+                key={rp.id}
+                href={`/marketplace/${rp.id}`}
+                className="aspect-square bg-white dark:bg-surface-dark rounded-xl sm:rounded-2xl overflow-hidden border border-slate-100 dark:border-border-dark cursor-pointer hover:border-primary hover:scale-[1.05] active:scale-95 transition-all block relative group"
+                title={`View ${rp.name}`}
+              >
+                <ResponsiveImage 
+                  src={rp.image_url || `https://picsum.photos/seed/${rp.id}/200/200`} 
+                  alt={rp.name} 
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" 
+                  baseWidth={200}
+                  baseHeight={200}
+                />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-1">
+                  <span className="text-[8px] sm:text-[10px] text-white font-black uppercase tracking-widest text-center truncate w-full">
+                    {rp.name}
+                  </span>
+                </div>
+              </Link>
+            ))}
+            {otherProductsForThumbnails.length === 0 && [1, 2, 3, 4].map((i) => (
               <div key={i} className="aspect-square bg-white dark:bg-surface-dark rounded-xl sm:rounded-2xl overflow-hidden border border-slate-100 dark:border-border-dark cursor-pointer hover:border-primary transition-colors">
                 <ResponsiveImage 
                   src={`https://picsum.photos/seed/${product.id}-${i}/200/200`} 

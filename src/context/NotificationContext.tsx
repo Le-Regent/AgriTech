@@ -10,10 +10,12 @@ import { toast } from 'sonner';
 interface NotificationContextType {
   notifications: AppNotification[];
   unreadCount: number;
+  unreadMessagesCount: number;
   loading: boolean;
   markAsRead: (id: string) => Promise<void>;
   markAllAsRead: () => Promise<void>;
   clearNotifications: () => Promise<void>;
+  refreshUnreadMessages: () => Promise<void>;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
@@ -22,6 +24,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
   const { user } = useUser();
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   const fetchNotifications = useCallback(async () => {
@@ -38,8 +41,19 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     }
   }, [user]);
 
+  const fetchUnreadMessagesCount = useCallback(async () => {
+    if (!user) return;
+    try {
+      const count = await supabaseService.getUnreadMessagesCount(user.id);
+      setUnreadMessagesCount(count);
+    } catch (error) {
+      console.error('Error fetching unread messages count:', error);
+    }
+  }, [user]);
+
   useEffect(() => {
     fetchNotifications();
+    fetchUnreadMessagesCount();
 
     if (!user) return;
 
@@ -91,10 +105,28 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
       )
       .subscribe();
 
+    // Real-time messages unread subscription
+    const messagesChannel = supabase
+      .channel(`user_messages_${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'messages',
+        },
+        () => {
+          // Whenever there are inserts, updates, deletes, recalculate unread messages count
+          fetchUnreadMessagesCount();
+        }
+      )
+      .subscribe();
+
     return () => {
       supabase.removeChannel(channel);
+      supabase.removeChannel(messagesChannel);
     };
-  }, [user, fetchNotifications]);
+  }, [user, fetchNotifications, fetchUnreadMessagesCount]);
 
   const markAsRead = async (id: string) => {
     try {
@@ -148,10 +180,12 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     <NotificationContext.Provider value={{ 
       notifications, 
       unreadCount, 
+      unreadMessagesCount,
       loading, 
       markAsRead, 
       markAllAsRead,
-      clearNotifications
+      clearNotifications,
+      refreshUnreadMessages: fetchUnreadMessagesCount
     }}>
       {children}
     </NotificationContext.Provider>

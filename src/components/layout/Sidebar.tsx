@@ -4,6 +4,7 @@ import { SIDEBAR_NAV, MARKETPLACE_NAV, ADMIN_NAV } from '@/constants';
 import { useUser } from '@/context/UserContext';
 import { useLanguage } from '@/context/LanguageContext';
 import ResponsiveImage from '@/components/ui/ResponsiveImage';
+import { useNotifications } from '@/context/NotificationContext';
 
 interface SidebarProps {
   onMobileClose?: () => void;
@@ -13,6 +14,7 @@ export function Sidebar({ onMobileClose }: SidebarProps) {
   const pathname = usePathname();
   const { user } = useUser();
   const { t } = useLanguage();
+  const { unreadMessagesCount } = useNotifications();
 
   const isAdminRoute = pathname.startsWith('/admin');
 
@@ -62,7 +64,12 @@ export function Sidebar({ onMobileClose }: SidebarProps) {
                   {item.icon}
                 </span>
               </div>
-              <span className="text-sm">{t(labelKey) || item.label}</span>
+              <span className="text-sm flex-1">{t(labelKey) || item.label}</span>
+              {item.label === 'Messages' && unreadMessagesCount > 0 && (
+                <span className="bg-emerald-500 text-white text-[10px] font-black h-5 w-5 rounded-full flex items-center justify-center border border-white dark:border-background-dark shrink-0">
+                  {unreadMessagesCount}
+                </span>
+              )}
             </Link>
           );
         })}
