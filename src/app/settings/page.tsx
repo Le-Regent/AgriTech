@@ -8,6 +8,8 @@ import { useUser } from '@/context/UserContext';
 import { useLanguage } from '@/context/LanguageContext';
 import ProtectedRoute from '@/components/layout/ProtectedRoute';
 import { toast } from 'sonner';
+import { supabase } from '@/lib/supabase';
+import { supabaseService } from '@/services/supabaseService';
 import { 
   Settings, 
   MapPin, 
@@ -25,7 +27,8 @@ import {
   CheckCircle2, 
   AlertCircle,
   Eye, 
-  EyeOff 
+  EyeOff,
+  Send
 } from 'lucide-react';
 
 export default function SettingsPage() {
@@ -179,6 +182,67 @@ function SettingsContent() {
 
     updateStorageUsage();
     toast.success(language === 'fr' ? 'Cache vidé avec succès' : 'App cache pruned successfully');
+  };
+
+  const [adminContactMessage, setAdminContactMessage] = useState('');
+  const [sendingAdminContact, setSendingAdminContact] = useState(false);
+
+  const handleContactAdmin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!adminContactMessage.trim() || !user?.id) return;
+
+    setSendingAdminContact(true);
+    try {
+      const { data: admins, error } = await supabase
+        .from('profiles')
+        .select('id, full_name')
+        .eq('is_admin', true)
+        .limit(1);
+
+      if (error) throw new Error(error.message);
+
+      const targetAdmin = (admins && admins.length > 0) ? admins[0] : null;
+      if (!targetAdmin) {
+        toast.error(
+          language === 'fr' 
+            ? 'Aucun administrateur ne peut être joint pour le moment. Veuillez réessayer plus tard.' 
+            : 'No administrator could be reached at the moment. Please try again later.'
+        );
+        setSendingAdminContact(false);
+        return;
+      }
+
+      await supabaseService.sendMessage({
+        sender_id: user.id,
+        receiver_id: targetAdmin.id,
+        message: `[Profile Change Request] ${adminContactMessage}`,
+        is_read: false
+      });
+
+      await supabaseService.createNotification({
+        user_id: targetAdmin.id,
+        title: 'New Profile Change Inquiry',
+        message: `${user.full_name || 'A buyer'} requested a profile change: "${adminContactMessage.substring(0, 50)}..."`,
+        category: 'primary'
+      });
+
+      toast.success(
+        language === 'fr'
+          ? 'Votre demande de modification de profil a été envoyée en toute sécurité à l\'administration.'
+          : 'Your profile change request has been securely sent to the administration.',
+        {
+          description: language === 'fr'
+            ? 'Un administrateur examinera votre dossier sous peu.'
+            : 'An administrator will review your account soon.'
+        }
+      );
+      setAdminContactMessage('');
+    } catch (err: any) {
+      console.error('Failed to contact administrator:', err);
+      toast.error('Failed to submit request: ' + (err.message || 'Unknown error'));
+    } finally {
+      setSendingAdminContact(false);
+    }
   };
 
   // Admin Promotion key elevated action
@@ -588,6 +652,58 @@ function SettingsContent() {
               </div>
             )}
           </div>
+
+          {/* Contact Admin for Profile Change Card */}
+          {!isFarmer && (
+            <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] shadow-sm relative overflow-hidden text-left mt-6">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl pointer-events-none" />
+              <div className="flex flex-col md:flex-row md:items-start gap-6 relative z-10">
+                <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center shrink-0 text-primary">
+                  <UserRound className="w-6 h-6 text-primary" />
+                </div>
+                <div className="flex-1 space-y-4">
+                  <div>
+                    <h3 className="text-base font-black dark:text-white tracking-tight flex items-center gap-2">
+                      {language === 'fr' ? 'Contacter l\'administrateur pour modifier le profil' : 'Contact Admin for Profile Change'}
+                    </h3>
+                    <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                      {language === 'fr' 
+                        ? 'En tant qu\'acheteur enregistré, certains changements de profil (comme le passage au statut de producteur, la modification des informations d\'entreprise ou la mise à jour des informations d\'identité critiques) sont encadrés et soumis à validation administrative pour préserver la confiance et la sécurité de la plateforme.'
+                        : 'As a registered Buyer, certain profile shifts (like switching roles to Farmer, changing business registrations, or updating critical identity credentials) are monitored and performed via admin approval to prevent unauthorized role modification and maintain marketplace stability.'}
+                    </p>
+                  </div>
+
+                  <form onSubmit={handleContactAdmin} className="space-y-3">
+                    <textarea
+                      value={adminContactMessage}
+                      onChange={(e) => setAdminContactMessage(e.target.value)}
+                      placeholder={language === 'fr' 
+                        ? "Décrivez votre demande de modification de profil... (ex. : 'Je souhaite passer au rôle de Producteur, le nom de ma ferme est...')"
+                        : "Describe your profile change request here (e.g. 'I want to switch my role to Farmer, my farm name is...')"
+                      }
+                      required
+                      rows={3}
+                      className="w-full p-4 bg-slate-50 focus:bg-slate-100 dark:bg-slate-800/40 focus:dark:bg-slate-800 border border-slate-200 dark:border-slate-800 focus:border-primary/50 focus:ring-2 focus:ring-primary/10 rounded-2xl text-xs sm:text-sm font-medium outline-none dark:text-white transition-all resize-none shadow-sm"
+                    />
+                    <div className="flex justify-end">
+                      <button
+                        type="submit"
+                        disabled={sendingAdminContact || !adminContactMessage.trim()}
+                        className="bg-primary hover:bg-primary/95 text-white text-xs font-black uppercase tracking-widest px-6 py-3 rounded-xl transition-all shadow-md active:scale-95 duration-100 disabled:opacity-50 disabled:scale-100 cursor-pointer flex items-center gap-2"
+                      >
+                        {sendingAdminContact ? (
+                          <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <Send className="w-3.5 h-3.5" />
+                        )}
+                        {sendingAdminContact ? (language === 'fr' ? 'Envoi...' : 'Sending...') : (language === 'fr' ? 'Envoyer la demande' : 'Send Profile Request')}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          )}
 
         </div>
       </div>

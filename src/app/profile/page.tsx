@@ -7,6 +7,7 @@ import ResponsiveImage from '@/components/ui/ResponsiveImage';
 import ProtectedRoute from '@/components/layout/ProtectedRoute';
 import { supabaseService } from '@/services/supabaseService';
 import { profileService } from '@/services/profileService';
+import { supabase } from '@/lib/supabase';
 import { CropDiagnosis } from '@/types';
 import { downloadDiagnosisReport } from '@/lib/diagnosisUtils';
 import ProfileSmartCard from '@/components/features/profile/ProfileSmartCard';
@@ -41,6 +42,56 @@ function ProfileContent() {
   const [adminKey, setAdminKey] = useState('');
   const [showAdminKey, setShowAdminKey] = useState(false);
   const [promoting, setPromoting] = useState(false);
+
+  const [adminContactMessage, setAdminContactMessage] = useState('');
+  const [sendingAdminContact, setSendingAdminContact] = useState(false);
+
+  const handleContactAdmin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!adminContactMessage.trim() || !user?.id) return;
+
+    setSendingAdminContact(true);
+    try {
+      const { data: admins, error } = await supabase
+        .from('profiles')
+        .select('id, full_name')
+        .eq('is_admin', true)
+        .limit(1);
+
+      if (error) throw new Error(error.message);
+
+      const targetAdmin = (admins && admins.length > 0) ? admins[0] : null;
+      if (!targetAdmin) {
+        toast.error('No administrator could be reached at the moment. Please try again later.');
+        setSendingAdminContact(false);
+        return;
+      }
+
+      await supabaseService.sendMessage({
+        sender_id: user.id,
+        receiver_id: targetAdmin.id,
+        message: `[Profile Change Request] ${adminContactMessage}`,
+        is_read: false
+      });
+
+      await supabaseService.createNotification({
+        user_id: targetAdmin.id,
+        title: 'New Profile Change Inquiry',
+        message: `${user.full_name || 'A buyer'} requested a profile change: "${adminContactMessage.substring(0, 50)}..."`,
+        category: 'primary'
+      });
+
+      toast.success('Your profile change request has been securely sent to the administration.', {
+        description: 'An administrator will review your account soon.'
+      });
+      setAdminContactMessage('');
+    } catch (err: any) {
+      console.error('Failed to contact administrator:', err);
+      toast.error('Failed to submit request: ' + (err.message || 'Unknown error'));
+    } finally {
+      setSendingAdminContact(false);
+    }
+  };
 
   // Simulation of security logs
   const securityLogs = [
@@ -852,6 +903,54 @@ function ProfileContent() {
           )}
         </div>
       </div>
+
+      {/* Contact Admin for Profile Change Card */}
+      {!isFarmer && (
+        <div className="bg-white dark:bg-slate-900 duration-300 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-100 dark:border-slate-800 p-6 sm:p-8 shadow-sm text-left transition-colors relative overflow-hidden mt-6">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl pointer-events-none" />
+          <div className="flex flex-col md:flex-row md:items-start gap-6 relative z-10">
+            <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center shrink-0 text-primary">
+              <span className="material-symbols-outlined text-2xl font-black">support_agent</span>
+            </div>
+            <div className="flex-1 space-y-4">
+              <div>
+                <h4 className="text-lg font-extrabold text-slate-900 dark:text-white tracking-tight">
+                  Contact Admin for Profile Change
+                </h4>
+                <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                  As a registered Buyer, certain profile shifts (like switching roles to Farmer, changing business registrations, or updating critical identity credentials) are monitored and performed via admin approval to prevent unauthorized role modification and maintain marketplace stability.
+                </p>
+              </div>
+
+              <form onSubmit={handleContactAdmin} className="space-y-3">
+                <textarea
+                  value={adminContactMessage}
+                  onChange={(e) => setAdminContactMessage(e.target.value)}
+                  placeholder="Describe your profile change request here (e.g. 'I want to switch my role to Farmer, my farm name is...')"
+                  required
+                  rows={3}
+                  className="w-full p-4 bg-slate-50 focus:bg-slate-100 dark:bg-slate-800/40 focus:dark:bg-slate-800 border border-slate-200 dark:border-slate-800 focus:border-primary/50 focus:ring-2 focus:ring-primary/10 rounded-2xl text-xs sm:text-sm font-medium outline-none dark:text-white transition-all resize-none shadow-sm"
+                />
+                <div className="flex justify-end">
+                  <button
+                    type="submit"
+                    disabled={sendingAdminContact || !adminContactMessage.trim()}
+                    className="bg-primary hover:bg-primary/95 text-white text-xs font-black uppercase tracking-widest px-6 py-3 rounded-xl transition-all shadow-md active:scale-95 duration-100 disabled:opacity-50 disabled:scale-100 cursor-pointer flex items-center gap-2"
+                  >
+                    {sendingAdminContact ? (
+                      <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <span className="material-symbols-outlined text-base">send</span>
+                    )}
+                    {sendingAdminContact ? 'Sending...' : 'Send Profile Request'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Sticky Action Footer when editing */}
       <AnimatePresence>
         {isEditing && (

@@ -309,31 +309,12 @@ function DashboardContent() {
           {/* Section 1: Dynamic Personalized Welcome Header */}
           <div className="lg:col-span-2 flex flex-col justify-between space-y-6">
             <div className="space-y-4">
-              {/* Top line with Active Status Badges and Immediate Role Switch */}
+              {/* Top line with Active Status Badges */}
               <div className="flex flex-wrap items-center gap-2.5">
                 <div className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-md text-emerald-300 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest leading-none border border-white/5">
                   <span className="material-symbols-outlined text-[13px]">assignment_ind</span>
                   {isFarmer ? 'Active: Farmer / Producteur' : 'Active: Buyer / Acheteur'}
                 </div>
-                
-                {/* Micro-Toggle Role Switch with high accessibility click layer */}
-                <button
-                  onClick={async () => {
-                    const targetRole = isFarmer ? 'buyer' : 'farmer';
-                    const res = await updateProfile({ user_type: targetRole });
-                    if (res?.error) {
-                      toast.error(res.error);
-                    } else {
-                      toast.success(`Active mode: ${targetRole === 'farmer' ? 'Farmer' : 'Buyer'}`, {
-                        description: `Seamlessly loaded ${targetRole} workspace.`
-                      });
-                    }
-                  }}
-                  className="inline-flex items-center gap-1 bg-primary/20 hover:bg-primary text-primary hover:text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest leading-none transition-all duration-200 border border-primary/30 active:scale-95"
-                >
-                  <span className="material-symbols-outlined text-[12px]">swap_horiz</span>
-                  {isFarmer ? 'Switch to Buyer' : 'Switch to Farmer'}
-                </button>
               </div>
 
               {/* Dynamic Welcome Heading with User Name */}
