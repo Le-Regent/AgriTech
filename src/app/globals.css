@@ -40,6 +40,21 @@
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
+/* Prevent unhydrated icon text strings like "shopping_cart" from being visible / causing layout shifts before hydration */
+.material-symbols-outlined:not([data-icon-hydrated="true"]),
+.material-symbols-rounded:not([data-icon-hydrated="true"]) {
+  color: transparent !important;
+  user-select: none;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.15em;
+  height: 1.15em;
+  font-size: 0px !important;
+  line-height: 0;
+}
+
 .fill-1 {
   font-variation-settings: 'FILL' 1 !important;
 }
