@@ -13,8 +13,10 @@ import ProfileSmartCard from '@/components/features/profile/ProfileSmartCard';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'motion/react';
+import { useRouter } from 'next/navigation';
 
 function ProfileContent() {
+  const router = useRouter();
   const { theme, toggleTheme } = useTheme();
   const { user, updateProfile } = useUser();
   const [diagnoses, setDiagnoses] = useState<CropDiagnosis[]>([]);
@@ -663,30 +665,66 @@ function ProfileContent() {
                   </div>
                 ) : filteredOrders.length > 0 ? (
                   filteredOrders.slice(0, 5).map((order) => (
-                    <div key={order.id} className="flex items-center justify-between p-5 sm:p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 group hover:border-primary/30 transition-all active:scale-[0.98]">
-                      <div className="flex items-center gap-4 overflow-hidden">
-                        <div className={`w-12 h-12 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 ${getStatusClasses(order.status)}`}>
-                          <span className="material-symbols-outlined text-[24px] sm:text-[20px]">
-                            {order.status === 'delivered' ? 'check_circle' : 
-                             order.status === 'pending' ? 'schedule' : 
-                             order.status === 'cancelled' ? 'cancel' : 'local_shipping'}
+                    <div 
+                      key={order.id} 
+                      onClick={() => router.push(`/orders?id=${order.id}`)}
+                      className="flex flex-col p-5 sm:p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 group hover:border-primary/30 transition-all hover:bg-slate-100/50 dark:hover:bg-slate-800/80 cursor-pointer text-left"
+                    >
+                      <div className="flex items-center justify-between w-full">
+                        <div className="flex items-center gap-4 overflow-hidden">
+                          <div className={`w-12 h-12 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 ${getStatusClasses(order.status)}`}>
+                            <span className="material-symbols-outlined text-[24px] sm:text-[20px]">
+                              {order.status === 'delivered' ? 'check_circle' : 
+                               order.status === 'pending' ? 'schedule' : 
+                               order.status === 'cancelled' ? 'cancel' : 'local_shipping'}
+                            </span>
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-base sm:text-sm font-bold dark:text-white truncate">Order #{order.id.slice(0, 8).toUpperCase()}</p>
+                            <p className="text-xs sm:text-[10px] text-slate-500 dark:text-slate-400 font-medium">
+                              {new Date(order.created_at).toLocaleDateString()} · <span className="text-primary font-black">{order.total_amount.toLocaleString()} CFA</span>
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 shrink-0">
+                          <span className={`text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest hidden xs:inline-block ${getStatusClasses(order.status)}`}>
+                            {order.status}
                           </span>
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-base sm:text-sm font-bold dark:text-white truncate">Order #{order.id.slice(0, 8).toUpperCase()}</p>
-                          <p className="text-xs sm:text-[10px] text-slate-500 dark:text-slate-400 font-medium">
-                            {new Date(order.created_at).toLocaleDateString()} · <span className="text-primary font-black">{order.total_amount.toLocaleString()} CFA</span>
-                          </p>
+                          <div className="w-10 h-10 sm:w-8 sm:h-8 rounded-full bg-white dark:bg-white/5 flex items-center justify-center text-slate-400 group-hover:text-primary transition-colors group-hover:shadow-md">
+                            <span className="material-symbols-outlined text-lg sm:text-sm">visibility</span>
+                          </div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3 shrink-0">
-                        <span className={`text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest hidden xs:inline-block ${getStatusClasses(order.status)}`}>
-                          {order.status}
-                        </span>
-                        <Link href="/orders" className="w-10 h-10 sm:w-8 sm:h-8 rounded-full bg-white dark:bg-white/5 flex items-center justify-center text-slate-400 hover:text-primary transition-colors hover:shadow-md">
-                          <span className="material-symbols-outlined text-lg sm:text-sm">visibility</span>
-                        </Link>
-                      </div>
+
+                      {/* Purchased Products List - making clickable elements directly item accessible from buyer profile */}
+                      {order.order_items && order.order_items.length > 0 && (
+                        <div className="flex flex-wrap gap-2.5 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800/50">
+                          {order.order_items.map((item: any) => (
+                            <Link
+                              key={item.id}
+                              href={`/marketplace/${item.product_id || item.products?.id}`}
+                              onClick={(e) => {
+                                e.stopPropagation(); // Avoid triggering parent div onClick route push
+                              }}
+                              className="flex items-center gap-2 p-1.5 pr-3 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl hover:border-primary/20 transition-colors group/item"
+                              title={`View ${item.products?.name || 'Product'} details`}
+                            >
+                              <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 bg-slate-50 relative">
+                                <ResponsiveImage
+                                  src={item.products?.image_url || 'https://picsum.photos/seed/product/50/50'}
+                                  alt={item.products?.name || 'Product'}
+                                  className="w-full h-full object-cover transition-transform group-hover/item:scale-105"
+                                  baseWidth={50}
+                                  baseHeight={50}
+                                />
+                              </div>
+                              <span className="text-[10px] font-bold dark:text-white max-w-[80px] sm:max-w-[125px] truncate group-hover/item:text-primary transition-colors">
+                                {item.products?.name || 'Produce'}
+                              </span>
+                            </Link>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   ))
                 ) : (

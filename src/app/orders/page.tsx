@@ -35,6 +35,14 @@ function OrdersContent() {
     }
   }, [showSuccess]);
 
+  // Expand specified order from URL parameter (e.g., coming from profile)
+  useEffect(() => {
+    const targetOrderId = searchParams.get('id');
+    if (targetOrderId) {
+      setExpandedOrders(new Set([targetOrderId]));
+    }
+  }, [searchParams]);
+
   useEffect(() => {
     const fetchOrders = async () => {
       if (!user) return;
@@ -469,17 +477,26 @@ function OrdersContent() {
                               <div className="space-y-4">
                                 {order.order_items.map((item: any) => (
                                   <div key={item.id} className="flex items-center gap-4">
-                                    <div className="w-16 h-16 rounded-xl overflow-hidden bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex-shrink-0">
+                                    <Link 
+                                      href={`/marketplace/${item.product_id || item.products?.id}`}
+                                      className="w-16 h-16 rounded-xl overflow-hidden bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex-shrink-0 cursor-pointer hover:opacity-80 transition-all shadow-sm block relative group border-primary/10 hover:border-primary/45"
+                                      title="View Product Details"
+                                    >
                                       <ResponsiveImage
                                         src={item.products?.image_url || 'https://picsum.photos/seed/product/100/100'}
                                         alt={item.products?.name}
-                                        className="w-full h-full object-cover"
+                                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                                         baseWidth={100}
                                         baseHeight={100}
                                       />
-                                    </div>
+                                    </Link>
                                     <div className="flex-1 min-w-0">
-                                      <h4 className="font-bold text-sm dark:text-white truncate">{item.products?.name}</h4>
+                                      <Link href={`/marketplace/${item.product_id || item.products?.id}`} className="inline-block max-w-full">
+                                        <h4 className="font-bold text-sm dark:text-white truncate cursor-pointer hover:text-primary transition-colors pr-2 inline flex items-center gap-1.5" title="View Product Details">
+                                          {item.products?.name}
+                                          <span className="material-symbols-outlined text-[12px] opacity-0 group-hover:opacity-100 transition-opacity text-primary">open_in_new</span>
+                                        </h4>
+                                      </Link>
                                       <p className="text-xs text-slate-500 dark:text-slate-400">
                                         {item.quantity} {item.products?.unit} x {item.price_at_purchase.toLocaleString()} CFA
                                       </p>
@@ -494,7 +511,7 @@ function OrdersContent() {
                                         </p>
                                       )}
                                     </div>
-                                    <p className="font-bold text-sm dark:text-white">
+                                    <p className="font-bold text-sm dark:text-white shrink-0">
                                       {(item.quantity * item.price_at_purchase).toLocaleString()} CFA
                                     </p>
                                   </div>
