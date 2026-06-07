@@ -11,11 +11,79 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNotifications } from '@/context/NotificationContext';
 
+// Helper component to render an interactive product preview card inline within chat bubbles
+function ChatProductCard({ productId }: { productId: string }) {
+  const [product, setProduct] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    const fetchProduct = async () => {
+      try {
+        const data = await supabaseService.getProductById(productId);
+        if (active) setProduct(data);
+      } catch (error) {
+        console.error("Failed to fetch product for chat card:", error);
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+    fetchProduct();
+    return () => {
+      active = false;
+    };
+  }, [productId]);
+
+  if (loading) {
+    return (
+      <div className="bg-slate-50 dark:bg-slate-800/80 p-3 rounded-xl border border-slate-150 dark:border-slate-700/60 flex items-center gap-3 animate-pulse min-w-[240px] mb-2 shadow-inner">
+        <div className="w-12 h-12 rounded-lg bg-slate-200 dark:bg-slate-700 shrink-0" />
+        <div className="flex-1 space-y-2">
+          <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-3/4" />
+          <div className="h-2.5 bg-slate-200 dark:bg-slate-700 rounded w-1/2" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="bg-slate-50 dark:bg-slate-800/80 p-3 rounded-xl border border-dashed border-slate-200 dark:border-slate-700 text-xs text-slate-400 dark:text-slate-500 mb-2">
+        <span className="material-symbols-outlined text-sm align-sub mr-1">broken_image</span>
+        Product details no longer available
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-slate-50 dark:bg-slate-900/40 hover:bg-slate-100 dark:hover:bg-slate-900/60 p-3 rounded-xl border border-slate-150 dark:border-slate-700 flex items-center justify-between gap-3 min-w-[240px] mb-2 shadow-sm transition-all text-left">
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="w-12 h-12 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0 border border-slate-200/50 dark:border-slate-700/50 relative">
+          <ResponsiveImage src={product.image_url || 'https://picsum.photos/seed/product/200/200'} alt={product.title} baseWidth={100} baseHeight={100} />
+        </div>
+        <div className="min-w-0">
+          <span className="text-[9px] font-black tracking-widest text-primary uppercase block leading-none mb-1">Product Inquiry</span>
+          <h5 className="font-bold text-xs text-slate-800 dark:text-white truncate leading-tight mb-0.5">{product.title}</h5>
+          <p className="text-xs text-slate-500 dark:text-slate-400 font-bold leading-none">{product.price?.toLocaleString()} {product.currency || 'FCFA'}</p>
+        </div>
+      </div>
+      <a 
+        href={`/marketplace/${product.id}`}
+        className="shrink-0 bg-primary/10 hover:bg-primary/20 text-primary px-2.5 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-colors inline-flex items-center gap-1"
+      >
+        View
+        <span className="material-symbols-outlined text-[10px]">arrow_forward</span>
+      </a>
+    </div>
+  );
+}
+
 function MessagesContent() {
   const { user } = useUser();
   const searchParams = useSearchParams();
   const router = useRouter();
   const contactId = searchParams.get('contact');
+  const productIdParam = searchParams.get('product');
   const { refreshUnreadMessages } = useNotifications();
 
   const [messages, setMessages] = useState<Message[]>([]);
@@ -23,8 +91,14 @@ function MessagesContent() {
   const [newMessage, setNewMessage] = useState('');
   const [selectedContact, setSelectedContact] = useState<string | null>(contactId);
   const [activeContactProfile, setActiveContactProfile] = useState<any>(null);
+  const [activeProductContext, setActiveProductContext] = useState<any>(null);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const selectedContactRef = useRef<string | null>(selectedContact);
+
+  useEffect(() => {
+    selectedContactRef.current = selectedContact;
+  }, [selectedContact]);
 
   // Fetch clicked contact's profile immediately if it's passed in query param
   useEffect(() => {
@@ -46,7 +120,26 @@ function MessagesContent() {
     }
   }, [contactId]);
 
-  // Load and subscribe to real-time messages
+  // Fetch product context details if product param is provided in URL query parameters
+  useEffect(() => {
+    if (productIdParam) {
+      const fetchProductDetails = async () => {
+        try {
+          const detail = await supabaseService.getProductById(productIdParam);
+          if (detail) {
+            setActiveProductContext(detail);
+          }
+        } catch (error) {
+          console.error("Failed to load product details for context:", error);
+        }
+      };
+      fetchProductDetails();
+    } else {
+      setActiveProductContext(null);
+    }
+  }, [productIdParam]);
+
+  // Load initial messages lists once
   useEffect(() => {
     if (!user?.id) return;
 
@@ -69,10 +162,15 @@ function MessagesContent() {
     };
 
     fetchMessages();
+  }, [user?.id, contactId]);
 
-    // Subscribe to messages changes (on send / receive / update)
+  // Setup real-time message listening and a solid short-polling fallback loop
+  useEffect(() => {
+    if (!user?.id) return;
+
+    // Real-time changes listener
     const channel = supabase
-      .channel(`chat_messages_${user.id}`)
+      .channel(`chat_messages_updates_${user.id}`)
       .on(
         'postgres_changes',
         {
@@ -82,26 +180,50 @@ function MessagesContent() {
         },
         async (payload) => {
           // Re-fetch message log from database
-          const latestMessages = await supabaseService.getMessages(user.id);
-          setMessages(latestMessages);
-          
-          // If we receive a message from the current open contact, mark read instantly!
-          if ((payload as any).eventType === 'INSERT') {
-            const newMsg = payload.new as Message;
-            if (newMsg.sender_id === selectedContact && newMsg.receiver_id === user.id) {
-              await supabaseService.markMessagesAsRead(user.id, selectedContact);
-              // Trigger count update
-              refreshUnreadMessages();
+          try {
+            const latestMessages = await supabaseService.getMessages(user.id);
+            setMessages(latestMessages);
+            
+            // If we receive a message from the current open contact, mark read instantly!
+            if (payload.eventType === 'INSERT') {
+              const newMsg = payload.new as Message;
+              const currentContact = selectedContactRef.current;
+              if (newMsg.sender_id === currentContact && newMsg.receiver_id === user.id) {
+                await supabaseService.markMessagesAsRead(user.id, currentContact);
+                refreshUnreadMessages();
+              }
             }
+          } catch (err) {
+            console.error("Failed to fetch fresh realtime messages:", err);
           }
         }
       )
       .subscribe();
 
+    // Solid short-polling fallback (3-second intervals) to guarantee instant receipt regardless of WebSockets
+    const interval = setInterval(async () => {
+      if (document.hidden) return; // Keep battery and data usage friendly
+      try {
+        const latestMessages = await supabaseService.getMessages(user.id);
+        setMessages(prev => {
+          // Light count/id check to prevent redundant re-renders unless there are new developments
+          if (prev.length === latestMessages.length && 
+              prev[prev.length - 1]?.id === latestMessages[latestMessages.length - 1]?.id &&
+              prev[prev.length - 1]?.is_read === latestMessages[latestMessages.length - 1]?.is_read) {
+            return prev;
+          }
+          return latestMessages;
+        });
+      } catch (err) {
+        console.error("Polling message check failed:", err);
+      }
+    }, 3000);
+
     return () => {
       supabase.removeChannel(channel);
+      clearInterval(interval);
     };
-  }, [user?.id, selectedContact, contactId, refreshUnreadMessages]);
+  }, [user?.id, refreshUnreadMessages]);
 
   // Handle Mark Messages as Read for the active discussion partner
   useEffect(() => {
@@ -131,7 +253,10 @@ function MessagesContent() {
     e.preventDefault();
     if (!newMessage.trim() || !selectedContact || !user?.id) return;
 
-    const textToSend = newMessage;
+    let textToSend = newMessage;
+    if (activeProductContext) {
+      textToSend = `[ProductId: ${activeProductContext.id}] ${newMessage}`;
+    }
     setNewMessage('');
 
     try {
@@ -162,12 +287,25 @@ function MessagesContent() {
       };
       
       setMessages(prev => [...prev, optimisticMsg]);
+      setActiveProductContext(null); // Clear context drawer after message has been sent with context
       
       // Update global count
       refreshUnreadMessages();
     } catch (error) {
       console.error('Failed to send message:', error);
     }
+  };
+
+  // Helper function to extract productID structures internally from text threads
+  const parseMessageContent = (messageText: string) => {
+    const match = messageText.match(/^\[ProductId:\s*([a-fA-F0-9-]+)\]\s*(.*)$/s);
+    if (match) {
+      return {
+        productId: match[1],
+        content: match[2]?.trim()
+      };
+    }
+    return null;
   };
 
   // Compile individual conversation partners
@@ -377,18 +515,21 @@ function MessagesContent() {
                 </div>
               </div>
               
-              {/* Fake call icon controls to mimic WhatsApp platform */}
+              {/* Settings menu without fake call icons */}
               <div className="flex items-center gap-4 text-slate-500 dark:text-slate-300">
-                <button className="hover:text-primary transition-colors cursor-pointer" title="Voice call">
-                  <span className="material-symbols-outlined text-[20px]">phone</span>
-                </button>
-                <button className="hover:text-primary transition-colors cursor-pointer" title="Video call">
-                  <span className="material-symbols-outlined text-[20px]">videocam</span>
-                </button>
                 <button className="hover:text-primary transition-colors cursor-pointer" title="Settings">
                   <span className="material-symbols-outlined text-[20px]">more_vert</span>
                 </button>
               </div>
+            </div>
+
+            {/* Platform Security/Escrow transaction guidelines notice */}
+            <div className="bg-amber-50 dark:bg-amber-950/20 border-b border-amber-200/55 dark:border-amber-900/40 p-2.5 px-5 flex items-center gap-3 shrink-0 text-left">
+              <span className="material-symbols-outlined text-amber-600 dark:text-amber-400 text-xl font-bold shrink-0">security</span>
+              <p className="text-[11px] sm:text-xs text-amber-800 dark:text-amber-300 font-semibold leading-normal">
+                <span className="font-extrabold text-[#d97706] dark:text-amber-400 uppercase tracking-wider text-[9px] bg-amber-100 dark:bg-amber-900/60 px-1.5 py-0.5 rounded mr-1.5 border border-amber-200/40">Security Advisory</span>
+                For your payment protection, all transactions must be concluded through the platform escrow system. Do not pay farmers directly off-platform under any circumstances.
+              </p>
             </div>
 
             {/* Bubble Threads container with classical WhatsApp style layout */}
@@ -418,8 +559,21 @@ function MessagesContent() {
                           : 'bg-white dark:bg-[#202c33] text-slate-800 dark:text-slate-100 rounded-tl-none'
                       }`}
                     >
-                      {/* Text content */}
-                      <p className="whitespace-pre-wrap leading-relaxed pr-8 pb-1">{msg.message}</p>
+                      {/* Text content with custom inline product card rendering */}
+                      {(() => {
+                        const parsed = parseMessageContent(msg.message);
+                        if (parsed) {
+                          return (
+                            <div className="flex flex-col">
+                              <ChatProductCard productId={parsed.productId} />
+                              {parsed.content && (
+                                <p className="whitespace-pre-wrap leading-relaxed pr-8 pb-1">{parsed.content}</p>
+                              )}
+                            </div>
+                          );
+                        }
+                        return <p className="whitespace-pre-wrap leading-relaxed pr-8 pb-1">{msg.message}</p>;
+                      })()}
                       
                       {/* Metadata row overlay on the right-bottom */}
                       <div className="text-[9px] text-slate-400 dark:text-slate-500 float-right mt-1 ml-4 select-none flex items-center gap-1 leading-none">
@@ -440,6 +594,30 @@ function MessagesContent() {
               })}
               <div ref={messagesEndRef} />
             </div>
+
+            {/* Context attachment bar displaying active crop inquiry details to buyer */}
+            {activeProductContext && (
+              <div className="mx-4 my-2 p-3 bg-white dark:bg-[#111b21] rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between gap-4 animate-fade-in relative z-20">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-12 h-12 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0 border border-slate-200/50 dark:border-slate-700/50 relative">
+                    <ResponsiveImage src={activeProductContext.image_url || 'https://picsum.photos/seed/product/200/200'} alt={activeProductContext.title} baseWidth={200} baseHeight={200} />
+                  </div>
+                  <div className="text-left min-w-0">
+                    <span className="text-[10px] font-black tracking-widest text-primary uppercase block leading-none mb-0.5">Pre-attaching Product Inquiry</span>
+                    <h5 className="font-bold text-xs text-slate-800 dark:text-white truncate leading-tight mb-0.5">{activeProductContext.title}</h5>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 font-bold leading-none">{activeProductContext.price?.toLocaleString()} {activeProductContext.currency || 'FCFA'}</p>
+                  </div>
+                </div>
+                <button 
+                  type="button" 
+                  onClick={() => setActiveProductContext(null)}
+                  className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full text-slate-400 dark:text-slate-500 transition-colors shrink-0"
+                  title="Remove product context"
+                >
+                  <span className="material-symbols-outlined text-lg">close</span>
+                </button>
+              </div>
+            )}
 
             {/* Input keyboard bar - WhatsApp themed bottom row */}
             <form onSubmit={handleSendMessage} className="p-3 bg-slate-50 dark:bg-[#202c33] flex items-center gap-3 shrink-0 select-none">

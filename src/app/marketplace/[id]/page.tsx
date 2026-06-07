@@ -425,7 +425,7 @@ function ProductDetailContent() {
               </div>
               <div className="flex items-center gap-3">
                 <Link 
-                  href={`/messages?contact=${product.farmer_id}`}
+                  href={`/messages?contact=${product.farmer_id}&product=${product.id}`}
                   className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white px-4 py-2 rounded-xl text-xs font-black hover:bg-slate-50 dark:hover:bg-slate-700 transition-all"
                 >
                   Contact
