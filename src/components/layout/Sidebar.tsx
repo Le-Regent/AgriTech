@@ -31,7 +31,7 @@ export function Sidebar({ onMobileClose }: SidebarProps) {
         {
           label: 'Admin Panel',
           icon: 'admin_panel_settings',
-          path: '/admin',
+          path: '/admin/dashboard',
         }
       ];
     }

@@ -12,7 +12,7 @@ interface AdminAuthGuardProps {
 }
 
 export default function AdminAuthGuard({ children }: AdminAuthGuardProps) {
-  const { user, updateProfile } = useUser();
+  const { user, isAuthReady } = useUser();
   const router = useRouter();
   const pathname = usePathname();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -35,6 +35,8 @@ export default function AdminAuthGuard({ children }: AdminAuthGuardProps) {
     }
     
     const fetchConfig = async () => {
+      if (!isAuthReady) return;
+
       if (!user?.id || !user?.is_admin) {
         setLoading(false);
         return;
@@ -60,7 +62,7 @@ export default function AdminAuthGuard({ children }: AdminAuthGuardProps) {
     };
 
     fetchConfig();
-  }, [user]);
+  }, [user, isAuthReady]);
 
   // Inactivity timeout logic (5 minutes)
   useEffect(() => {
@@ -96,7 +98,18 @@ export default function AdminAuthGuard({ children }: AdminAuthGuardProps) {
     }
   };
 
-  if (loading) return null;
+  if (loading || !isAuthReady) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 dark:bg-slate-950">
+        <div className="text-center p-8 flex flex-col items-center">
+          <div className="w-16 h-16 border-2 border-primary border-t-transparent rounded-full animate-spin mb-4" />
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 animate-pulse">
+            Verifying Admin Protocol...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (!user?.is_admin) {
     return (

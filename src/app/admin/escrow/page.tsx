@@ -33,6 +33,7 @@ export default function AdminEscrowPage() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'all' | 'pending' | 'escrow' | 'payout' | 'completed'>('all');
 
   // Playground Sandbox State
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
@@ -256,14 +257,26 @@ export default function AdminEscrowPage() {
   }
 
   const selectedOrder = orders.find(o => o.id === selectedOrderId);
+  const pendingOrders = orders.filter(o => o.status === 'pending');
+  const escrowActive = orders.filter(o => ['ESCROW_HELD', 'processing', 'shipped'].includes(o.status));
   const pendingPayouts = orders.filter(o => o.status === 'delivered');
-  const inEscrow = orders.filter(o => ['pending', 'ESCROW_HELD', 'processing', 'shipped'].includes(o.status));
-  const completed = orders.filter(o => o.status === 'COMPLETED');
+  const completed = orders.filter(o => ['COMPLETED', 'cancelled'].includes(o.status));
+
+  const displayedOrders = (() => {
+    switch (activeTab) {
+      case 'pending': return pendingOrders;
+      case 'escrow': return escrowActive;
+      case 'payout': return pendingPayouts;
+      case 'completed': return completed;
+      default: return [...pendingOrders, ...escrowActive, ...pendingPayouts, ...completed];
+    }
+  })();
 
   const stats = [
-    { label: 'Active Escrow', count: inEscrow.length, icon: Wallet, color: 'text-amber-500 bg-amber-500/10 border-amber-500/10' },
-    { label: 'Awaiting Payout', count: pendingPayouts.length, icon: FileCheck, color: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/10' },
-    { label: 'Completed Trades', count: completed.length, icon: History, color: 'text-indigo-500 bg-indigo-500/10 border-indigo-500/10' },
+    { id: 'pending' as const, label: 'Awaiting Payment', count: pendingOrders.length, icon: Clock, color: 'text-amber-500 bg-amber-500/10 border-amber-500/10' },
+    { id: 'escrow' as const, label: 'Active Escrow', count: escrowActive.length, icon: Wallet, color: 'text-blue-500 bg-blue-500/10 border-blue-500/10' },
+    { id: 'payout' as const, label: 'Ready for Payout', count: pendingPayouts.length, icon: FileCheck, color: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/10' },
+    { id: 'completed' as const, label: 'Completed Trades', count: completed.length, icon: History, color: 'text-slate-500 bg-slate-500/10 border-slate-500/10' },
   ];
 
   return (
@@ -304,18 +317,29 @@ export default function AdminEscrowPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {stats.map((stat, i) => (
-          <div key={i} className={`bg-white dark:bg-slate-900 p-5 rounded-[2rem] border border-slate-100 dark:border-white/5 flex items-center gap-4 shadow-sm transition-all hover:scale-[1.01]`}>
-            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${stat.color} border`}>
-              <stat.icon size={20} />
-            </div>
-            <div>
-              <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest leading-none">{stat.label}</p>
-              <p className="text-xl font-black text-slate-950 dark:text-white mt-1">{stat.count}</p>
-            </div>
-          </div>
-        ))}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {stats.map((stat, i) => {
+          const isSelected = activeTab === stat.id;
+          return (
+            <button 
+              key={i} 
+              onClick={() => setActiveTab(isSelected ? 'all' : stat.id)}
+              className={`bg-white dark:bg-slate-900 p-5 rounded-[2rem] border flex items-center gap-4 shadow-sm transition-all hover:scale-[1.01] text-left w-full cursor-pointer ${
+                isSelected 
+                  ? 'border-primary ring-2 ring-primary/20 ring-offset-2 dark:ring-offset-slate-950' 
+                  : 'border-slate-100 dark:border-white/5'
+              }`}
+            >
+              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${stat.color} border`}>
+                <stat.icon size={20} />
+              </div>
+              <div>
+                <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest leading-none">{stat.label}</p>
+                <p className="text-xl font-black text-slate-950 dark:text-white mt-1">{stat.count}</p>
+              </div>
+            </button>
+          );
+        })}
       </div>
 
       {/* Interactive Testing Playground */}
@@ -691,12 +715,41 @@ export default function AdminEscrowPage() {
         </div>
       </div>
 
-      {/* Secondary Table: In Escrow / Transit */}
+      {/* Secondary Table: In Escrow / Transit / Tabs switcher */}
       <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-white/5 shadow-sm overflow-hidden">
-        <div className="p-6 lg:p-8 border-b border-slate-50 dark:border-white/5 flex items-center justify-between">
+        <div className="p-6 lg:p-8 border-b border-slate-50 dark:border-white/5 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h2 className="text-lg font-black text-slate-950 dark:text-white tracking-tight">Active Escrow & Past Logs ({inEscrow.length + completed.length})</h2>
-            <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mt-1">Select any item below to load it into the Sandbox console.</p>
+            <h2 className="text-lg font-black text-slate-950 dark:text-white tracking-tight">Transaction Ledger ({displayedOrders.length})</h2>
+            <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mt-1">Select an order to load it into the Sandbox console above.</p>
+          </div>
+          <div className="flex flex-wrap gap-1 bg-slate-50 dark:bg-slate-950 p-1 rounded-2xl border border-slate-100 dark:border-white/5">
+            {(['all', 'pending', 'escrow', 'payout', 'completed'] as const).map((tab) => {
+              const label = tab === 'all' ? 'All' 
+                          : tab === 'pending' ? 'Awaiting Payment' 
+                          : tab === 'escrow' ? 'Active Escrow' 
+                          : tab === 'payout' ? 'Awaiting Payout' 
+                          : 'Completed/Logs';
+              const count = tab === 'all' ? orders.length
+                          : tab === 'pending' ? pendingOrders.length
+                          : tab === 'escrow' ? escrowActive.length
+                          : tab === 'payout' ? pendingPayouts.length
+                          : completed.length;
+              const isSelected = activeTab === tab;
+              return (
+                <button
+                  key={tab}
+                  type="button"
+                  onClick={() => setActiveTab(tab)}
+                  className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all cursor-pointer ${
+                    isSelected 
+                      ? 'bg-white dark:bg-slate-900 text-primary shadow-sm border border-slate-100 dark:border-white/5' 
+                      : 'text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                  }`}
+                >
+                  {label} ({count})
+                </button>
+              );
+            })}
           </div>
         </div>
         <div className="overflow-x-auto">
@@ -711,14 +764,14 @@ export default function AdminEscrowPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50 dark:divide-white/5">
-              {[...inEscrow, ...completed].length === 0 ? (
+              {displayedOrders.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-6 py-10 text-center text-slate-400 text-xs italic">
-                    No matching active transactions or completed records.
+                    No matching transactions or logs found.
                   </td>
                 </tr>
               ) : (
-                [...inEscrow, ...completed].map((order) => {
+                displayedOrders.map((order) => {
                   const isCurSelected = order.id === selectedOrderId;
                   const farmerProfile = order.order_items?.[0]?.products?.farmer;
                   return (
@@ -749,6 +802,7 @@ export default function AdminEscrowPage() {
                           order.status === 'ESCROW_HELD' ? 'bg-blue-500/15 text-blue-500 border-blue-500/20' : 
                           order.status === 'shipped' ? 'bg-indigo-500/15 text-indigo-500 border-indigo-500/20' : 
                           order.status === 'processing' ? 'bg-cyan-500/15 text-cyan-500 border-cyan-500/20' : 
+                          order.status === 'delivered' ? 'bg-emerald-500/15 text-emerald-500 border-emerald-500/20' :
                           order.status === 'COMPLETED' ? 'bg-slate-500/10 text-slate-500 border-slate-500/20 dark:text-slate-400' :
                           'bg-slate-100 text-slate-600 border-slate-200'
                         }`}>
