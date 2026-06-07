@@ -213,6 +213,13 @@ const SVG_ICONS: Record<string, string> = {
   gpp_maybe: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>',
   bolt: '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',
   waves: '<path d="M2 6c.6.5 1.2 1 2.5 1s2.5-.5 3-1 1.2-1 2.5-1c.6 0 1.2.5 2.5 1s2.5-.5 3-1 1.2-1 2.5-1 2.5.5 3 1M2 12c.6.5 1.2 1 2.5 1s2.5-.5 3-1 1.2-1 2.5-1c.6 0 1.2.5 2.5 1s2.5-.5 3-1 1.2-1 2.5-1 2.5.5 3 1M2 18c.6.5 1.2 1 2.5 1s2.5-.5 3-1 1.2-1 2.5-1c.6 0 1.2.5 2.5 1s2.5-.5 3-1 1.2-1 2.5-1 2.5.5 3 1"/>',
+  expand_more: '<polyline points="6 9 12 15 18 9"/>',
+  expand_less: '<polyline points="18 15 12 9 6 15"/>',
+  radio_button_unchecked: '<circle cx="12" cy="12" r="10"/>',
+  support_agent: '<path d="M3 18v-6a9 9 0 0 1 18 0v6M21 19a2 2 0 0 1-2 2h-1 a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3M3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3zm12-4h4a3 3 0 0 1 3 3"/>',
+  open_in_new: '<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3"/>',
+  broken_image: '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="21" y1="15" x2="16" y2="10"/><line x1="5" y1="21" x2="16" y2="10"/><line x1="1" y1="1" x2="23" y2="23"/>',
+  dark_mode: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
 };
 
 // Returns raw SVG HTML string formatted correctly to match the exact dimensions/stroke
