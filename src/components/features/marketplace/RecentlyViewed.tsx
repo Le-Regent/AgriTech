@@ -40,7 +40,7 @@ const RecentlyViewed: React.FC<RecentlyViewedProps> = ({ products, onClear, t })
               />
             </div>
             <h4 className="text-xs font-bold truncate dark:text-white">{p.name}</h4>
-            <p className="text-[10px] font-black text-primary">{p.price.toLocaleString()} CFA/{p.unit}</p>
+            <p className="text-[10px] font-black text-primary">{p.price.toLocaleString()} FCFA/{p.unit}</p>
           </Link>
         ))}
       </div>

@@ -108,7 +108,7 @@ function CartContent() {
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <h3 className="font-black text-base sm:text-lg dark:text-white truncate">{item.name}</h3>
-                      <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{item.price.toLocaleString()} CFA / {formatUnit(item.unit)}</p>
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{item.price.toLocaleString()} FCFA / {formatUnit(item.unit)}</p>
                     </div>
                     <button 
                       onClick={() => removeFromCart(item.id, item.unit)}
@@ -135,7 +135,7 @@ function CartContent() {
                       </button>
                     </div>
                     <div className="text-right">
-                      <p className="font-black text-slate-900 dark:text-white">{(item.price * item.quantity).toLocaleString()} CFA</p>
+                      <p className="font-black text-slate-900 dark:text-white">{(item.price * item.quantity).toLocaleString()} FCFA</p>
                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{item.unit}</p>
                     </div>
                   </div>
@@ -151,7 +151,7 @@ function CartContent() {
             <div className="space-y-4 mb-8">
               <div className="flex justify-between text-slate-500 dark:text-slate-400 font-bold">
                 <span>Subtotal</span>
-                <span>{totalPrice.toLocaleString()} CFA</span>
+                <span>{totalPrice.toLocaleString()} FCFA</span>
               </div>
               <div className="flex justify-between text-slate-500 dark:text-slate-400 font-bold">
                 <span>Shipping</span>
@@ -159,11 +159,11 @@ function CartContent() {
               </div>
               <div className="flex justify-between text-slate-500 dark:text-slate-400 font-bold">
                 <span>Tax</span>
-                <span>0 CFA</span>
+                <span>0 FCFA</span>
               </div>
               <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex justify-between items-end">
                 <span className="font-black text-lg dark:text-white">Total</span>
-                <span className="font-black text-3xl text-primary">{totalPrice.toLocaleString()} CFA</span>
+                <span className="font-black text-3xl text-primary">{totalPrice.toLocaleString()} FCFA</span>
               </div>
             </div>
             <button 

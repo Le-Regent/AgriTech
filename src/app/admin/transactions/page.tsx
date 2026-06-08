@@ -74,7 +74,7 @@ export default function TransactionsManagement() {
     { label: 'Total Volume', value: totalOrders, icon: Package, color: 'text-slate-600 bg-slate-100' },
     { label: 'Settled', value: completedVolume, icon: CheckCircle2, color: 'text-green-600 bg-green-100' },
     { label: 'In Transit', value: processingVolume, icon: Truck, color: 'text-blue-600 bg-blue-100' },
-    { label: 'Aggregate', value: `${totalCFA.toLocaleString()} CFA`, icon: Package, color: 'text-amber-600 bg-amber-100' },
+    { label: 'Aggregate', value: `${totalCFA.toLocaleString()} FCFA`, icon: Package, color: 'text-amber-600 bg-amber-100' },
   ];
 
   return (
@@ -228,7 +228,7 @@ export default function TransactionsManagement() {
                          </div>
                       </td>
                       <td className="px-8 py-6 text-right">
-                        <p className="text-sm font-black text-slate-900 dark:text-white tracking-tight">{order.total_amount.toLocaleString()} CFA</p>
+                        <p className="text-sm font-black text-slate-900 dark:text-white tracking-tight">{order.total_amount.toLocaleString()} FCFA</p>
                       </td>
                       <td className="px-8 py-6 text-right text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
                         <MoreVertical size={18} />
@@ -264,7 +264,7 @@ export default function TransactionsManagement() {
                                       <p className="text-[11px] font-black text-slate-900 dark:text-white tracking-tight leading-tight mb-1">{item.products?.name}</p>
                                       <p className="text-[10px] font-bold text-slate-400">By {item.products?.farmer?.full_name}</p>
                                       <div className="flex items-center gap-3 mt-2">
-                                         <p className="text-xs font-black text-primary">{item.price_at_purchase.toLocaleString()} CFA</p>
+                                         <p className="text-xs font-black text-primary">{item.price_at_purchase.toLocaleString()} FCFA</p>
                                          <span className="text-[10px] font-black text-slate-400">x {item.quantity}</span>
                                       </div>
                                     </div>

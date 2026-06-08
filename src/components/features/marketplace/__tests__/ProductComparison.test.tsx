@@ -22,7 +22,7 @@ describe('ProductComparison', () => {
     expect(screen.getByText('product_comparison')).toBeDefined();
     expect(screen.getByText('Tomato')).toBeDefined();
     expect(screen.getByText('Onion')).toBeDefined();
-    expect(screen.getByText('500 CFA/kg')).toBeDefined();
+    expect(screen.getByText('500 FCFA/kg')).toBeDefined();
     expect(screen.getByText('Organic')).toBeDefined();
     expect(screen.getByText('None')).toBeDefined(); // For Onion's empty certifications
   });

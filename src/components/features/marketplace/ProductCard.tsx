@@ -94,7 +94,7 @@ export default function ProductCard({
             </h3>
             <p className="font-black text-primary text-[13px] sm:text-base whitespace-nowrap">
               {product.price.toLocaleString()}
-              <span className="text-[8px] sm:text-xs text-slate-400 dark:text-slate-500 font-bold uppercase"> CFA</span>
+              <span className="text-[8px] sm:text-xs text-slate-400 dark:text-slate-500 font-bold uppercase"> FCFA</span>
             </p>
           </div>
           <div className="flex flex-col gap-1.5 mt-1 sm:mt-2">

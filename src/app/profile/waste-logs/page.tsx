@@ -52,7 +52,7 @@ export default function WasteLogsPage() {
             <TrendingDown size={20} />
             <span className="text-xs font-black uppercase tracking-widest">Total Estimated Loss</span>
           </div>
-          <p className="text-3xl font-black text-red-700 dark:text-red-400">{totalLoss.toLocaleString()} CFA</p>
+          <p className="text-3xl font-black text-red-700 dark:text-red-400">{totalLoss.toLocaleString()} FCFA</p>
         </div>
         
         <div className="bg-slate-50 dark:bg-white/5 p-6 rounded-[2rem]">
@@ -109,7 +109,7 @@ export default function WasteLogsPage() {
                       <span className="font-black">{log.quantity_wasted}</span>
                       <span className="text-slate-400 ml-1 text-xs">units</span>
                     </td>
-                    <td className="px-8 py-6 text-red-600 font-black">-{log.estimated_loss.toLocaleString()} CFA</td>
+                    <td className="px-8 py-6 text-red-600 font-black">-{log.estimated_loss.toLocaleString()} FCFA</td>
                     <td className="px-8 py-6 text-xs text-slate-500 flex items-center gap-2">
                       <Clock size={14} />
                       {format(new Date(log.created_at), 'MMM d, yyyy HH:mm')}

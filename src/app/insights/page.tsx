@@ -134,8 +134,8 @@ function InsightsContent() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
-          { label: 'Total Revenue', value: '2.4M CFA', change: '+12%', icon: 'payments', color: 'text-green-600', bg: 'bg-green-50' },
-          { label: 'Total Waste Loss', value: `${wasteLogs.reduce((acc, log) => acc + Number(log.estimated_loss), 0).toLocaleString()} CFA`, change: 'Loss', icon: 'delete_sweep', color: 'text-red-600', bg: 'bg-red-50' },
+          { label: 'Total Revenue', value: '2.4M FCFA', change: '+12%', icon: 'payments', color: 'text-green-600', bg: 'bg-green-50' },
+          { label: 'Total Waste Loss', value: `${wasteLogs.reduce((acc, log) => acc + Number(log.estimated_loss), 0).toLocaleString()} FCFA`, change: 'Loss', icon: 'delete_sweep', color: 'text-red-600', bg: 'bg-red-50' },
           { label: 'Total Orders', value: orders.length.toString(), change: '+5%', icon: 'shopping_bag', color: 'text-amber-600', bg: 'bg-amber-50' },
           { label: 'Market Demand', value: 'High', change: 'Trending', icon: 'trending_up', color: 'text-indigo-600', bg: 'bg-indigo-50' },
         ].map((stat, i) => (
@@ -204,7 +204,7 @@ function InsightsContent() {
                   strokeWidth={4}
                   fillOpacity={1} 
                   fill="url(#colorRev)" 
-                  name="Revenue (CFA)"
+                  name="Revenue (FCFA)"
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -280,7 +280,7 @@ function InsightsContent() {
                       <Cell key={`cell-${index}`} fill={WASTE_COLORS[index % WASTE_COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value) => value ? `${value.toLocaleString()} CFA` : '0 CFA'} />
+                  <Tooltip formatter={(value) => value ? `${value.toLocaleString()} FCFA` : '0 FCFA'} />
                   <Legend verticalAlign="bottom" height={36}/>
                 </PieChart>
               </ResponsiveContainer>

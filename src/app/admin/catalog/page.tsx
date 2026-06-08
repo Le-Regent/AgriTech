@@ -225,7 +225,7 @@ export default function AdminCatalogPage() {
                     </td>
                     <td className="px-8 py-6">
                       <div className="space-y-1">
-                        <p className="text-sm font-black text-slate-900 dark:text-white">{product.price.toLocaleString()} CFA</p>
+                        <p className="text-sm font-black text-slate-900 dark:text-white">{product.price.toLocaleString()} FCFA</p>
                         <p className="text-[10px] text-slate-400 font-bold uppercase">
                           {product.stock_quantity} {product.unit}s available
                         </p>

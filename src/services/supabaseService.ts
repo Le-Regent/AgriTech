@@ -45,6 +45,16 @@ export const supabaseService = {
     return data;
   },
 
+  async getProductsPaginated(limit: number, offset: number) {
+    const { data, error, count } = await supabase
+      .from('products')
+      .select('*, profiles(full_name, avatar_url, is_verified)', { count: 'exact' })
+      .range(offset, offset + limit - 1);
+    
+    if (error) throw new Error(error.message);
+    return { products: data || [], totalCount: count || 0 };
+  },
+
   async getProductsByFarmerId(farmerId: string) {
     const { data, error } = await supabase
       .from('products')
@@ -117,7 +127,7 @@ export const supabaseService = {
         try {
           await this.broadcastNotification({
             title: '🔥 Price Drop Alert!',
-            message: `The price of ${data.name} just dropped by ${dropPercentage}%! Now only ${data.price.toLocaleString()} CFA.`,
+            message: `The price of ${data.name} just dropped by ${dropPercentage}%! Now only ${data.price.toLocaleString()} FCFA.`,
             type: 'market',
             category: 'market',
             link: `/marketplace/${data.id}`

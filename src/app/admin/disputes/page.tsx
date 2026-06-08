@@ -119,7 +119,7 @@ export default function AdminDisputesPage() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-black text-slate-900 dark:text-white">{dispute.total_amount.toLocaleString()} CFA</p>
+                    <p className="text-sm font-black text-slate-900 dark:text-white">{dispute.total_amount.toLocaleString()} FCFA</p>
                     <p className="text-[10px] font-bold text-slate-400 uppercase">{new Date(dispute.created_at).toLocaleDateString()}</p>
                   </div>
                 </div>

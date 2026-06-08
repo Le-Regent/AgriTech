@@ -304,11 +304,11 @@ function ProfileContent() {
 
   const stats = isFarmer ? [
     { label: 'Diagnoses', value: diagnoses.length.toString() },
-    { label: 'Sales', value: `${orders.reduce((acc, o) => acc + (o.status === 'delivered' ? o.total_amount : 0), 0).toLocaleString()} CFA` },
+    { label: 'Sales', value: `${orders.reduce((acc, o) => acc + (o.status === 'delivered' ? o.total_amount : 0), 0).toLocaleString()} FCFA` },
     { label: 'Waste Logs', value: 'View Logs', link: '/profile/waste-logs' }
   ] : [
     { label: 'Orders', value: orders.length.toString() },
-    { label: 'Spent', value: `${orders.reduce((acc, o) => acc + (o.status !== 'cancelled' ? o.total_amount : 0), 0).toLocaleString()} CFA` }
+    { label: 'Spent', value: `${orders.reduce((acc, o) => acc + (o.status !== 'cancelled' ? o.total_amount : 0), 0).toLocaleString()} FCFA` }
   ];
 
   const getStatusClasses = (status: string) => {
@@ -733,7 +733,7 @@ function ProfileContent() {
                           <div className="min-w-0">
                             <p className="text-base sm:text-sm font-bold dark:text-white truncate">Order #{order.id.slice(0, 8).toUpperCase()}</p>
                             <p className="text-xs sm:text-[10px] text-slate-500 dark:text-slate-400 font-medium">
-                              {new Date(order.created_at).toLocaleDateString()} · <span className="text-primary font-black">{order.total_amount.toLocaleString()} CFA</span>
+                              {new Date(order.created_at).toLocaleDateString()} · <span className="text-primary font-black">{order.total_amount.toLocaleString()} FCFA</span>
                             </p>
                           </div>
                         </div>

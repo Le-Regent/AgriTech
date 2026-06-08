@@ -54,7 +54,7 @@ const ProductComparison: React.FC<ProductComparisonProps> = ({
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {[
-                { label: t('price'), key: 'price', format: (v: any, p: any) => `${v.toLocaleString()} CFA/${p.unit}` },
+                { label: t('price'), key: 'price', format: (v: any, p: any) => `${v.toLocaleString()} FCFA/${p.unit}` },
                 { label: t('location'), key: 'location' },
                 { label: t('health_status'), key: 'health_status' },
                 { label: t('certifications'), key: 'certifications', format: (v: any) => v.length > 0 ? v.join(', ') : 'None' },

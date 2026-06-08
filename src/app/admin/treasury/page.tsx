@@ -85,9 +85,9 @@ export default function AdminTreasuryPage() {
   ];
 
   const mainStats = [
-    { label: 'Total in Escrow', value: `${stats.escrowTotal.toLocaleString()} CFA`, icon: Wallet, color: 'text-indigo-600 bg-indigo-50' },
-    { label: 'Accrued Commissions', value: `${stats.commissionsTotal.toLocaleString()} CFA`, icon: Percent, color: 'text-emerald-600 bg-emerald-50' },
-    { label: 'Pending Payouts', value: `${stats.pendingWithdrawals.toLocaleString()} CFA`, icon: Activity, color: 'text-amber-600 bg-amber-50' },
+    { label: 'Total in Escrow', value: `${stats.escrowTotal.toLocaleString()} FCFA`, icon: Wallet, color: 'text-indigo-600 bg-indigo-50' },
+    { label: 'Accrued Commissions', value: `${stats.commissionsTotal.toLocaleString()} FCFA`, icon: Percent, color: 'text-emerald-600 bg-emerald-50' },
+    { label: 'Pending Payouts', value: `${stats.pendingWithdrawals.toLocaleString()} FCFA`, icon: Activity, color: 'text-amber-600 bg-amber-50' },
     { label: 'Liquidity Health', value: `${stats.liquidityScore}%`, icon: ShieldCheck, color: 'text-blue-600 bg-blue-50' },
   ];
 
@@ -168,7 +168,7 @@ export default function AdminTreasuryPage() {
         {/* Volume History */}
         <div className="lg:col-span-2 bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-white/5 shadow-sm">
           <div className="flex items-center justify-between mb-8">
-            <h3 className="text-sm font-black uppercase tracking-widest">Marketplace Volume (CFA)</h3>
+            <h3 className="text-sm font-black uppercase tracking-widest">Marketplace Volume (FCFA)</h3>
             <TrendingUp size={20} className="text-slate-400" />
           </div>
           <div className="h-64">

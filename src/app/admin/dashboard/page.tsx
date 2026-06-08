@@ -66,7 +66,7 @@ export default function AdminDashboard() {
     { label: 'Total Users', value: stats?.users || 0, icon: Users, color: 'text-blue-600 bg-blue-100 dark:bg-blue-900/30', trend: '+5.2%', positive: true },
     { label: 'Total Orders', value: stats?.orders || 0, icon: ShoppingBag, color: 'text-green-600 bg-green-100 dark:bg-green-900/30', trend: '+12.4%', positive: true },
     { label: 'Live Products', value: stats?.products || 0, icon: Activity, color: 'text-purple-600 bg-purple-100 dark:bg-purple-900/30', trend: '-2.1%', positive: false },
-    { label: 'Total Revenue', value: stats ? `${stats.revenue.toLocaleString()} CFA` : 0, icon: TrendingUp, color: 'text-amber-600 bg-amber-100 dark:bg-amber-900/30', trend: '+8.7%', positive: true },
+    { label: 'Total Revenue', value: stats ? `${stats.revenue.toLocaleString()} FCFA` : 0, icon: TrendingUp, color: 'text-amber-600 bg-amber-100 dark:bg-amber-900/30', trend: '+8.7%', positive: true },
   ];
 
   const systemHealth = [
@@ -313,7 +313,7 @@ export default function AdminDashboard() {
                           </div>
                         </td>
                         <td className="px-8 py-6 text-right">
-                          <p className="text-sm font-black text-slate-900 dark:text-white tracking-tight">{order.total_amount.toLocaleString()} CFA</p>
+                          <p className="text-sm font-black text-slate-900 dark:text-white tracking-tight">{order.total_amount.toLocaleString()} FCFA</p>
                           <p className="text-[9px] font-black uppercase text-green-500 tracking-widest">Verified Payment</p>
                         </td>
                       </tr>

@@ -151,7 +151,7 @@ export default function AdminEscrowPage() {
           created_at: new Date().toISOString()
         });
 
-        appendLog(`✅ Order #${order.id.slice(0, 8).toUpperCase()} inserted successfully. Total: ${totalAmount.toLocaleString()} CFA.`);
+        appendLog(`✅ Order #${order.id.slice(0, 8).toUpperCase()} inserted successfully. Total: ${totalAmount.toLocaleString()} FCFA.`);
         appendLog(`✅ Registered pending payment reference: ${reference}`);
         toast.success('Generated sandbox escrow order!');
         
@@ -395,7 +395,7 @@ export default function AdminEscrowPage() {
                   </div>
                   <div>
                     <p className="text-[9px] font-black uppercase text-slate-400 tracking-wider font-mono">Total Amount</p>
-                    <p className="font-bold text-amber-400 mt-0.5">{selectedOrder.total_amount?.toLocaleString() || 0} CFA</p>
+                    <p className="font-bold text-amber-400 mt-0.5">{selectedOrder.total_amount?.toLocaleString() || 0} FCFA</p>
                   </div>
                   <div>
                     <p className="text-[9px] font-black uppercase text-slate-400 tracking-wider">Current Status</p>
@@ -438,7 +438,7 @@ export default function AdminEscrowPage() {
                         <h5 className="text-xs font-black uppercase text-white tracking-wider">MTN/Orange MoMo Collect</h5>
                       </div>
                       <p className="text-[10px] text-slate-400 leading-normal max-w-md">
-                        Buyer receives a push prompt for <strong>{selectedOrder.total_amount?.toLocaleString() || 0} CFA</strong>. Sandbox bypasses cellular fees.
+                        Buyer receives a push prompt for <strong>{selectedOrder.total_amount?.toLocaleString() || 0} FCFA</strong>. Sandbox bypasses cellular fees.
                       </p>
                     </div>
                     {selectedOrder.status === 'pending' && (
@@ -527,7 +527,7 @@ export default function AdminEscrowPage() {
                         <h5 className="text-xs font-black uppercase text-white tracking-wider">Farmer Disbursement Payout (95%)</h5>
                       </div>
                       <p className="text-[10px] text-slate-400 leading-normal max-w-sm">
-                        Release <strong>{((selectedOrder.total_amount || 0) * 0.95).toLocaleString()} CFA</strong> to the farmer&apos;s mobile wallet instantly.
+                        Release <strong>{((selectedOrder.total_amount || 0) * 0.95).toLocaleString()} FCFA</strong> to the farmer&apos;s mobile wallet instantly.
                       </p>
                     </div>
 
@@ -687,7 +687,7 @@ export default function AdminEscrowPage() {
                         </span>
                       </td>
                       <td className="px-6 py-5">
-                        <p className="text-xs font-black text-green-600">{payoutValue.toLocaleString()} CFA</p>
+                        <p className="text-xs font-black text-green-600">{payoutValue.toLocaleString()} FCFA</p>
                         <p className="text-[9px] text-slate-400">Escrow Total: {order.total_amount.toLocaleString()}</p>
                       </td>
                       <td className="px-6 py-5 text-right">
@@ -825,7 +825,7 @@ export default function AdminEscrowPage() {
                         )}
                       </td>
                       <td className="px-6 py-5 text-right">
-                        <p className="text-xs font-black text-slate-850 dark:text-white">{order.total_amount?.toLocaleString()} CFA</p>
+                        <p className="text-xs font-black text-slate-850 dark:text-white">{order.total_amount?.toLocaleString()} FCFA</p>
                       </td>
                     </tr>
                   )

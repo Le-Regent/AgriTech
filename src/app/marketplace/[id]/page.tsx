@@ -365,7 +365,7 @@ function ProductDetailContent() {
             </div>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight dark:text-white">{product.name}</h2>
             <div className="flex items-center gap-3">
-              <p className="text-2xl sm:text-3xl lg:text-4xl font-black text-primary">{pricePerSelectedUnit.toLocaleString()} <span className="text-sm sm:text-base lg:text-lg text-slate-400 font-bold">CFA / {selectedUnit}</span></p>
+              <p className="text-2xl sm:text-3xl lg:text-4xl font-black text-primary">{pricePerSelectedUnit.toLocaleString()} <span className="text-sm sm:text-base lg:text-lg text-slate-400 font-bold">FCFA / {selectedUnit}</span></p>
               <div className={`px-2 sm:px-3 py-1 rounded-lg text-[10px] sm:text-xs font-black uppercase tracking-widest transition-colors ${
                 product.stock_quantity > 0 
                   ? 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400' 
@@ -593,7 +593,7 @@ function ProductDetailContent() {
                 <div className="flex-1 space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Total Price</label>
                   <div className="h-[52px] flex items-center px-6 bg-primary/5 dark:bg-primary/10 rounded-2xl border border-primary/10">
-                    <p className="font-black text-xl text-primary">{totalPrice.toLocaleString()} CFA</p>
+                    <p className="font-black text-xl text-primary">{totalPrice.toLocaleString()} FCFA</p>
                   </div>
                 </div>
               </div>
@@ -775,7 +775,7 @@ function ProductDetailContent() {
                 <div className="p-6">
                   <h4 className="font-black text-lg group-hover:text-primary transition-colors dark:text-white">{p.name}</h4>
                   <div className="flex items-center justify-between mt-2">
-                    <p className="font-black text-primary">{p.price.toLocaleString()}<span className="text-xs text-slate-400 dark:text-slate-500 font-bold"> CFA/{p.unit}</span></p>
+                    <p className="font-black text-primary">{p.price.toLocaleString()}<span className="text-xs text-slate-400 dark:text-slate-500 font-bold"> FCFA/{p.unit}</span></p>
                     <div className="flex items-center gap-1 text-amber-400">
                       <span className="material-symbols-outlined text-[14px] fill-1">star</span>
                       <span className="text-[10px] font-bold text-slate-900 dark:text-slate-300">4.5</span>
@@ -792,7 +792,7 @@ function ProductDetailContent() {
         <div className="bg-slate-900/90 dark:bg-slate-800/90 backdrop-blur-xl p-4 rounded-[2.5rem] shadow-2xl border border-white/10 flex items-center justify-between gap-4">
           <div className="flex-1">
              <p className="text-[10px] font-black uppercase text-white/50 tracking-widest leading-none mb-1">Total Price</p>
-             <p className="text-lg font-black text-white leading-none">{totalPrice.toLocaleString()} CFA</p>
+             <p className="text-lg font-black text-white leading-none">{totalPrice.toLocaleString()} FCFA</p>
           </div>
           <button 
             onClick={handleAddToCart}

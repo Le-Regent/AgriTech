@@ -180,7 +180,7 @@ const translations = {
     'add_to_cart': 'ADD TO CART',
     'product_comparison': 'Product Comparison',
     'feature': 'Feature',
-    'price': 'Price (XAF)',
+    'price': 'Price (FCFA)',
     'location': 'Region/Market',
     'health_status': 'Health Status',
     'hero_title': 'Empowering the Next Generation of Cameroonian Farmers 🇨🇲.',

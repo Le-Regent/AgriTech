@@ -308,7 +308,7 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, far
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-slate-400">Price ($)</label>
+                  <label className="text-xs font-black uppercase tracking-widest text-slate-400">Price (FCFA)</label>
                   <input
                     type="number"
                     step="0.01"

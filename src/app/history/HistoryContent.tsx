@@ -283,7 +283,7 @@ export default function HistoryContent() {
                   <div className="h-10 w-32 bg-slate-100 dark:bg-muted-dark rounded-lg mt-3 animate-pulse"></div>
                 ) : (
                   <p className="text-4xl font-black text-slate-900 dark:text-white mt-3">
-                    {(history.reduce((acc, curr) => acc + (curr.type === 'Sale' || !isFarmer ? curr.amount : 0), 0) || 0).toLocaleString()} CFA
+                    {(history.reduce((acc, curr) => acc + (curr.type === 'Sale' || !isFarmer ? curr.amount : 0), 0) || 0).toLocaleString()} FCFA
                   </p>
                 )}
                 <div className="mt-4 flex items-center text-xs text-green-600 font-black">
@@ -369,7 +369,7 @@ export default function HistoryContent() {
                       <div className="flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/40 p-3 rounded-2xl">
                         <div>
                           <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Total Amount</p>
-                          <p className="text-sm font-black text-slate-900 dark:text-white">{item.amount.toLocaleString()} CFA</p>
+                          <p className="text-sm font-black text-slate-900 dark:text-white">{item.amount.toLocaleString()} FCFA</p>
                         </div>
                         <div>
                           <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest leading-none ${
@@ -452,7 +452,7 @@ export default function HistoryContent() {
                               )}
                             </div>
                           </td>
-                          <td className="px-8 py-5 text-sm text-slate-900 dark:text-white text-right font-black">{item.amount.toLocaleString()} CFA</td>
+                          <td className="px-8 py-5 text-sm text-slate-900 dark:text-white text-right font-black">{item.amount.toLocaleString()} FCFA</td>
                           <td className="px-8 py-5 text-center">
                             <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
                               item.status === 'Delivered' || item.status === 'Completed' ? 'bg-green-50 text-green-600' : 

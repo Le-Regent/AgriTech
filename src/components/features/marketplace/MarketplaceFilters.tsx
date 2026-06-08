@@ -8,6 +8,13 @@ interface MarketplaceFiltersProps {
   isOpen: boolean;
   onClose: () => void;
   t: (key: string) => string;
+  facetCounts?: {
+    category: Record<string, number>;
+    origin: Record<string, number>;
+    certification: Record<string, number>;
+    season: Record<string, number>;
+    healthStatus: Record<string, number>;
+  };
 }
 
 const MarketplaceFilters: React.FC<MarketplaceFiltersProps> = ({
@@ -15,7 +22,8 @@ const MarketplaceFilters: React.FC<MarketplaceFiltersProps> = ({
   setFilters,
   isOpen,
   onClose,
-  t
+  t,
+  facetCounts
 }) => {
   const toggleCertification = (cert: string) => {
     setFilters({
@@ -23,6 +31,16 @@ const MarketplaceFilters: React.FC<MarketplaceFiltersProps> = ({
       certification: filters.certification.includes(cert)
         ? filters.certification.filter(c => c !== cert)
         : [...filters.certification, cert]
+    });
+  };
+
+  const handleClearAll = () => {
+    setFilters({
+      category: 'All Produce',
+      origin: 'All',
+      certification: [],
+      season: 'All',
+      healthStatus: 'All',
     });
   };
 
@@ -48,8 +66,16 @@ const MarketplaceFilters: React.FC<MarketplaceFiltersProps> = ({
             
             <div className="space-y-8">
               <div className="flex items-center justify-between">
-                <h3 className="text-xl font-black uppercase italic tracking-tight dark:text-white">Refine Search</h3>
-                <button onClick={onClose} className="text-slate-400">
+                <div>
+                  <h3 className="text-xl font-black uppercase italic tracking-tight dark:text-white">Refine Search</h3>
+                  <button 
+                    onClick={handleClearAll}
+                    className="text-[10px] font-black uppercase tracking-widest text-[#10b981] hover:underline mt-1 block"
+                  >
+                    Clear All Filters
+                  </button>
+                </div>
+                <button onClick={onClose} className="text-slate-400 p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-full transition-colors">
                   <span className="material-symbols-outlined">close</span>
                 </button>
               </div>
@@ -58,60 +84,91 @@ const MarketplaceFilters: React.FC<MarketplaceFiltersProps> = ({
                 <div className="space-y-4">
                   <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 italic">Origin Region</p>
                   <div className="flex flex-wrap gap-2">
-                    {['All', 'Littoral', 'South West', 'West', 'North West', 'Centre'].map(region => (
-                      <button
-                        key={region}
-                        onClick={() => setFilters({ ...filters, origin: region })}
-                        className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${filters.origin === region ? 'bg-primary text-white' : 'bg-slate-100 dark:bg-white/5 dark:text-slate-400'}`}
-                      >
-                        {region === 'All' ? t('all') : region}
-                      </button>
-                    ))}
+                    {['All', 'Littoral', 'South West', 'West', 'North West', 'Centre'].map(region => {
+                      const count = region === 'All' 
+                        ? Object.values(facetCounts?.origin || {}).reduce((ac, cu) => ac + cu, 0)
+                        : (facetCounts?.origin[region] || 0);
+                      return (
+                        <button
+                          key={region}
+                          onClick={() => setFilters({ ...filters, origin: region })}
+                          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${filters.origin === region ? 'bg-primary text-white shadow-lg' : 'bg-slate-100 dark:bg-white/5 dark:text-slate-400'}`}
+                        >
+                          <span>{region === 'All' ? t('all') : region}</span>
+                          <span className={`text-[10px] rounded-full px-1.5 py-0.5 font-mono ${filters.origin === region ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-white/10 text-slate-500'}`}>
+                            {count}
+                          </span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
                 <div className="space-y-4">
                   <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 italic">Health Status</p>
                   <div className="flex flex-wrap gap-2">
-                    {['All', 'Perfect', 'Good', 'Warning'].map(status => (
-                      <button
-                        key={status}
-                        onClick={() => setFilters({ ...filters, healthStatus: status })}
-                        className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${filters.healthStatus === status ? 'bg-primary text-white' : 'bg-slate-100 dark:bg-white/5 dark:text-slate-400'}`}
-                      >
-                        {status === 'All' ? t('all') : status}
-                      </button>
-                    ))}
+                    {['All', 'Perfect', 'Good', 'Warning'].map(status => {
+                      const count = status === 'All'
+                        ? Object.values(facetCounts?.healthStatus || {}).reduce((ac, cu) => ac + cu, 0)
+                        : (facetCounts?.healthStatus[status] || 0);
+                      return (
+                        <button
+                          key={status}
+                          onClick={() => setFilters({ ...filters, healthStatus: status })}
+                          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${filters.healthStatus === status ? 'bg-primary text-white shadow-lg' : 'bg-slate-100 dark:bg-white/5 dark:text-slate-400'}`}
+                        >
+                          <span>{status === 'All' ? t('all') : status}</span>
+                          <span className={`text-[10px] rounded-full px-1.5 py-0.5 font-mono ${filters.healthStatus === status ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-white/10 text-slate-500'}`}>
+                            {count}
+                          </span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
                 <div className="space-y-4">
                   <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 italic">Certifications</p>
                   <div className="flex flex-wrap gap-2">
-                    {['Organic', 'Fair Trade', 'G-GAP'].map(cert => (
-                      <button
-                        key={cert}
-                        onClick={() => toggleCertification(cert)}
-                        className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${filters.certification.includes(cert) ? 'bg-primary text-white' : 'bg-slate-100 dark:bg-white/5 dark:text-slate-400'}`}
-                      >
-                        {cert}
-                      </button>
-                    ))}
+                    {['Organic', 'Fair Trade', 'G-GAP'].map(cert => {
+                      const count = facetCounts?.certification[cert] || 0;
+                      const isSelected = filters.certification.includes(cert);
+                      return (
+                        <button
+                          key={cert}
+                          onClick={() => toggleCertification(cert)}
+                          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${isSelected ? 'bg-primary text-white shadow-lg' : 'bg-slate-100 dark:bg-white/5 dark:text-slate-400'}`}
+                        >
+                          <span>{cert}</span>
+                          <span className={`text-[10px] rounded-full px-1.5 py-0.5 font-mono ${isSelected ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-white/10 text-slate-500'}`}>
+                            {count}
+                          </span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
                 <div className="space-y-4">
                   <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 italic">Harvest Season</p>
                   <div className="flex flex-wrap gap-2">
-                    {['All', 'Raining', 'Dry', 'Year round'].map(season => (
-                      <button
-                        key={season}
-                        onClick={() => setFilters({ ...filters, season: season })}
-                        className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${filters.season === season ? 'bg-primary text-white' : 'bg-slate-100 dark:bg-white/5 dark:text-slate-400'}`}
-                      >
-                        {season === 'All' ? t('all') : season}
-                      </button>
-                    ))}
+                    {['All', 'Raining', 'Dry', 'Year round'].map(season => {
+                      const count = season === 'All'
+                        ? Object.values(facetCounts?.season || {}).reduce((ac, cu) => ac + cu, 0)
+                        : (facetCounts?.season[season] || 0);
+                      return (
+                        <button
+                          key={season}
+                          onClick={() => setFilters({ ...filters, season: season })}
+                          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${filters.season === season ? 'bg-primary text-white shadow-lg' : 'bg-slate-100 dark:bg-white/5 dark:text-slate-400'}`}
+                        >
+                          <span>{season === 'All' ? t('all') : season}</span>
+                          <span className={`text-[10px] rounded-full px-1.5 py-0.5 font-mono ${filters.season === season ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-white/10 text-slate-500'}`}>
+                            {count}
+                          </span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               </div>

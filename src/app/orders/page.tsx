@@ -330,7 +330,7 @@ function OrdersContent() {
                     </div>
                     <div>
                       <p className="text-xs font-black uppercase tracking-widest text-slate-400">Total</p>
-                      <p className="font-black text-primary">{order.total_amount.toLocaleString()} CFA</p>
+                      <p className="font-black text-primary">{order.total_amount.toLocaleString()} FCFA</p>
                     </div>
                     {!isFarmer && order.status !== 'cancelled' && order.status !== 'COMPLETED' && (
                       <div className="hidden sm:block">
@@ -498,7 +498,7 @@ function OrdersContent() {
                                         </h4>
                                       </Link>
                                       <p className="text-xs text-slate-500 dark:text-slate-400">
-                                        {item.quantity} {item.products?.unit} x {item.price_at_purchase.toLocaleString()} CFA
+                                        {item.quantity} {item.products?.unit} x {item.price_at_purchase.toLocaleString()} FCFA
                                       </p>
                                       {!isFarmer && (
                                         <p className="text-[10px] text-primary font-bold mt-0.5">
@@ -512,7 +512,7 @@ function OrdersContent() {
                                       )}
                                     </div>
                                     <p className="font-bold text-sm dark:text-white shrink-0">
-                                      {(item.quantity * item.price_at_purchase).toLocaleString()} CFA
+                                      {(item.quantity * item.price_at_purchase).toLocaleString()} FCFA
                                     </p>
                                   </div>
                                 ))}

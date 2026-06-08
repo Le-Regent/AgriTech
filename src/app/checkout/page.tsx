@@ -286,7 +286,7 @@ function CheckoutContent() {
         <div className="max-w-xs mx-auto bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-800">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-slate-400">Amount to Pay</span>
-            <span className="text-lg font-black text-primary">{total.toLocaleString()} CFA</span>
+            <span className="text-lg font-black text-primary">{total.toLocaleString()} FCFA</span>
           </div>
         </div>
       </div>
@@ -569,7 +569,7 @@ function CheckoutContent() {
                               <p className="text-xs text-slate-400">Qty: {item.quantity} {formatUnit(item.unit)}</p>
                             </div>
                           </div>
-                          <p className="text-sm font-black dark:text-white">{(item.price * item.quantity).toLocaleString()} CFA</p>
+                          <p className="text-sm font-black dark:text-white">{(item.price * item.quantity).toLocaleString()} FCFA</p>
                         </div>
                       ))}
                     </div>
@@ -587,7 +587,7 @@ function CheckoutContent() {
                     ) : (
                       <>
                         <span className="material-symbols-outlined">verified</span>
-                        Place Order - {total.toLocaleString()} CFA
+                        Place Order - {total.toLocaleString()} FCFA
                       </>
                     )}
                   </button>
@@ -604,19 +604,19 @@ function CheckoutContent() {
           <div className="space-y-4">
             <div className="flex justify-between text-sm">
               <span className="text-slate-500">Subtotal</span>
-              <span className="font-bold dark:text-white">{subtotal.toLocaleString()} CFA</span>
+              <span className="font-bold dark:text-white">{subtotal.toLocaleString()} FCFA</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-slate-500">Shipping</span>
-              <span className="font-bold dark:text-white">{shipping.toLocaleString()} CFA</span>
+              <span className="font-bold dark:text-white">{shipping.toLocaleString()} FCFA</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-slate-500">Tax</span>
-              <span className="font-bold dark:text-white">0 CFA</span>
+              <span className="font-bold dark:text-white">0 FCFA</span>
             </div>
             <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-between items-end">
               <span className="text-sm font-black uppercase tracking-widest text-slate-400">Total</span>
-              <span className="text-3xl font-black text-primary">{total.toLocaleString()} CFA</span>
+              <span className="text-3xl font-black text-primary">{total.toLocaleString()} FCFA</span>
             </div>
           </div>
         </div>

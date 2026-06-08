@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { get, set, del, keys } from 'idb-keyval';
 
 interface SyncAction {
@@ -10,7 +10,7 @@ interface SyncAction {
 
 interface OfflineContextType {
   isOnline: boolean;
-  saveToCache: (key: string, data: any) => Promise<void>;
+  saveToCache: (key: string, data: any, debounce?: boolean) => Promise<void>;
   getFromCache: (key: string) => Promise<any>;
   addToSyncQueue: (type: string, data: any) => void;
   syncQueue: SyncAction[];
@@ -56,13 +56,39 @@ export const OfflineProvider: React.FC<{ children: React.ReactNode }> = ({ child
     set('agritech_sync_queue', syncQueue);
   }, [syncQueue]);
 
-  const saveToCache = useCallback(async (key: string, data: any) => {
+  const writeQueueRef = useRef<Record<string, any>>({});
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const processCacheWrites = useCallback(async () => {
+    const queue = { ...writeQueueRef.current };
+    writeQueueRef.current = {};
+    timerRef.current = null;
+    
+    for (const [key, val] of Object.entries(queue)) {
+      try {
+        await set(`cache_${key}`, val);
+      } catch (err) {
+        console.error('Debounced cache write failed for key:', key, err);
+      }
+    }
+  }, []);
+
+  const saveToCache = useCallback(async (key: string, data: any, debounce = false) => {
+    if (debounce) {
+      writeQueueRef.current[key] = data;
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+      timerRef.current = setTimeout(processCacheWrites, 400);
+      return;
+    }
+
     try {
       await set(`cache_${key}`, data);
     } catch (e) {
       console.error('Failed to save to cache', e);
     }
-  }, []);
+  }, [processCacheWrites]);
 
   const getFromCache = useCallback(async (key: string) => {
     try {

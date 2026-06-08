@@ -282,13 +282,13 @@ function DashboardContent() {
         { label: t('crop_health'), value: diagnoses.length > 0 ? (diagnoses.filter(d => d.result_label === 'healthy' || d.status === 'healthy').length / diagnoses.length * 100).toFixed(0) + '%' : '--', icon: 'potted_plant', color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-500/10' },
         { label: t('total_inventory'), value: myProducts.reduce((sum, p) => sum + p.stock_quantity, 0).toLocaleString(), icon: 'inventory_2', color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-500/10' },
         { label: t('pending_orders'), value: sellerOrders.filter(o => o.status === 'pending').length.toString(), icon: 'shopping_cart', color: 'text-orange-500', bg: 'bg-orange-50 dark:bg-orange-500/10' },
-        { label: t('total_revenue'), value: sellerOrders.filter(o => o.status === 'delivered').reduce((sum, o) => sum + o.total_amount, 0).toLocaleString() + ' CFA', icon: 'payments', color: 'text-primary', bg: 'bg-primary/10' }
+        { label: t('total_revenue'), value: sellerOrders.filter(o => o.status === 'delivered').reduce((sum, o) => sum + o.total_amount, 0).toLocaleString() + ' FCFA', icon: 'payments', color: 'text-primary', bg: 'bg-primary/10' }
       ];
     }
     return [
       { label: t('active_orders'), value: sellerOrders.filter(o => o.status !== 'delivered' && o.status !== 'cancelled').length.toString(), icon: 'shopping_bag', color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-500/10' },
       { label: t('notifications'), value: notifications.filter(n => !n.is_read).length.toString(), icon: 'notifications', color: 'text-orange-500', bg: 'bg-orange-50 dark:bg-orange-500/10' },
-      { label: t('total_spent'), value: sellerOrders.reduce((sum, o) => sum + (o.total_amount || 0), 0).toLocaleString() + ' CFA', icon: 'payments', color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-500/10' },
+      { label: t('total_spent'), value: sellerOrders.reduce((sum, o) => sum + (o.total_amount || 0), 0).toLocaleString() + ' FCFA', icon: 'payments', color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-500/10' },
       { label: t('purchase_history'), value: sellerOrders.length.toString(), icon: 'history', color: 'text-purple-500', bg: 'bg-purple-50 dark:bg-purple-500/10' }
     ];
   }, [isFarmer, diagnoses, myProducts, sellerOrders, notifications, t]);
@@ -598,11 +598,11 @@ function DashboardContent() {
             {/* Price Cards Horizontal Row */}
             <div className="flex items-center gap-3 overflow-x-auto pb-1.5 no-scrollbar -mx-5 px-5 md:mx-0 md:px-0 scroll-smooth">
               {[
-                { name: 'Cocoa Beans (Kumba)', price: '1,850 CFA/kg', change: '+2.4%', up: true },
-                { name: 'Irish Potatoes (Foumbot)', price: '18,500 CFA/sac', change: '+4.0%', up: true },
-                { name: 'Plantains (Makenene)', price: '3,800 CFA/reg', change: '-1.5%', up: false },
-                { name: 'Garri (Buea)', price: '12,000 CFA/sac', change: '+1.1%', up: true },
-                { name: 'Arabica Coffee (Bafoussam)', price: '2,100 CFA/kg', change: 'Stable', up: null },
+                { name: 'Cocoa Beans (Kumba)', price: '1,850 FCFA/kg', change: '+2.4%', up: true },
+                { name: 'Irish Potatoes (Foumbot)', price: '18,500 FCFA/sac', change: '+4.0%', up: true },
+                { name: 'Plantains (Makenene)', price: '3,800 FCFA/reg', change: '-1.5%', up: false },
+                { name: 'Garri (Buea)', price: '12,000 FCFA/sac', change: '+1.1%', up: true },
+                { name: 'Arabica Coffee (Bafoussam)', price: '2,100 FCFA/kg', change: 'Stable', up: null },
               ].map((bench, idx) => (
                 <div key={idx} className="bg-white/5 border border-white/5 p-2.5 rounded-xl flex flex-col justify-between shrink-0 min-w-[135px] sm:min-w-[155px]">
                   <span className="text-[8px] font-bold text-slate-400 truncate tracking-tight uppercase">{bench.name}</span>
@@ -741,7 +741,7 @@ function DashboardContent() {
                       <div>
                         <h4 className="font-bold text-xs sm:text-base dark:text-white group-hover:text-primary transition-colors leading-snug tracking-tight line-clamp-1">{product.name}</h4>
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mt-1">
-                          <p className="text-[11px] sm:text-sm font-black text-primary leading-none">{product.price.toLocaleString()} CFA</p>
+                          <p className="text-[11px] sm:text-sm font-black text-primary leading-none">{product.price.toLocaleString()} FCFA</p>
                           <span className="text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded dark:text-slate-400 uppercase tracking-wider self-start sm:self-auto truncate max-w-full">{product.category}</span>
                         </div>
                       </div>
@@ -776,7 +776,7 @@ function DashboardContent() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="font-black text-sm dark:text-white mb-1">{(order.total_amount || 0).toLocaleString()} CFA</p>
+                      <p className="font-black text-sm dark:text-white mb-1">{(order.total_amount || 0).toLocaleString()} FCFA</p>
                       <span className={`text-[10px] font-black uppercase tracking-tighter px-3 py-1 rounded-lg ${
                         order.status === 'delivered' ? 'bg-emerald-100 text-emerald-700' : 
                         order.status === 'pending' ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'
@@ -1113,7 +1113,7 @@ function DashboardContent() {
                       {order.order_items.map((item: any) => (
                         <div key={item.id} className="flex justify-between text-xs">
                           <span className="text-slate-600 dark:text-slate-400">{item.products?.name} x {item.quantity}</span>
-                          <span className="font-bold dark:text-white">{(item.quantity * item.price_at_purchase).toLocaleString()} CFA</span>
+                          <span className="font-bold dark:text-white">{(item.quantity * item.price_at_purchase).toLocaleString()} FCFA</span>
                         </div>
                       ))}
                     </div>
@@ -1421,7 +1421,7 @@ function DashboardContent() {
                           {product.stock_quantity} {product.unit} left
                         </span>
                       </div>
-                      <p className="text-[10px] text-slate-500 dark:text-slate-400">{product.price.toLocaleString()} CFA / {product.unit}</p>
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400">{product.price.toLocaleString()} FCFA / {product.unit}</p>
                     </div>
                     <Link href={`/marketplace/${product.id}`} className="material-symbols-outlined text-slate-400 hover:text-primary transition-colors">edit</Link>
                   </div>

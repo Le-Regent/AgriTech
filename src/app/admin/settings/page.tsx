@@ -78,7 +78,7 @@ export default function AdminSettingsPage() {
       icon: Percent,
       items: [
         { key: 'platform_commission', label: 'Platform Commission (%)', helper: 'Percentage taken from farmer payouts for infrastructure costs.', type: 'number' },
-        { key: 'min_withdrawal', label: 'Minimum Withdrawal (CFA)', helper: 'Smallest amount a farmer can withdraw to MoMo.', type: 'number' },
+        { key: 'min_withdrawal', label: 'Minimum Withdrawal (FCFA)', helper: 'Smallest amount a farmer can withdraw to MoMo.', type: 'number' },
         { key: 'payment_sandbox', label: 'Payment Sandbox Simulation', helper: 'Forces virtual MoMo payments allowing you to test checkouts & payouts seamlessly without live money or merchant keys.', type: 'select', options: ['true', 'false'] },
       ]
     },
