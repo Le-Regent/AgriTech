@@ -46,6 +46,11 @@ function ProductDetailContent() {
         }
       }
 
+      if (!cachedData) {
+        // Fallback: check static INITIAL_PRODUCTS
+        cachedData = INITIAL_PRODUCTS.find((p: any) => p.id === id);
+      }
+
       if (cachedData) {
         setProduct(cachedData as Product);
         setSelectedUnit(cachedData.unit);

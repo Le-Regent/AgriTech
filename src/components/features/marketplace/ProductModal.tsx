@@ -56,7 +56,17 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, far
   const [aiProgress, setAiProgress] = useState(0);
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [localPreviewUrl, setLocalPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Auto-revoke local URL to prevent memory leaks
+  React.useEffect(() => {
+    return () => {
+      if (localPreviewUrl) {
+        URL.revokeObjectURL(localPreviewUrl);
+      }
+    };
+  }, [localPreviewUrl]);
 
   // Reset form when modal opens/closes
   React.useEffect(() => {
@@ -76,6 +86,7 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, far
       setErrors({});
       setUploadProgress(0);
       setAiProgress(0);
+      setLocalPreviewUrl(null);
     }
   }, [isOpen, initialData, farmerId]);
 
@@ -105,6 +116,10 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, far
       }
     }
     
+    if (name === 'image_url') {
+      setLocalPreviewUrl(null);
+    }
+
     setFormData(prev => ({
       ...prev,
       [name]: finalValue
@@ -147,6 +162,7 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, far
       
       if (image) {
         setFormData(prev => ({ ...prev, image_url: image }));
+        setLocalPreviewUrl(null);
         setAiProgress(100);
         toast.success('AI Image generated successfully!');
       }
@@ -162,24 +178,90 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, far
     }
   };
 
+  // Ultra-fast client-side canvas-based image compressor
+  const compressImage = (file: File): Promise<Blob> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 800; // Optimal resolutions for preview & card cards
+          let width = img.width;
+          let height = img.height;
+
+          if (width > MAX_WIDTH) {
+            height = Math.round((height * MAX_WIDTH) / width);
+            width = MAX_WIDTH;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            resolve(file); // Fallback to raw file
+            return;
+          }
+
+          ctx.drawImage(img, 0, 0, width, height);
+          canvas.toBlob(
+            (blob) => {
+              if (blob) {
+                resolve(blob);
+              } else {
+                resolve(file); // Fallback
+              }
+            },
+            'image/jpeg',
+            0.75 // Exceptional fast compression factor conserving bandwidth
+          );
+        };
+        img.onerror = () => resolve(file);
+        img.src = event.target?.result as string;
+      };
+      reader.onerror = () => resolve(file);
+      reader.readAsDataURL(file);
+    });
+  };
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setUploadingImage(true);
-    setUploadProgress(20);
-    try {
-      // Simulate progress since Supabase upload doesn't provide it easily in this wrapper
-      const progressInterval = setInterval(() => {
-        setUploadProgress(prev => Math.min(prev + 10, 90));
-      }, 200);
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file.');
+      return;
+    }
 
-      const publicUrl = await supabaseService.uploadImage(file);
+    // Set preview local URL immediately (Instant feed !)
+    const previewUrl = URL.createObjectURL(file);
+    setLocalPreviewUrl(previewUrl);
+
+    setUploadingImage(true);
+    setUploadProgress(15);
+    try {
+      // Background compression (takes ~50ms)
+      const compressedBlob = await compressImage(file);
+      setUploadProgress(40);
+
+      // Create an optimized file to upload
+      const optimizedFile = new File([compressedBlob], file.name.replace(/\.[^/.]+$/, "") + '.jpg', {
+        type: 'image/jpeg',
+        lastModified: Date.now()
+      });
+
+      // Simulate Upload progressions safely
+      const progressInterval = setInterval(() => {
+        setUploadProgress(prev => Math.min(prev + 10, 95));
+      }, 100);
+
+      const publicUrl = await supabaseService.uploadImage(optimizedFile);
       clearInterval(progressInterval);
       setUploadProgress(100);
       
       setFormData(prev => ({ ...prev, image_url: publicUrl }));
-      toast.success('Image uploaded successfully!');
+      toast.success('Image optimized and uploaded successfully!');
     } catch (error: any) {
       console.error('Image upload failed:', error);
       toast.error(error.message || 'Failed to upload image. Please ensure it is a valid image file and try again.');
@@ -187,7 +269,7 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, far
       setTimeout(() => {
         setUploadingImage(false);
         setUploadProgress(0);
-      }, 500);
+      }, 400);
     }
   };
 
@@ -522,10 +604,10 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, far
                   </div>
 
                   <div className="aspect-video sm:aspect-square bg-slate-50 dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-700 overflow-hidden relative flex items-center justify-center group">
-                    {formData.image_url ? (
+                    {(localPreviewUrl || formData.image_url) ? (
                       <>
                         <ResponsiveImage 
-                          src={formData.image_url} 
+                          src={localPreviewUrl || formData.image_url || ''} 
                           alt="Preview" 
                           fill
                           className="object-cover" 
@@ -533,7 +615,10 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, far
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                           <button
                             type="button"
-                            onClick={() => setFormData(prev => ({ ...prev, image_url: '' }))}
+                            onClick={() => {
+                              setLocalPreviewUrl(null);
+                              setFormData(prev => ({ ...prev, image_url: '' }));
+                            }}
                             className="bg-white/20 backdrop-blur-md hover:bg-white/30 text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all flex items-center gap-2"
                           >
                             <span className="material-symbols-outlined text-[18px]">delete</span>

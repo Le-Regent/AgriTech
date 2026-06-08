@@ -84,7 +84,8 @@ function MarketplaceContent() {
     pageSize,
     setPageSize,
     totalPages,
-    facetCounts
+    facetCounts,
+    allProducts
   } = useMarketplace();
 
   // Throttled prefetching implementation
@@ -128,9 +129,9 @@ function MarketplaceContent() {
 
     const handleScroll = () => {
       const currentScrollY = mainElement.scrollTop;
-      if (currentScrollY > lastScrollYRef.current && currentScrollY > 100) {
+      if (currentScrollY > lastScrollYRef.current && currentScrollY > 150) {
         setShowHeader(false);
-      } else if (currentScrollY < 10) {
+      } else if (currentScrollY < lastScrollYRef.current || currentScrollY < 10) {
         setShowHeader(true);
       }
       lastScrollYRef.current = currentScrollY;
@@ -146,14 +147,14 @@ function MarketplaceContent() {
       const recentlyViewedIds = JSON.parse(localStorage.getItem('recently_viewed') || '[]');
       if (recentlyViewedIds.length > 0) {
         const viewedProducts = recentlyViewedIds
-          .map((id: string) => sortedProducts.find(p => p.id === id))
+          .map((id: string) => allProducts.find(p => p.id === id))
           .filter((p: Product | undefined): p is Product => p !== undefined);
         setRecentlyViewed(viewedProducts);
       }
     } catch (e) {
       console.error('LocalStorage recently_viewed parse failed lazily:', e);
     }
-  }, [sortedProducts]);
+  }, [allProducts]);
 
   const tourSteps: Step[] = [
     { 
@@ -284,8 +285,8 @@ function MarketplaceContent() {
       />
       
       <motion.div 
-        initial={{ y: 0 }}
-        animate={{ y: showHeader ? 0 : -250 }}
+        initial={{ y: 0, opacity: 1, pointerEvents: 'auto' }}
+        animate={{ y: showHeader ? 0 : -250, opacity: showHeader ? 1 : 0, pointerEvents: showHeader ? 'auto' : 'none' }}
         transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
         className="sticky top-0 z-30 pt-4 pb-2 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-md -mx-4 px-4 space-y-4 shadow-sm"
       >
@@ -443,55 +444,54 @@ function MarketplaceContent() {
                     onMouseEnter={() => handlePrefetchProduct(product)}
                     onMouseLeave={cancelPrefetchProduct}
                   >
-                    <ProductCard 
-                      product={product} 
-                      onClick={() => {
-                        const recentlyViewed = JSON.parse(localStorage.getItem('recently_viewed') || '[]');
-                        const updated = [product.id, ...recentlyViewed.filter((id: string) => id !== product.id)].slice(0, 10);
-                        localStorage.setItem('recently_viewed', JSON.stringify(updated));
-                        router.push(`/marketplace/${product.id}`);
-                      }}
+                    <Link
+                      href={`/marketplace/${product.id}`}
+                      className="block h-full cursor-pointer"
                     >
-                      <div className="absolute top-2 right-2 sm:top-4 sm:right-4 flex flex-col gap-2 z-20">
-                        <button 
-                          onClick={(e) => {
-                            e.preventDefault(); e.stopPropagation();
-                            setSelectedProducts(prev => prev.includes(product.id) ? prev.filter(id => id !== product.id) : [...prev, product.id]);
-                          }}
-                          aria-label={`Select ${product.name} to compare`}
-                          className={`w-8 h-8 sm:w-10 sm:h-10 backdrop-blur rounded-lg sm:rounded-xl shadow-lg flex items-center justify-center transition-all ${selectedProducts.includes(product.id) ? 'bg-indigo-600 text-white' : 'bg-white/90 dark:bg-slate-900/90 text-slate-400 hover:text-indigo-600'}`}
-                        >
-                          <span className="material-symbols-outlined text-[18px] sm:text-[24px]">{selectedProducts.includes(product.id) ? 'check_circle' : 'add_circle'}</span>
-                        </button>
-                        {(!product.image_url || product.image_url.includes('picsum.photos')) && (
+                      <ProductCard 
+                        product={product} 
+                      >
+                        <div className="absolute top-2 right-2 sm:top-4 sm:right-4 flex flex-col gap-2 z-20">
                           <button 
-                            onClick={(e) => generateAIImage(e, product.id, product.name)}
-                            disabled={generatingId === product.id}
-                            aria-label={`Generate AI image representation for ${product.name}`}
-                            className="w-8 h-8 sm:w-10 sm:h-10 bg-white/90 dark:bg-slate-900/90 rounded-lg sm:rounded-xl shadow-lg flex items-center justify-center text-primary disabled:opacity-50"
+                            onClick={(e) => {
+                              e.preventDefault(); e.stopPropagation();
+                              setSelectedProducts(prev => prev.includes(product.id) ? prev.filter(id => id !== product.id) : [...prev, product.id]);
+                            }}
+                            aria-label={`Select ${product.name} to compare`}
+                            className={`w-8 h-8 sm:w-10 sm:h-10 backdrop-blur rounded-lg sm:rounded-xl shadow-lg flex items-center justify-center transition-all ${selectedProducts.includes(product.id) ? 'bg-indigo-600 text-white' : 'bg-white/90 dark:bg-slate-900/90 text-slate-400 hover:text-indigo-600'}`}
                           >
-                            {generatingId === product.id ? <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" /> : <span className="material-symbols-outlined text-[16px] sm:text-[18px]">auto_awesome</span>}
+                            <span className="material-symbols-outlined text-[18px] sm:text-[24px]">{selectedProducts.includes(product.id) ? 'check_circle' : 'add_circle'}</span>
                           </button>
-                        )}
-                        <button 
-                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); addToCart(product, 1); toast.success(`${product.name} added to cart`); }}
-                          aria-label={`Add ${product.name} to checkout cart`}
-                          className="w-8 h-8 sm:w-10 sm:h-10 bg-primary text-white rounded-lg sm:rounded-xl shadow-lg flex items-center justify-center sm:hidden active:scale-95 transition-transform"
-                        >
-                          <span className="material-symbols-outlined text-[18px]">shopping_cart</span>
-                        </button>
-                      </div>
-                      <div className="absolute inset-x-4 bottom-4 hidden sm:block translate-y-12 group-hover:translate-y-0 transition-transform duration-300 z-20">
-                        <button 
-                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); addToCart(product, 1); toast.success(`${product.name} added to cart`); }}
-                          aria-label={`Add ${product.name} to checkout cart`}
-                          className="w-full bg-primary text-white py-3 rounded-xl font-black text-xs shadow-xl shadow-primary/20 flex items-center justify-center gap-2 hover:bg-opacity-95 active:scale-98 transition-transform"
-                        >
-                          <span className="material-symbols-outlined text-sm">shopping_cart</span>
-                          {t('add_to_cart')}
-                        </button>
-                      </div>
-                    </ProductCard>
+                          {(!product.image_url || product.image_url.includes('picsum.photos')) && (
+                            <button 
+                              onClick={(e) => generateAIImage(e, product.id, product.name)}
+                              disabled={generatingId === product.id}
+                              aria-label={`Generate AI image representation for ${product.name}`}
+                              className="w-8 h-8 sm:w-10 sm:h-10 bg-white/90 dark:bg-slate-900/90 rounded-lg sm:rounded-xl shadow-lg flex items-center justify-center text-primary disabled:opacity-50"
+                            >
+                              {generatingId === product.id ? <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" /> : <span className="material-symbols-outlined text-[16px] sm:text-[18px]">auto_awesome</span>}
+                            </button>
+                          )}
+                          <button 
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); addToCart(product, 1); toast.success(`${product.name} added to cart`); }}
+                            aria-label={`Add ${product.name} to checkout cart`}
+                            className="w-8 h-8 sm:w-10 sm:h-10 bg-primary text-white rounded-lg sm:rounded-xl shadow-lg flex items-center justify-center sm:hidden active:scale-95 transition-transform"
+                          >
+                            <span className="material-symbols-outlined text-[18px]">shopping_cart</span>
+                          </button>
+                        </div>
+                        <div className="absolute inset-x-4 bottom-4 hidden sm:block translate-y-12 group-hover:translate-y-0 transition-transform duration-300 z-20">
+                          <button 
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); addToCart(product, 1); toast.success(`${product.name} added to cart`); }}
+                            aria-label={`Add ${product.name} to checkout cart`}
+                            className="w-full bg-primary text-white py-3 rounded-xl font-black text-xs shadow-xl shadow-primary/20 flex items-center justify-center gap-2 hover:bg-opacity-95 active:scale-98 transition-transform"
+                          >
+                            <span className="material-symbols-outlined text-sm">shopping_cart</span>
+                            {t('add_to_cart')}
+                          </button>
+                        </div>
+                      </ProductCard>
+                    </Link>
                   </div>
                 ) : (
                   <Link 

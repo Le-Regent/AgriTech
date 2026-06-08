@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import ResponsiveImage from '@/components/ui/ResponsiveImage';
 import { Product } from '@/types';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 interface ProductCardProps {
   product: Product;
@@ -20,6 +21,8 @@ export default function ProductCard({
   showBadges = true,
   onClick 
 }: ProductCardProps) {
+  const router = useRouter();
+  
   return (
     <div 
       onClick={onClick}
@@ -102,10 +105,12 @@ export default function ProductCard({
               <span className="material-symbols-outlined text-[14px] sm:text-[18px]">location_on</span>
               <span className="text-[10px] sm:text-xs font-bold truncate">{product.location}</span>
             </div>
-            <Link 
-              href={`/farmer/${product.farmer_id}`}
-              onClick={(e) => e.stopPropagation()}
-              className="flex items-center gap-1.5 flex-wrap hover:opacity-70 transition-opacity"
+            <div 
+              onClick={(e) => {
+                e.stopPropagation();
+                router.push(`/farmer/${product.farmer_id}`);
+              }}
+              className="flex items-center gap-1.5 flex-wrap hover:opacity-70 transition-opacity cursor-pointer"
             >
               <div className="flex items-center gap-1">
                 <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 truncate max-w-[55px] sm:max-w-none">
@@ -119,7 +124,7 @@ export default function ProductCard({
               <span className="hidden sm:block text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 truncate">
                 {product.category}
               </span>
-            </Link>
+            </div>
           </div>
         </div>
       </div>

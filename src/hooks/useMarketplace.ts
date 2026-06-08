@@ -49,10 +49,11 @@ export function useMarketplace() {
     'marketplace_products_all',
     async () => {
       try {
+        let dbProducts: Product[] = [];
         if (isOnline) {
           const data = await supabaseService.getProducts();
           if (data && data.length > 0) {
-            const mapped: Product[] = data.map((p: any) => ({
+            dbProducts = data.map((p: any) => ({
               id: p.id,
               farmer_id: p.farmer_id,
               name: p.name,
@@ -70,10 +71,29 @@ export function useMarketplace() {
               created_at: p.created_at,
               profiles: p.profiles
             }));
-            await saveToCache('marketplace_products', mapped, true); // Debounced save to cache
-            return mapped;
           }
         }
+
+        // Deep-merge real database products with INITIAL_PRODUCTS to ensure continuous rich catalogs
+        const productMap = new Map<string, Product>();
+        
+        // Add all INITIAL_PRODUCTS as baseline
+        INITIAL_PRODUCTS.forEach(p => {
+          productMap.set(p.id, p);
+        });
+
+        // Add (or override with) actual customized products query from the PostgreSQL database
+        dbProducts.forEach(p => {
+          productMap.set(p.id, p);
+        });
+
+        const mergedList = Array.from(productMap.values());
+        
+        if (isOnline && mergedList.length > 0) {
+          await saveToCache('marketplace_products', mergedList, true); // Debounced save to cache
+        }
+        
+        return mergedList;
       } catch (e) {
         console.error('SWR fetch master list error:', e);
       }
