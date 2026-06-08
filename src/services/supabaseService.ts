@@ -589,6 +589,64 @@ export const supabaseService = {
     return data;
   },
 
+  async initiateRefund(orderId: string, reason: string, adminId: string) {
+    const response = await fetch('/api/payment/refund', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderId, reason, adminId })
+    });
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({ error: 'Failed to initiate refund' }));
+      throw new Error(err.error || 'Failed to initiate refund');
+    }
+    return response.json();
+  },
+
+  async getUserPayments(userId: string, role: 'buyer' | 'farmer' = 'buyer') {
+    if (role === 'buyer') {
+      const { data: orders, error: ordersError } = await supabase
+        .from('orders')
+        .select('id')
+        .eq('buyer_id', userId);
+
+      if (ordersError) throw new Error(ordersError.message);
+      const orderIds = (orders || []).map(o => o.id);
+      if (orderIds.length === 0) return [];
+
+      const { data, error } = await supabase
+        .from('payments')
+        .select('*, orders(*)')
+        .in('order_id', orderIds)
+        .order('created_at', { ascending: false });
+
+      if (error) throw new Error(error.message);
+      return data;
+    } else {
+      // For farmers, get payments of orders containing the farmer's products
+      const { data: orderItems, error: itemsError } = await supabase
+        .from('order_items')
+        .select('order_id, products(farmer_id)')
+        .eq('products.farmer_id', userId);
+
+      if (itemsError) throw new Error(itemsError.message);
+      
+      const orderIds = Array.from(new Set((orderItems || [])
+        .filter(item => item.products !== null && (item.products as any).farmer_id === userId)
+        .map(item => item.order_id)));
+
+      if (orderIds.length === 0) return [];
+
+      const { data, error } = await supabase
+        .from('payments')
+        .select('*, orders(*)')
+        .in('order_id', orderIds)
+        .order('created_at', { ascending: false });
+
+      if (error) throw new Error(error.message);
+      return data;
+    }
+  },
+
   // Sensor Data
   async getSensorData(farmerId: string, limit = 50) {
     const { data, error } = await supabase

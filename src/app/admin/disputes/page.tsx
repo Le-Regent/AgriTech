@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabaseService } from '@/services/supabaseService';
 import { motion, AnimatePresence } from 'motion/react';
+import { toast } from 'sonner';
 import { 
   Gavel, 
   Search, 
@@ -41,24 +42,31 @@ export default function AdminDisputesPage() {
   const handleResolve = async (orderId: string, resolution: 'REFUND' | 'PAY_FARMER') => {
     if (!confirm(`Are you sure you want to resolve this dispute with: ${resolution}?`)) return;
     
+    const resolvingToast = toast.loading(`Adjudicating and initiating ${resolution.toLowerCase()}...`);
     try {
       if (resolution === 'PAY_FARMER') {
         await supabaseService.approveEscrowPayout(orderId);
+        toast.success('Funds released directly to the farmer successfully!', { id: resolvingToast });
       } else {
-        // Mock refund logic - in real world would call Campay Refund API
-        await supabaseService.updateOrderStatus(orderId, 'cancelled');
-        alert('Refund initiated via MoMo aggregator.');
+        await supabaseService.initiateRefund(orderId, 'Dispute resolution rollback', 'admin_override');
+        toast.success('Charge reversed and buyer refunded successfully!', { id: resolvingToast });
       }
       
       // Log Action
-      const user = await supabaseService.getProfile((await (await fetch('/api/auth/me')).json()).id);
-      await supabaseService.logAdminAction(user.id, 'DISPUTE_RESOLUTION', `Resolution: ${resolution} for Order ${orderId}`, orderId);
+      try {
+        const authMe = await fetch('/api/auth/me').then(res => res.json()).catch(() => null);
+        if (authMe?.id) {
+          await supabaseService.logAdminAction(authMe.id, 'DISPUTE_RESOLUTION', `Resolution: ${resolution} for Order ${orderId}`, orderId);
+        }
+      } catch (logErr) {
+        console.warn('Logging action failed:', logErr);
+      }
       
       setDisputes(disputes.filter(d => d.id !== orderId));
       setSelectedDispute(null);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error resolving dispute:', error);
-      alert('Resolution failed. Check platform logs.');
+      toast.error(`Resolution of dispute failed: ${error.message || error}`, { id: resolvingToast });
     }
   };
 
