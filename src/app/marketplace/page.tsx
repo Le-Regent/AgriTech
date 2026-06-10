@@ -27,6 +27,16 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 // Concurrency-limited prefetching queue
+const triggerHaptic = () => {
+  if (typeof window !== 'undefined' && 'vibrate' in navigator) {
+    try {
+      navigator.vibrate(8);
+    } catch {
+      // Ignored
+    }
+  }
+};
+
 class PrefetchQueue {
   private queue: string[] = [];
   private activeCount = 0;
@@ -309,7 +319,10 @@ function MarketplaceContent() {
             return (
               <button
                 key={cat}
-                onClick={() => setFilters({ ...filters, category: cat })}
+                onClick={() => {
+                  triggerHaptic();
+                  setFilters({ ...filters, category: cat });
+                }}
                 className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest whitespace-nowrap transition-all border shrink-0 flex items-center gap-1.5 ${
                   filters.category === cat 
                     ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20' 
@@ -328,7 +341,10 @@ function MarketplaceContent() {
         <div className="flex items-center justify-between gap-4 py-1">
           <button 
             id="marketplace-filters-btn"
-            onClick={() => setShowFilters(true)}
+            onClick={() => {
+              triggerHaptic();
+              setShowFilters(true);
+            }}
             aria-label="Filter products popup trigger"
             className="h-8 px-3 bg-slate-900 dark:bg-slate-800 text-white rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-lg active:scale-95 transition-transform"
           >
@@ -339,7 +355,10 @@ function MarketplaceContent() {
           <div className="flex items-center gap-2">
             {selectedProducts.length > 0 && (
               <button 
-                onClick={() => setShowComparison(true)}
+                onClick={() => {
+                  triggerHaptic();
+                  setShowComparison(true);
+                }}
                 aria-label="Open comparative products panel"
                 className="h-8 px-3 bg-indigo-600 text-white rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 animate-pulse shadow-lg"
               >
@@ -348,16 +367,22 @@ function MarketplaceContent() {
               </button>
             )}
 
-            <div className="flex bg-slate-100 dark:bg-white/5 p-0.5 rounded-lg">
+            <div className="flex bg-slate-100 dark:bg-white/5 p-0.5 rounded-lg font-bold">
                <button 
-                 onClick={() => setViewMode('grid')} 
+                 onClick={() => {
+                   triggerHaptic();
+                   setViewMode('grid');
+                 }} 
                  aria-label="Set grid layout"
                  className={`w-7 h-7 flex items-center justify-center rounded-md ${viewMode === 'grid' ? 'bg-white dark:bg-slate-800 text-primary shadow-sm' : 'text-slate-400'}`}
                >
                  <span className="material-symbols-outlined text-[18px]">grid_view</span>
                </button>
                <button 
-                 onClick={() => setViewMode('list')} 
+                 onClick={() => {
+                   triggerHaptic();
+                   setViewMode('list');
+                 }} 
                  aria-label="Set list layout"
                  className={`w-7 h-7 flex items-center justify-center rounded-md ${viewMode === 'list' ? 'bg-white dark:bg-slate-800 text-primary shadow-sm' : 'text-slate-400'}`}
                >
@@ -451,10 +476,11 @@ function MarketplaceContent() {
                       <ProductCard 
                         product={product} 
                       >
-                        <div className="absolute top-2 right-2 sm:top-4 sm:right-4 flex flex-col gap-2 z-20">
+                        <div className="absolute top-2 right-2 sm:top-4 sm:right-4 flex flex-row sm:flex-col gap-1.5 z-20" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
                           <button 
                             onClick={(e) => {
                               e.preventDefault(); e.stopPropagation();
+                              triggerHaptic();
                               setSelectedProducts(prev => prev.includes(product.id) ? prev.filter(id => id !== product.id) : [...prev, product.id]);
                             }}
                             aria-label={`Select ${product.name} to compare`}
@@ -464,7 +490,10 @@ function MarketplaceContent() {
                           </button>
                           {(!product.image_url || product.image_url.includes('picsum.photos')) && (
                             <button 
-                              onClick={(e) => generateAIImage(e, product.id, product.name)}
+                              onClick={(e) => {
+                                triggerHaptic();
+                                generateAIImage(e, product.id, product.name);
+                              }}
                               disabled={generatingId === product.id}
                               aria-label={`Generate AI image representation for ${product.name}`}
                               className="w-8 h-8 sm:w-10 sm:h-10 bg-white/90 dark:bg-slate-900/90 rounded-lg sm:rounded-xl shadow-lg flex items-center justify-center text-primary disabled:opacity-50"
@@ -473,7 +502,7 @@ function MarketplaceContent() {
                             </button>
                           )}
                           <button 
-                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); addToCart(product, 1); toast.success(`${product.name} added to cart`); }}
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); triggerHaptic(); addToCart(product, 1); toast.success(`${product.name} added to cart`); }}
                             aria-label={`Add ${product.name} to checkout cart`}
                             className="w-8 h-8 sm:w-10 sm:h-10 bg-primary text-white rounded-lg sm:rounded-xl shadow-lg flex items-center justify-center sm:hidden active:scale-95 transition-transform"
                           >

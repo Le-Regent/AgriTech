@@ -28,12 +28,14 @@ export default function ResponsiveImage({
 
   if (!src) return null;
 
+  const isBlobOrData = src.startsWith('blob:') || src.startsWith('data:');
   const isExternal = src.startsWith('http://') || src.startsWith('https://');
   const imageUrl = isExternal ? `/api/image-proxy?url=${encodeURIComponent(src)}` : src;
   
-  // For remote proxied images, render a standard browser image element
+  // For remote proxied images, local blob previews, or Base64 data URIs, render a standard browser image element
   // to bypass Next.js static builder query-string constraints on local-route requests.
-  if (isExternal) {
+  if (isExternal || isBlobOrData) {
+    const renderUrl = isBlobOrData ? src : imageUrl;
     return (
       <div className={`relative overflow-hidden bg-slate-100 dark:bg-slate-800 ${className}`}>
         {/* Shimmer Effect */}
@@ -43,7 +45,7 @@ export default function ResponsiveImage({
           </div>
         )}
         <img
-          src={imageUrl}
+          src={renderUrl}
           alt={alt}
           className={`w-full h-full object-cover transition-opacity duration-500 absolute inset-0 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
           referrerPolicy="no-referrer"

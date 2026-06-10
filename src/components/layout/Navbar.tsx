@@ -118,16 +118,20 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
           )}
           
           <nav className="hidden lg:flex items-center ml-4 gap-1">
-            {mainNavLinks.map((item) => (
-              <Link
-                key={item.path}
-                href={item.path}
-                className={`px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 relative ${
-                  pathname === item.path 
-                    ? 'bg-primary/10 text-primary' 
-                    : 'text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5'
-                }`}
-              >
+            {mainNavLinks.map((item) => {
+              const isActive = item.path === '/' 
+                ? pathname === '/' 
+                : pathname.startsWith(item.path);
+              return (
+                <Link
+                  key={item.path}
+                  href={item.path}
+                  className={`px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 relative ${
+                    isActive 
+                      ? 'bg-primary/10 text-primary' 
+                      : 'text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5'
+                  }`}
+                >
                 <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
                 <span className="hidden xl:inline">{t(item.label.toLowerCase().replace(/\s+/g, '_')) || item.label}</span>
                 {item.showBadge && item.label === 'Basket' && totalItems > 0 && (
@@ -141,7 +145,8 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
                   </span>
                 )}
               </Link>
-            ))}
+            );
+          })}
           </nav>
         </div>
 

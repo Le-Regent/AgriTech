@@ -234,6 +234,11 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, far
       return;
     }
 
+    // Clear value to allow selecting and uploading the same file again
+    if (e.target) {
+      e.target.value = '';
+    }
+
     // Set preview local URL immediately (Instant feed !)
     const previewUrl = URL.createObjectURL(file);
     setLocalPreviewUrl(previewUrl);
@@ -647,10 +652,21 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, far
               </button>
               <button
                 onClick={handleSubmit}
-                disabled={saving}
-                className="px-8 py-3 bg-primary text-white rounded-xl text-sm font-black shadow-lg shadow-primary/20 hover:scale-105 transition-all disabled:opacity-50 disabled:hover:scale-100"
+                disabled={saving || uploadingImage || generatingImage}
+                className="px-8 py-3 bg-primary text-white rounded-xl text-sm font-black shadow-lg shadow-primary/20 hover:scale-105 transition-all disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center gap-2"
               >
-                {saving ? 'Saving...' : initialData?.id ? 'Update Product' : 'List Product'}
+                {saving && <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />}
+                {uploadingImage && <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />}
+                {generatingImage && <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />}
+                {saving 
+                  ? 'Saving...' 
+                  : uploadingImage 
+                    ? 'Uploading image...' 
+                    : generatingImage 
+                      ? 'Generating image...' 
+                      : initialData?.id 
+                        ? 'Update Product' 
+                        : 'List Product'}
               </button>
             </div>
           </motion.div>

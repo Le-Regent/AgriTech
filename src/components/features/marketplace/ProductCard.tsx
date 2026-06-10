@@ -26,7 +26,7 @@ export default function ProductCard({
   return (
     <div 
       onClick={onClick}
-      className={`group bg-white dark:bg-surface-dark rounded-[2rem] sm:rounded-[2.5rem] border border-slate-100 dark:border-border-dark shadow-sm hover:shadow-xl transition-all overflow-hidden flex flex-col ${onClick ? 'cursor-pointer' : ''} ${className}`}
+      className={`group bg-white dark:bg-surface-dark rounded-[2rem] sm:rounded-[2.5rem] border border-slate-100 dark:border-border-dark shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col ${onClick ? 'cursor-pointer' : ''} ${className}`}
     >
       <div className="aspect-[3/4] sm:aspect-square lg:aspect-[4/5] relative overflow-hidden">
         <ResponsiveImage

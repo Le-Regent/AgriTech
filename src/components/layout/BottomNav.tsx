@@ -13,6 +13,16 @@ const MOBILE_NAV = [
   { label: 'Profile', icon: 'account_circle', path: '/profile' },
 ];
 
+const triggerHaptic = () => {
+  if (typeof window !== 'undefined' && 'vibrate' in navigator) {
+    try {
+      navigator.vibrate(10);
+    } catch (e) {
+      // Ignored for non-supported browsers or iframe contexts
+    }
+  }
+};
+
 export function BottomNav() {
   const pathname = usePathname();
   const { user } = useUser();
@@ -24,13 +34,16 @@ export function BottomNav() {
     <nav className="mobile-nav-bar md:hidden fixed bottom-0 left-0 right-0 z-50 bg-slate-950/95 backdrop-blur-2xl border-t border-white/10 px-2 pb-safe shadow-[0_-8px_30px_rgb(0,0,0,0.6)]">
       <div className="flex items-center justify-around h-20 max-w-lg mx-auto relative">
         {MOBILE_NAV.map((item) => {
-          const isActive = pathname === item.path;
+          const isActive = item.path === '/' 
+            ? pathname === '/' 
+            : pathname.startsWith(item.path);
           
           if (item.isFAB) {
             return (
               <Link 
                 key={item.path} 
                 href={item.path}
+                onClick={triggerHaptic}
                 className="relative flex flex-col items-center justify-center -top-4 z-50 group cursor-pointer"
                 title="Quick Scan"
               >
@@ -61,6 +74,7 @@ export function BottomNav() {
             <Link 
               key={item.path} 
               href={item.path}
+              onClick={triggerHaptic}
               className="relative flex flex-col items-center justify-center w-16 h-full group cursor-pointer"
             >
               <div className={`relative flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-300 ${

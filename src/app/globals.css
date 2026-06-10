@@ -17,6 +17,8 @@
 @layer base {
   body {
     @apply font-sans bg-background-light text-slate-900 antialiased transition-colors duration-300;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-overflow-scrolling: touch;
   }
   .dark body {
     @apply bg-background-dark text-slate-100;
