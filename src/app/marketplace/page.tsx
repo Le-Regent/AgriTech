@@ -37,6 +37,20 @@ const triggerHaptic = () => {
   }
 };
 
+const getCategoryIcon = (category: string) => {
+  switch (category) {
+    case 'All Produce': return 'grid_view';
+    case 'Foodstuff': return 'shopping_bag';
+    case 'Grains & Beans': return 'grain';
+    case 'Spices & Pepper': return 'spa';
+    case 'Oils': return 'opacity';
+    case 'Vegetables': return 'eco';
+    case 'Fruits': return 'nutrition';
+    case 'Meat & Eggs': return 'egg';
+    default: return 'agriculture';
+  }
+};
+
 class PrefetchQueue {
   private queue: string[] = [];
   private activeCount = 0;
@@ -295,48 +309,167 @@ function MarketplaceContent() {
       />
       
       <motion.div 
-        initial={{ y: 0, opacity: 1, pointerEvents: 'auto' }}
-        animate={{ y: showHeader ? 0 : -250, opacity: showHeader ? 1 : 0, pointerEvents: showHeader ? 'auto' : 'none' }}
-        transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
-        className="sticky top-0 z-30 pt-4 pb-2 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-md -mx-4 px-4 space-y-4 shadow-sm"
+        initial={{ y: 0 }}
+        animate={{ 
+          y: 0,
+          height: showHeader ? 'auto' : '56px',
+        }}
+        transition={{ duration: 0.35, ease: [0.25, 1, 0.5, 1] }}
+        className="sticky top-0 z-30 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-md -mx-4 px-4 shadow-sm overflow-hidden flex flex-col justify-center"
       >
-        <MarketplaceHeader 
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          onAddProduct={() => setIsAddModalOpen(true)}
-          showAddButton={user?.user_type === 'farmer'}
-          onShowFilters={() => setShowFilters(true)}
-          sortBy={sortBy}
-          onSortChange={setSortBy}
-          t={t}
-        />
+        <AnimatePresence mode="wait">
+          {showHeader ? (
+            <motion.div
+              key="full-header"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="py-4 space-y-4"
+            >
+              <MarketplaceHeader 
+                searchTerm={searchTerm}
+                onSearchChange={setSearchTerm}
+                onAddProduct={() => setIsAddModalOpen(true)}
+                showAddButton={user?.user_type === 'farmer'}
+                onShowFilters={() => setShowFilters(true)}
+                sortBy={sortBy}
+                onSortChange={setSortBy}
+                t={t}
+              />
 
-        <div id="marketplace-category-tabs" className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
-          {['All Produce', 'Foodstuff', 'Grains & Beans', 'Spices & Pepper', 'Oils', 'Vegetables', 'Fruits', 'Meat & Eggs'].map((cat) => {
-            const count = cat === 'All Produce' 
-              ? totalCount 
-              : (facetCounts?.category[cat] || 0);
-            return (
-              <button
-                key={cat}
-                onClick={() => {
-                  triggerHaptic();
-                  setFilters({ ...filters, category: cat });
-                }}
-                className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest whitespace-nowrap transition-all border shrink-0 flex items-center gap-1.5 ${
-                  filters.category === cat 
-                    ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20' 
-                    : 'bg-white dark:bg-white/5 border-slate-200 dark:border-white/5 text-slate-500 dark:text-slate-400'
-                }`}
-              >
-                <span>{cat}</span>
-                <span className={`text-[8px] rounded-full px-1.5 py-0.5 font-mono ${filters.category === cat ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-white/5 text-slate-500'}`}>
-                  {count}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+              <div id="marketplace-category-tabs" className="flex gap-4 sm:gap-6 overflow-x-auto pb-2 no-scrollbar justify-start items-center">
+                {['All Produce', 'Foodstuff', 'Grains & Beans', 'Spices & Pepper', 'Oils', 'Vegetables', 'Fruits', 'Meat & Eggs'].map((cat) => {
+                  const count = cat === 'All Produce' 
+                    ? totalCount 
+                    : (facetCounts?.category[cat] || 0);
+                  return (
+                    <button
+                      key={cat}
+                      onClick={() => {
+                        triggerHaptic();
+                        setFilters({ ...filters, category: cat });
+                      }}
+                      className="flex flex-col items-center gap-1.5 shrink-0 transition-all group focus:outline-none"
+                    >
+                      <div className={`relative w-11 h-11 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center border transition-all duration-300 ${
+                        filters.category === cat
+                          ? 'bg-primary text-white border-primary shadow-lg shadow-primary/25 scale-105'
+                          : 'bg-white dark:bg-slate-800/80 border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:border-slate-300'
+                      }`}>
+                        <span className="material-symbols-outlined text-[20px]">{getCategoryIcon(cat)}</span>
+                        <span className={`absolute -top-1 -right-1 text-[8px] font-mono font-bold rounded-full px-1.5 py-0.5 border ${
+                          filters.category === cat
+                            ? 'bg-white text-primary border-primary'
+                            : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 border-transparent'
+                        }`}>
+                          {count}
+                        </span>
+                      </div>
+                      <span className={`text-[9px] font-black uppercase tracking-wider text-center max-w-[64px] truncate ${
+                        filters.category === cat
+                          ? 'text-primary dark:text-green-400 font-extrabold'
+                          : 'text-slate-500 dark:text-slate-400'
+                      }`}>
+                        {cat === 'All Produce' ? 'All' : cat.split(' & ')[0].split(' / ')[0]}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="compact-header"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              transition={{ duration: 0.2 }}
+              className="flex items-center justify-between gap-3 h-14 w-full py-2"
+            >
+              {/* Compact Category Icons Row */}
+              <div className="flex-1 flex gap-2 overflow-x-auto no-scrollbar items-center py-1">
+                {['All Produce', 'Foodstuff', 'Grains & Beans', 'Spices & Pepper', 'Oils', 'Vegetables', 'Fruits', 'Meat & Eggs'].map((cat) => {
+                  const isSelected = filters.category === cat;
+                  return (
+                    <button
+                      key={cat}
+                      onClick={() => {
+                        triggerHaptic();
+                        setFilters({ ...filters, category: cat });
+                      }}
+                      title={cat}
+                      className={`relative w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border transition-all duration-200 ${
+                        isSelected
+                          ? 'bg-primary text-white border-primary shadow-md scale-105'
+                          : 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-50'
+                      }`}
+                    >
+                      <span className="material-symbols-outlined text-[18px]">{getCategoryIcon(cat)}</span>
+                      {/* Tiny dot notifier if count exists */}
+                      {isSelected && (
+                        <span className="absolute bottom-1 w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Right Action Icons (Filters, Start Selling, Search) */}
+              <div className="flex items-center gap-1.5 shrink-0 border-l border-slate-150 dark:border-slate-800 pl-2.5">
+                {/* Scroll to Top / Search trigger */}
+                <button
+                  onClick={() => {
+                    triggerHaptic();
+                    const mainElement = document.querySelector('main');
+                    if (mainElement) {
+                      mainElement.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                    setShowHeader(true);
+                  }}
+                  aria-label="Scroll to search"
+                  title="Search and Scroll to top"
+                  className="w-9 h-9 bg-slate-100 dark:bg-slate-805 text-slate-600 dark:text-slate-300 rounded-xl flex items-center justify-center transition-all hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-90"
+                >
+                  <span className="material-symbols-outlined text-[18px]">search</span>
+                </button>
+
+                {/* Filter trigger */}
+                <button
+                  onClick={() => {
+                    triggerHaptic();
+                    setShowFilters(true);
+                  }}
+                  aria-label="Trigger filters"
+                  title="Open Filters"
+                  className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-105 active:scale-90 ${
+                    hasActiveFilters
+                      ? 'bg-indigo-50 text-indigo-600 border border-indigo-100 dark:bg-indigo-950/40 dark:text-indigo-400 dark:border-indigo-900'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[18px]">tune</span>
+                </button>
+
+                {/* Start Selling stuck at top */}
+                {user?.user_type === 'farmer' && (
+                  <button
+                    onClick={() => {
+                      triggerHaptic();
+                      setIsAddModalOpen(true);
+                    }}
+                    aria-label="Add a product listing"
+                    title="Sell Produce"
+                    className="w-9 h-9 bg-primary text-white rounded-xl flex items-center justify-center shadow-md shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">add</span>
+                  </button>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
 
         <div className="flex items-center justify-between gap-4 py-1">
           <button 
@@ -434,7 +567,6 @@ function MarketplaceContent() {
             </button>
           </div>
         )}
-      </motion.div>
 
       <RecentlyViewed 
         products={recentlyViewed} 
