@@ -384,7 +384,7 @@ function MarketplaceContent() {
       />
       
       <div 
-        className="sticky -top-4 sm:-top-6 lg:-top-8 -mt-4 sm:-mt-6 lg:-mt-8 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-1.5 sm:py-2.5 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-100 dark:border-white/5 z-30 flex flex-col gap-1.5 shadow-sm"
+        className="flex flex-col gap-2 border-b border-slate-100 dark:border-white/5 pb-3"
       >
         <MarketplaceHeader 
           searchTerm={searchTerm}
