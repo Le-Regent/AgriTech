@@ -54,82 +54,82 @@ const getCategoryIcon = (category: string) => {
 const getCategoryColors = (category: string, isActive: boolean) => {
   const styles: Record<string, { activeBg: string; activeBorder: string; hoverBg: string; textActive: string; textInactive: string; inactiveBg: string; ringColor: string }> = {
     'All Produce': {
-      activeBg: 'bg-emerald-600 dark:bg-emerald-500 text-white shadow-emerald-500/30',
-      activeBorder: 'border-emerald-600 dark:border-emerald-500',
-      hoverBg: 'hover:bg-emerald-50 dark:hover:bg-emerald-950/20',
-      textActive: 'text-emerald-700 dark:text-emerald-400 font-extrabold',
-      textInactive: 'text-emerald-650 dark:text-emerald-400',
-      inactiveBg: 'bg-emerald-50/40 dark:bg-emerald-950/10 text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:border-emerald-900/20',
+      activeBg: 'bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/20 ring-2 ring-emerald-500 ring-offset-2 dark:ring-offset-slate-900',
+      activeBorder: 'border-transparent',
+      hoverBg: 'hover:bg-emerald-500/15',
+      textActive: 'text-emerald-650 dark:text-emerald-400 font-extrabold',
+      textInactive: 'text-slate-500 dark:text-slate-400',
+      inactiveBg: 'bg-emerald-500/5 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-450 border border-emerald-500/10 dark:border-emerald-500/20',
       ringColor: 'ring-emerald-500/50'
     },
     'Foodstuff': {
-      activeBg: 'bg-amber-600 dark:bg-amber-500 text-white shadow-amber-500/30',
-      activeBorder: 'border-amber-600 dark:border-amber-500',
-      hoverBg: 'hover:bg-amber-50 dark:hover:bg-amber-950/20',
-      textActive: 'text-amber-700 dark:text-amber-400 font-extrabold',
-      textInactive: 'text-amber-655 dark:text-amber-400',
-      inactiveBg: 'bg-amber-50/40 dark:bg-amber-950/10 text-amber-600 dark:text-amber-400 border-amber-100 dark:border-amber-900/20',
+      activeBg: 'bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-500/20 ring-2 ring-amber-500 ring-offset-2 dark:ring-offset-slate-900',
+      activeBorder: 'border-transparent',
+      hoverBg: 'hover:bg-amber-500/15',
+      textActive: 'text-amber-600 dark:text-amber-400 font-extrabold',
+      textInactive: 'text-slate-500 dark:text-slate-400',
+      inactiveBg: 'bg-amber-500/5 dark:bg-amber-500/10 text-amber-600 dark:text-amber-450 border border-amber-500/10 dark:border-amber-500/20',
       ringColor: 'ring-amber-500/50'
     },
     'Grains & Beans': {
-      activeBg: 'bg-yellow-600 dark:bg-yellow-500 text-white shadow-yellow-500/30',
-      activeBorder: 'border-yellow-600 dark:border-yellow-500',
-      hoverBg: 'hover:bg-yellow-55 dark:hover:bg-yellow-950/20',
-      textActive: 'text-yellow-800 dark:text-yellow-400 font-extrabold',
-      textInactive: 'text-yellow-700 dark:text-yellow-400',
-      inactiveBg: 'bg-yellow-50/40 dark:bg-yellow-950/10 text-yellow-600 dark:text-yellow-405 border-yellow-100 dark:border-yellow-905/20',
+      activeBg: 'bg-gradient-to-br from-yellow-500 to-amber-600 text-white shadow-lg shadow-yellow-500/20 ring-2 ring-yellow-500 ring-offset-2 dark:ring-offset-slate-900',
+      activeBorder: 'border-transparent',
+      hoverBg: 'hover:bg-yellow-500/15',
+      textActive: 'text-yellow-600 dark:text-yellow-400 font-extrabold',
+      textInactive: 'text-slate-500 dark:text-slate-400',
+      inactiveBg: 'bg-yellow-500/5 dark:bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border border-yellow-500/10 dark:border-yellow-500/20',
       ringColor: 'ring-yellow-500/50'
     },
     'Spices & Pepper': {
-      activeBg: 'bg-red-600 dark:bg-red-500 text-white shadow-red-500/30',
-      activeBorder: 'border-red-600 dark:border-red-500',
-      hoverBg: 'hover:bg-red-50 dark:hover:bg-red-950/20',
-      textActive: 'text-red-700 dark:text-red-400 font-extrabold',
-      textInactive: 'text-red-655 dark:text-red-400',
-      inactiveBg: 'bg-red-50/40 dark:bg-red-950/10 text-red-600 dark:text-red-400 border-red-100 dark:border-red-900/20',
+      activeBg: 'bg-gradient-to-br from-red-500 to-rose-600 text-white shadow-lg shadow-red-500/20 ring-2 ring-red-500 ring-offset-2 dark:ring-offset-slate-900',
+      activeBorder: 'border-transparent',
+      hoverBg: 'hover:bg-red-500/15',
+      textActive: 'text-red-650 dark:text-red-400 font-extrabold',
+      textInactive: 'text-slate-500 dark:text-slate-400',
+      inactiveBg: 'bg-red-500/5 dark:bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/10 dark:border-red-500/20',
       ringColor: 'ring-red-500/50'
     },
     'Oils': {
-      activeBg: 'bg-sky-600 dark:bg-sky-500 text-white shadow-sky-500/30',
-      activeBorder: 'border-sky-600 dark:border-sky-500',
-      hoverBg: 'hover:bg-sky-50 dark:hover:bg-sky-950/20',
-      textActive: 'text-sky-700 dark:text-sky-400 font-extrabold',
-      textInactive: 'text-sky-655 dark:text-sky-400',
-      inactiveBg: 'bg-sky-50/45 dark:bg-sky-950/10 text-sky-600 dark:text-sky-400 border-sky-100 dark:border-sky-900/20',
+      activeBg: 'bg-gradient-to-br from-sky-500 to-blue-600 text-white shadow-lg shadow-sky-500/20 ring-2 ring-sky-500 ring-offset-2 dark:ring-offset-slate-900',
+      activeBorder: 'border-transparent',
+      hoverBg: 'hover:bg-sky-500/15',
+      textActive: 'text-sky-650 dark:text-sky-400 font-extrabold',
+      textInactive: 'text-slate-500 dark:text-slate-400',
+      inactiveBg: 'bg-sky-500/5 dark:bg-sky-500/10 text-sky-650 dark:text-sky-400 border border-sky-500/10 dark:border-sky-500/20',
       ringColor: 'ring-sky-500/50'
     },
     'Vegetables': {
-      activeBg: 'bg-green-600 dark:bg-green-500 text-white shadow-green-500/30',
-      activeBorder: 'border-green-600 dark:border-green-500',
-      hoverBg: 'hover:bg-green-50 dark:hover:bg-green-950/20',
-      textActive: 'text-green-700 dark:text-green-400 font-extrabold',
-      textInactive: 'text-green-655 dark:text-green-400',
-      inactiveBg: 'bg-green-50/40 dark:bg-green-950/10 text-green-600 dark:text-green-400 border-green-100 dark:border-green-905/20',
+      activeBg: 'bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg shadow-green-500/20 ring-2 ring-green-500 ring-offset-2 dark:ring-offset-slate-900',
+      activeBorder: 'border-transparent',
+      hoverBg: 'hover:bg-green-500/15',
+      textActive: 'text-green-600 dark:text-green-400 font-extrabold',
+      textInactive: 'text-slate-500 dark:text-slate-400',
+      inactiveBg: 'bg-green-500/5 dark:bg-green-500/10 text-green-605 dark:text-green-450 border border-green-500/10 dark:border-green-500/20',
       ringColor: 'ring-green-500/50'
     },
     'Fruits': {
-      activeBg: 'bg-pink-650 dark:bg-pink-500 text-white shadow-pink-500/30',
-      activeBorder: 'border-pink-610 dark:border-pink-500',
-      hoverBg: 'hover:bg-pink-50 dark:hover:bg-pink-950/20',
-      textActive: 'text-pink-700 dark:text-pink-400 font-extrabold',
-      textInactive: 'text-pink-655 dark:text-pink-400',
-      inactiveBg: 'bg-pink-50/40 dark:bg-pink-950/10 text-pink-600 dark:text-pink-400 border-pink-100 dark:border-pink-900/20',
+      activeBg: 'bg-gradient-to-br from-pink-500 to-rose-600 text-white shadow-lg shadow-pink-500/20 ring-2 ring-pink-500 ring-offset-2 dark:ring-offset-slate-900',
+      activeBorder: 'border-transparent',
+      hoverBg: 'hover:bg-pink-500/15',
+      textActive: 'text-pink-600 dark:text-pink-400 font-extrabold',
+      textInactive: 'text-slate-500 dark:text-slate-400',
+      inactiveBg: 'bg-pink-500/5 dark:bg-pink-500/10 text-pink-600 dark:text-pink-400 border border-pink-500/10 dark:border-pink-500/20',
       ringColor: 'ring-pink-500/50'
     },
     'Meat & Eggs': {
-      activeBg: 'bg-orange-600 dark:bg-orange-555 text-white shadow-orange-500/30',
-      activeBorder: 'border-orange-610 dark:border-orange-555',
-      hoverBg: 'hover:bg-orange-50 dark:hover:bg-orange-950/20',
-      textActive: 'text-orange-700 dark:text-orange-400 font-extrabold',
-      textInactive: 'text-orange-655 dark:text-orange-400',
-      inactiveBg: 'bg-orange-50/40 dark:bg-orange-950/10 text-orange-600 dark:text-orange-400 border-orange-100 dark:border-orange-900/20',
+      activeBg: 'bg-gradient-to-br from-orange-500 to-red-600 text-white shadow-lg shadow-orange-500/20 ring-2 ring-orange-500 ring-offset-2 dark:ring-offset-slate-900',
+      activeBorder: 'border-transparent',
+      hoverBg: 'hover:bg-orange-500/15',
+      textActive: 'text-orange-600 dark:text-orange-400 font-extrabold',
+      textInactive: 'text-slate-500 dark:text-slate-400',
+      inactiveBg: 'bg-orange-500/5 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/10 dark:border-orange-500/20',
       ringColor: 'ring-orange-500/50'
     }
   };
 
   const defaultTheme = {
-    activeBg: 'bg-primary text-white shadow-primary/30',
-    activeBorder: 'border-primary',
+    activeBg: 'bg-primary text-white shadow-primary/30 ring-2 ring-primary ring-offset-2 dark:ring-offset-slate-900',
+    activeBorder: 'border-transparent',
     hoverBg: 'hover:bg-slate-50 dark:hover:bg-slate-800',
     textActive: 'text-primary dark:text-green-400 font-extrabold',
     textInactive: 'text-slate-500 dark:text-slate-400',
@@ -365,7 +365,7 @@ function MarketplaceContent() {
     filters.certification.length > 0;
 
   return (
-    <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-4 sm:space-y-8">
+    <div className="space-y-4 sm:space-y-8">
       <Joyride
         {...({
           run: runTour,
@@ -384,7 +384,7 @@ function MarketplaceContent() {
       />
       
       <div 
-        className="sticky top-0 z-30 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-md -mx-4 px-4 py-4 border-b border-slate-100 dark:border-white/5 flex flex-col justify-center"
+        className="sticky -top-4 sm:-top-6 lg:-top-8 -mt-4 sm:-mt-6 lg:-mt-8 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-1.5 sm:py-2.5 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-100 dark:border-white/5 z-30 flex flex-col gap-1.5 shadow-sm"
       >
         <MarketplaceHeader 
           searchTerm={searchTerm}
@@ -397,151 +397,155 @@ function MarketplaceContent() {
           t={t}
         />
 
-        <div id="marketplace-category-tabs" className="flex gap-4 overflow-x-auto pt-4 pb-1 no-scrollbar justify-start items-center">
-          {['All Produce', 'Foodstuff', 'Grains & Beans', 'Spices & Pepper', 'Oils', 'Vegetables', 'Fruits', 'Meat & Eggs'].map((cat) => {
-            const count = cat === 'All Produce' 
-              ? totalCount 
-              : (facetCounts?.category[cat] || 0);
-            const isSelected = filters.category === cat;
-            const theme = getCategoryColors(cat, isSelected);
-            return (
-              <button
-                key={cat}
-                onClick={() => {
-                  triggerHaptic();
-                  setFilters({ ...filters, category: cat });
-                }}
-                className="flex flex-col items-center gap-1.5 shrink-0 transition-all group focus:outline-none"
-              >
-                <div className={`relative w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center border transition-all duration-300 ${
-                  isSelected
-                    ? `${theme.activeBg} ${theme.activeBorder} shadow-lg scale-105`
-                    : `${theme.inactiveBg} ${theme.hoverBg} hover:scale-105`
-                }`}>
-                  <span className="material-symbols-outlined text-[18px] sm:text-[22px] transition-transform duration-300 group-hover:scale-110">{getCategoryIcon(cat)}</span>
-                  <span className={`absolute -top-1 -right-1 text-[8px] font-mono font-bold rounded-full px-1.5 py-0.5 border ${
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-t border-slate-100/40 dark:border-white/5 pt-1">
+          <div id="marketplace-category-tabs" className="flex gap-1.5 sm:gap-2.5 overflow-x-auto py-0.5 no-scrollbar justify-start items-center flex-1">
+            {['All Produce', 'Foodstuff', 'Grains & Beans', 'Spices & Pepper', 'Oils', 'Vegetables', 'Fruits', 'Meat & Eggs'].map((cat) => {
+              const count = cat === 'All Produce' 
+                ? totalCount 
+                : (facetCounts?.category[cat] || 0);
+              const isSelected = filters.category === cat;
+              const theme = getCategoryColors(cat, isSelected);
+              return (
+                <button
+                  key={cat}
+                  onClick={() => {
+                    triggerHaptic();
+                    setFilters({ ...filters, category: cat });
+                  }}
+                  className="flex flex-row items-center gap-1 shrink-0 transition-all group focus:outline-none"
+                >
+                  <div className={`relative w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center border transition-all duration-350 ${
                     isSelected
-                      ? 'bg-white text-slate-800 border-slate-100'
-                      : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 border-transparent'
+                      ? `${theme.activeBg} ${theme.activeBorder} shadow-md scale-105`
+                      : `${theme.inactiveBg} ${theme.hoverBg} hover:scale-105`
                   }`}>
-                    {count}
+                    <span className="material-symbols-outlined text-[15px] sm:text-[17px] transition-transform duration-300 group-hover:scale-110">{getCategoryIcon(cat)}</span>
+                    <span className={`absolute -top-1 -right-1 text-[7px] sm:text-[8px] font-mono font-bold rounded-full px-1 py-0.1 sm:px-1.5 sm:py-0.5 border ${
+                      isSelected
+                        ? 'bg-white text-slate-800 border-slate-200'
+                        : 'bg-slate-150 dark:bg-slate-750 text-slate-600 dark:text-slate-350 border-transparent'
+                    }`}>
+                      {count}
+                    </span>
+                  </div>
+                  
+                  {/* Keep icons for small devices, full words for big screens */}
+                  <span className={`hidden sm:block text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-center max-w-[125px] transition-colors ${
+                    isSelected ? theme.textActive : 'text-slate-500 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-slate-200'
+                  }`}>
+                    {cat}
                   </span>
-                </div>
-                
-                {/* Keep icons for small devices, full words for big screens */}
-                <span className={`hidden sm:block text-[11px] font-medium uppercase tracking-wider text-center max-w-[120px] transition-colors mt-0.5 ${
-                  isSelected ? theme.textActive : 'text-slate-500 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-slate-200'
-                }`}>
-                  {cat}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
+                </button>
+              );
+            })}
+          </div>
 
-        <div className="flex items-center justify-between gap-4 py-1">
-          <button 
-            id="marketplace-filters-btn"
-            onClick={() => {
-              triggerHaptic();
-              setShowFilters(true);
-            }}
-            aria-label="Filter products popup trigger"
-            className="h-8 px-3 bg-slate-900 dark:bg-slate-800 text-white rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-lg active:scale-95 transition-transform"
-          >
-            <span className="material-symbols-outlined text-[16px]">tune</span>
-            {t('filters')}
-          </button>
-          
-          <div className="flex items-center gap-2">
-            {selectedProducts.length > 0 && (
-              <button 
-                onClick={() => {
-                  triggerHaptic();
-                  setShowComparison(true);
-                }}
-                aria-label="Open comparative products panel"
-                className="h-8 px-3 bg-indigo-600 text-white rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 animate-pulse shadow-lg"
-              >
-                <span className="material-symbols-outlined text-[16px]">compare_arrows</span>
-                Compare({selectedProducts.length})
-              </button>
-            )}
+          <div className="flex items-center justify-between sm:justify-end gap-2 shrink-0 border-t sm:border-t-0 border-slate-100/30 dark:border-white/5 pt-1 sm:pt-0">
+            <button 
+              id="marketplace-filters-btn"
+              onClick={() => {
+                triggerHaptic();
+                setShowFilters(true);
+              }}
+              aria-label="Filter products popup trigger"
+              className="h-7 px-2.5 bg-slate-900 dark:bg-slate-800 text-white rounded-lg text-[8px] font-black uppercase tracking-widest flex items-center gap-1 active:scale-95 transition-transform"
+            >
+              <span className="material-symbols-outlined text-[13px]">tune</span>
+              {t('filters')}
+            </button>
+            
+            <div className="flex items-center gap-1.5">
+              {selectedProducts.length > 0 && (
+                <button 
+                  onClick={() => {
+                    triggerHaptic();
+                    setShowComparison(true);
+                  }}
+                  aria-label="Open comparative products panel"
+                  className="h-7 px-2.5 bg-indigo-600 text-white rounded-lg text-[8px] font-black uppercase tracking-widest flex items-center gap-1 animate-pulse"
+                >
+                  <span className="material-symbols-outlined text-[13px]">compare_arrows</span>
+                  Compare({selectedProducts.length})
+                </button>
+              )}
 
-            <div className="flex bg-slate-100 dark:bg-white/5 p-0.5 rounded-lg font-bold">
-               <button 
-                 onClick={() => {
-                   triggerHaptic();
-                   setViewMode('grid');
-                 }} 
-                 aria-label="Set grid layout"
-                 className={`w-7 h-7 flex items-center justify-center rounded-md ${viewMode === 'grid' ? 'bg-white dark:bg-slate-800 text-primary shadow-sm' : 'text-slate-400'}`}
-               >
-                 <span className="material-symbols-outlined text-[18px]">grid_view</span>
-               </button>
-               <button 
-                 onClick={() => {
-                   triggerHaptic();
-                   setViewMode('list');
-                 }} 
-                 aria-label="Set list layout"
-                 className={`w-7 h-7 flex items-center justify-center rounded-md ${viewMode === 'list' ? 'bg-white dark:bg-slate-800 text-primary shadow-sm' : 'text-slate-400'}`}
-               >
-                 <span className="material-symbols-outlined text-[18px]">view_list</span>
-               </button>
+              <div className="flex bg-slate-100 dark:bg-white/5 p-0.5 rounded-lg font-bold border border-slate-150 dark:border-white/5">
+                 <button 
+                   onClick={() => {
+                     triggerHaptic();
+                     setViewMode('grid');
+                   }} 
+                   aria-label="Set grid layout"
+                   className={`w-6 h-6 flex items-center justify-center rounded-md ${viewMode === 'grid' ? 'bg-white dark:bg-slate-800 text-primary shadow-sm' : 'text-slate-400'}`}
+                 >
+                   <span className="material-symbols-outlined text-[15px]">grid_view</span>
+                 </button>
+                 <button 
+                   onClick={() => {
+                     triggerHaptic();
+                     setViewMode('list');
+                   }} 
+                   aria-label="Set list layout"
+                   className={`w-6 h-6 flex items-center justify-center rounded-md ${viewMode === 'list' ? 'bg-white dark:bg-slate-800 text-primary shadow-sm' : 'text-slate-400'}`}
+                 >
+                   <span className="material-symbols-outlined text-[15px]">view_list</span>
+                 </button>
+              </div>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Applied Filter Chips */}
-        {hasActiveFilters && (
-          <div className="flex flex-wrap items-center gap-2 pt-1 pb-2">
-            <span className="text-[9px] font-black uppercase text-slate-400 tracking-widest mr-1">Active:</span>
-            {filters.origin !== 'All' && (
-              <span className="inline-flex items-center gap-1 bg-primary/10 text-primary text-[9px] font-black px-2 py-0.5 rounded-lg uppercase tracking-widest">
-                <span>{filters.origin}</span>
-                <button onClick={() => setFilters({ ...filters, origin: 'All' })} aria-label="Clear region filter" className="material-symbols-outlined text-[12px] font-bold">close</button>
-              </span>
-            )}
-            {filters.healthStatus !== 'All' && (
-              <span className="inline-flex items-center gap-1 bg-primary/10 text-primary text-[9px] font-black px-2 py-0.5 rounded-lg uppercase tracking-widest">
-                <span>Health: {filters.healthStatus}</span>
-                <button onClick={() => setFilters({ ...filters, healthStatus: 'All' })} aria-label="Clear health status filter" className="material-symbols-outlined text-[12px] font-bold">close</button>
-              </span>
-            )}
-            {filters.season !== 'All' && (
-              <span className="inline-flex items-center gap-1 bg-primary/10 text-primary text-[9px] font-black px-2 py-0.5 rounded-lg uppercase tracking-widest">
-                <span>Season: {filters.season}</span>
-                <button onClick={() => setFilters({ ...filters, season: 'All' })} aria-label="Clear harvest season filter" className="material-symbols-outlined text-[12px] font-bold">close</button>
-              </span>
-            )}
-            {filters.certification.map(cert => (
-              <span key={cert} className="inline-flex items-center gap-1 bg-primary/10 text-primary text-[9px] font-black px-2 py-0.5 rounded-lg uppercase tracking-widest">
-                <span>{cert}</span>
-                <button onClick={() => setFilters({ ...filters, certification: filters.certification.filter(c => c !== cert) })} aria-label={`Clear ${cert} filter`} className="material-symbols-outlined text-[12px] font-bold">close</button>
-              </span>
-            ))}
-            <button 
-              onClick={() => setFilters({
-                category: filters.category,
-                origin: 'All',
-                certification: [],
-                season: 'All',
-                healthStatus: 'All',
-              })}
-              className="text-[9px] font-black uppercase text-red-500 hover:underline tracking-widest ml-2"
-            >
-              Clear All
-            </button>
-          </div>
-        )}
+      {/* Applied Filter Chips */}
+      {hasActiveFilters && (
+        <div className="flex flex-wrap items-center gap-2 pt-1 pb-2">
+          <span className="text-[9px] font-black uppercase text-slate-400 tracking-widest mr-1">Active:</span>
+          {filters.origin !== 'All' && (
+            <span className="inline-flex items-center gap-1 bg-primary/10 text-primary text-[9px] font-black px-2 py-0.5 rounded-lg uppercase tracking-widest">
+              <span>{filters.origin}</span>
+              <button onClick={() => setFilters({ ...filters, origin: 'All' })} aria-label="Clear region filter" className="material-symbols-outlined text-[12px] font-bold">close</button>
+            </span>
+          )}
+          {filters.healthStatus !== 'All' && (
+            <span className="inline-flex items-center gap-1 bg-primary/10 text-primary text-[9px] font-black px-2 py-0.5 rounded-lg uppercase tracking-widest">
+              <span>Health: {filters.healthStatus}</span>
+              <button onClick={() => setFilters({ ...filters, healthStatus: 'All' })} aria-label="Clear health status filter" className="material-symbols-outlined text-[12px] font-bold">close</button>
+            </span>
+          )}
+          {filters.season !== 'All' && (
+            <span className="inline-flex items-center gap-1 bg-primary/10 text-primary text-[9px] font-black px-2 py-0.5 rounded-lg uppercase tracking-widest">
+              <span>Season: {filters.season}</span>
+              <button onClick={() => setFilters({ ...filters, season: 'All' })} aria-label="Clear harvest season filter" className="material-symbols-outlined text-[12px] font-bold">close</button>
+            </span>
+          )}
+          {filters.certification.map(cert => (
+            <span key={cert} className="inline-flex items-center gap-1 bg-primary/10 text-primary text-[9px] font-black px-2 py-0.5 rounded-lg uppercase tracking-widest">
+              <span>{cert}</span>
+              <button onClick={() => setFilters({ ...filters, certification: filters.certification.filter(c => c !== cert) })} aria-label={`Clear ${cert} filter`} className="material-symbols-outlined text-[12px] font-bold">close</button>
+            </span>
+          ))}
+          <button 
+            onClick={() => setFilters({
+              category: filters.category,
+              origin: 'All',
+              certification: [],
+              season: 'All',
+              healthStatus: 'All',
+            })}
+            className="text-[9px] font-black uppercase text-red-500 hover:underline tracking-widest ml-2"
+          >
+            Clear All
+          </button>
+        </div>
+      )}
 
-      <RecentlyViewed 
-        products={recentlyViewed} 
-        onClear={() => { localStorage.removeItem('recently_viewed'); setRecentlyViewed([]); }} 
-        t={t} 
-      />
+      <div className="hidden sm:block">
+        <RecentlyViewed 
+          products={recentlyViewed} 
+          onClear={() => { localStorage.removeItem('recently_viewed'); setRecentlyViewed([]); }} 
+          t={t} 
+        />
+      </div>
 
       <MarketplaceFilters 
         filters={filters} 
@@ -554,6 +558,8 @@ function MarketplaceContent() {
 
       <motion.div 
         variants={containerVariants} 
+        initial="hidden"
+        animate="visible"
         className={viewMode === 'grid' ? "grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 sm:gap-8" : "flex flex-col gap-4"}
       >
         {loading ? (
@@ -729,7 +735,7 @@ function MarketplaceContent() {
       )}
 
       {user && <ProductModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} onSave={handleSaveProduct} farmerId={user.id} />}
-    </motion.div>
+    </div>
   );
 }
 
