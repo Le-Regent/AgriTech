@@ -51,6 +51,95 @@ const getCategoryIcon = (category: string) => {
   }
 };
 
+const getCategoryColors = (category: string, isActive: boolean) => {
+  const styles: Record<string, { activeBg: string; activeBorder: string; hoverBg: string; textActive: string; textInactive: string; inactiveBg: string; ringColor: string }> = {
+    'All Produce': {
+      activeBg: 'bg-emerald-600 dark:bg-emerald-500 text-white shadow-emerald-500/30',
+      activeBorder: 'border-emerald-600 dark:border-emerald-500',
+      hoverBg: 'hover:bg-emerald-50 dark:hover:bg-emerald-950/20',
+      textActive: 'text-emerald-700 dark:text-emerald-400 font-extrabold',
+      textInactive: 'text-emerald-650 dark:text-emerald-400',
+      inactiveBg: 'bg-emerald-50/40 dark:bg-emerald-950/10 text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:border-emerald-900/20',
+      ringColor: 'ring-emerald-500/50'
+    },
+    'Foodstuff': {
+      activeBg: 'bg-amber-600 dark:bg-amber-500 text-white shadow-amber-500/30',
+      activeBorder: 'border-amber-600 dark:border-amber-500',
+      hoverBg: 'hover:bg-amber-50 dark:hover:bg-amber-950/20',
+      textActive: 'text-amber-700 dark:text-amber-400 font-extrabold',
+      textInactive: 'text-amber-655 dark:text-amber-400',
+      inactiveBg: 'bg-amber-50/40 dark:bg-amber-950/10 text-amber-600 dark:text-amber-400 border-amber-100 dark:border-amber-900/20',
+      ringColor: 'ring-amber-500/50'
+    },
+    'Grains & Beans': {
+      activeBg: 'bg-yellow-600 dark:bg-yellow-500 text-white shadow-yellow-500/30',
+      activeBorder: 'border-yellow-600 dark:border-yellow-500',
+      hoverBg: 'hover:bg-yellow-55 dark:hover:bg-yellow-950/20',
+      textActive: 'text-yellow-800 dark:text-yellow-400 font-extrabold',
+      textInactive: 'text-yellow-700 dark:text-yellow-400',
+      inactiveBg: 'bg-yellow-50/40 dark:bg-yellow-950/10 text-yellow-600 dark:text-yellow-405 border-yellow-100 dark:border-yellow-905/20',
+      ringColor: 'ring-yellow-500/50'
+    },
+    'Spices & Pepper': {
+      activeBg: 'bg-red-600 dark:bg-red-500 text-white shadow-red-500/30',
+      activeBorder: 'border-red-600 dark:border-red-500',
+      hoverBg: 'hover:bg-red-50 dark:hover:bg-red-950/20',
+      textActive: 'text-red-700 dark:text-red-400 font-extrabold',
+      textInactive: 'text-red-655 dark:text-red-400',
+      inactiveBg: 'bg-red-50/40 dark:bg-red-950/10 text-red-600 dark:text-red-400 border-red-100 dark:border-red-900/20',
+      ringColor: 'ring-red-500/50'
+    },
+    'Oils': {
+      activeBg: 'bg-sky-600 dark:bg-sky-500 text-white shadow-sky-500/30',
+      activeBorder: 'border-sky-600 dark:border-sky-500',
+      hoverBg: 'hover:bg-sky-50 dark:hover:bg-sky-950/20',
+      textActive: 'text-sky-700 dark:text-sky-400 font-extrabold',
+      textInactive: 'text-sky-655 dark:text-sky-400',
+      inactiveBg: 'bg-sky-50/45 dark:bg-sky-950/10 text-sky-600 dark:text-sky-400 border-sky-100 dark:border-sky-900/20',
+      ringColor: 'ring-sky-500/50'
+    },
+    'Vegetables': {
+      activeBg: 'bg-green-600 dark:bg-green-500 text-white shadow-green-500/30',
+      activeBorder: 'border-green-600 dark:border-green-500',
+      hoverBg: 'hover:bg-green-50 dark:hover:bg-green-950/20',
+      textActive: 'text-green-700 dark:text-green-400 font-extrabold',
+      textInactive: 'text-green-655 dark:text-green-400',
+      inactiveBg: 'bg-green-50/40 dark:bg-green-950/10 text-green-600 dark:text-green-400 border-green-100 dark:border-green-905/20',
+      ringColor: 'ring-green-500/50'
+    },
+    'Fruits': {
+      activeBg: 'bg-pink-650 dark:bg-pink-500 text-white shadow-pink-500/30',
+      activeBorder: 'border-pink-610 dark:border-pink-500',
+      hoverBg: 'hover:bg-pink-50 dark:hover:bg-pink-950/20',
+      textActive: 'text-pink-700 dark:text-pink-400 font-extrabold',
+      textInactive: 'text-pink-655 dark:text-pink-400',
+      inactiveBg: 'bg-pink-50/40 dark:bg-pink-950/10 text-pink-600 dark:text-pink-400 border-pink-100 dark:border-pink-900/20',
+      ringColor: 'ring-pink-500/50'
+    },
+    'Meat & Eggs': {
+      activeBg: 'bg-orange-600 dark:bg-orange-555 text-white shadow-orange-500/30',
+      activeBorder: 'border-orange-610 dark:border-orange-555',
+      hoverBg: 'hover:bg-orange-50 dark:hover:bg-orange-950/20',
+      textActive: 'text-orange-700 dark:text-orange-400 font-extrabold',
+      textInactive: 'text-orange-655 dark:text-orange-400',
+      inactiveBg: 'bg-orange-50/40 dark:bg-orange-950/10 text-orange-600 dark:text-orange-400 border-orange-100 dark:border-orange-900/20',
+      ringColor: 'ring-orange-500/50'
+    }
+  };
+
+  const defaultTheme = {
+    activeBg: 'bg-primary text-white shadow-primary/30',
+    activeBorder: 'border-primary',
+    hoverBg: 'hover:bg-slate-50 dark:hover:bg-slate-800',
+    textActive: 'text-primary dark:text-green-400 font-extrabold',
+    textInactive: 'text-slate-500 dark:text-slate-400',
+    inactiveBg: 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400',
+    ringColor: 'ring-primary/50'
+  };
+
+  return styles[category] || defaultTheme;
+};
+
 class PrefetchQueue {
   private queue: string[] = [];
   private activeCount = 0;
@@ -294,168 +383,62 @@ function MarketplaceContent() {
         } as any)}
       />
       
-      <motion.div 
-        initial={{ y: 0 }}
-        animate={{ 
-          y: 0,
-          height: showHeader ? 'auto' : '56px',
-        }}
-        transition={{ duration: 0.35, ease: [0.25, 1, 0.5, 1] }}
-        className="sticky top-0 z-30 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-md -mx-4 px-4 shadow-sm overflow-hidden flex flex-col justify-center"
+      <div 
+        className="sticky top-0 z-30 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-md -mx-4 px-4 py-4 border-b border-slate-100 dark:border-white/5 flex flex-col justify-center"
       >
-        <AnimatePresence mode="wait">
-          {showHeader ? (
-            <motion.div
-              key="full-header"
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2 }}
-              className="py-4 space-y-4"
-            >
-              <MarketplaceHeader 
-                searchTerm={searchTerm}
-                onSearchChange={setSearchTerm}
-                onAddProduct={() => setIsAddModalOpen(true)}
-                showAddButton={user?.user_type === 'farmer'}
-                onShowFilters={() => setShowFilters(true)}
-                sortBy={sortBy}
-                onSortChange={setSortBy}
-                t={t}
-              />
+        <MarketplaceHeader 
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          onAddProduct={() => setIsAddModalOpen(true)}
+          showAddButton={user?.user_type === 'farmer'}
+          onShowFilters={() => setShowFilters(true)}
+          sortBy={sortBy}
+          onSortChange={setSortBy}
+          t={t}
+        />
 
-              <div id="marketplace-category-tabs" className="flex gap-4 sm:gap-6 overflow-x-auto pb-2 no-scrollbar justify-start items-center">
-                {['All Produce', 'Foodstuff', 'Grains & Beans', 'Spices & Pepper', 'Oils', 'Vegetables', 'Fruits', 'Meat & Eggs'].map((cat) => {
-                  const count = cat === 'All Produce' 
-                    ? totalCount 
-                    : (facetCounts?.category[cat] || 0);
-                  return (
-                    <button
-                      key={cat}
-                      onClick={() => {
-                        triggerHaptic();
-                        setFilters({ ...filters, category: cat });
-                      }}
-                      className="flex flex-col items-center gap-1.5 shrink-0 transition-all group focus:outline-none"
-                    >
-                      <div className={`relative w-11 h-11 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center border transition-all duration-300 ${
-                        filters.category === cat
-                          ? 'bg-primary text-white border-primary shadow-lg shadow-primary/25 scale-105'
-                          : 'bg-white dark:bg-slate-800/80 border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:border-slate-300'
-                      }`}>
-                        <span className="material-symbols-outlined text-[20px]">{getCategoryIcon(cat)}</span>
-                        <span className={`absolute -top-1 -right-1 text-[8px] font-mono font-bold rounded-full px-1.5 py-0.5 border ${
-                          filters.category === cat
-                            ? 'bg-white text-primary border-primary'
-                            : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 border-transparent'
-                        }`}>
-                          {count}
-                        </span>
-                      </div>
-                      <span className={`text-[9px] font-black uppercase tracking-wider text-center max-w-[64px] truncate ${
-                        filters.category === cat
-                          ? 'text-primary dark:text-green-400 font-extrabold'
-                          : 'text-slate-500 dark:text-slate-400'
-                      }`}>
-                        {cat === 'All Produce' ? 'All' : cat.split(' & ')[0].split(' / ')[0]}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </motion.div>
-          ) : (
-            <motion.div
-              key="compact-header"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
-              transition={{ duration: 0.2 }}
-              className="flex items-center justify-between gap-3 h-14 w-full py-2"
-            >
-              {/* Compact Category Icons Row */}
-              <div className="flex-1 flex gap-2 overflow-x-auto no-scrollbar items-center py-1">
-                {['All Produce', 'Foodstuff', 'Grains & Beans', 'Spices & Pepper', 'Oils', 'Vegetables', 'Fruits', 'Meat & Eggs'].map((cat) => {
-                  const isSelected = filters.category === cat;
-                  return (
-                    <button
-                      key={cat}
-                      onClick={() => {
-                        triggerHaptic();
-                        setFilters({ ...filters, category: cat });
-                      }}
-                      title={cat}
-                      className={`relative w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border transition-all duration-200 ${
-                        isSelected
-                          ? 'bg-primary text-white border-primary shadow-md scale-105'
-                          : 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-50'
-                      }`}
-                    >
-                      <span className="material-symbols-outlined text-[18px]">{getCategoryIcon(cat)}</span>
-                      {/* Tiny dot notifier if count exists */}
-                      {isSelected && (
-                        <span className="absolute bottom-1 w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Right Action Icons (Filters, Start Selling, Search) */}
-              <div className="flex items-center gap-1.5 shrink-0 border-l border-slate-150 dark:border-slate-800 pl-2.5">
-                {/* Scroll to Top / Search trigger */}
-                <button
-                  onClick={() => {
-                    triggerHaptic();
-                    const mainElement = document.querySelector('main');
-                    if (mainElement) {
-                      mainElement.scrollTo({ top: 0, behavior: 'smooth' });
-                    }
-                    setShowHeader(true);
-                  }}
-                  aria-label="Scroll to search"
-                  title="Search and Scroll to top"
-                  className="w-9 h-9 bg-slate-100 dark:bg-slate-805 text-slate-600 dark:text-slate-300 rounded-xl flex items-center justify-center transition-all hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-90"
-                >
-                  <span className="material-symbols-outlined text-[18px]">search</span>
-                </button>
-
-                {/* Filter trigger */}
-                <button
-                  onClick={() => {
-                    triggerHaptic();
-                    setShowFilters(true);
-                  }}
-                  aria-label="Trigger filters"
-                  title="Open Filters"
-                  className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-105 active:scale-90 ${
-                    hasActiveFilters
-                      ? 'bg-indigo-50 text-indigo-600 border border-indigo-100 dark:bg-indigo-950/40 dark:text-indigo-400 dark:border-indigo-900'
-                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-[18px]">tune</span>
-                </button>
-
-                {/* Start Selling stuck at top */}
-                {user?.user_type === 'farmer' && (
-                  <button
-                    onClick={() => {
-                      triggerHaptic();
-                      setIsAddModalOpen(true);
-                    }}
-                    aria-label="Add a product listing"
-                    title="Sell Produce"
-                    className="w-9 h-9 bg-primary text-white rounded-xl flex items-center justify-center shadow-md shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">add</span>
-                  </button>
-                )}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
+        <div id="marketplace-category-tabs" className="flex gap-4 overflow-x-auto pt-4 pb-1 no-scrollbar justify-start items-center">
+          {['All Produce', 'Foodstuff', 'Grains & Beans', 'Spices & Pepper', 'Oils', 'Vegetables', 'Fruits', 'Meat & Eggs'].map((cat) => {
+            const count = cat === 'All Produce' 
+              ? totalCount 
+              : (facetCounts?.category[cat] || 0);
+            const isSelected = filters.category === cat;
+            const theme = getCategoryColors(cat, isSelected);
+            return (
+              <button
+                key={cat}
+                onClick={() => {
+                  triggerHaptic();
+                  setFilters({ ...filters, category: cat });
+                }}
+                className="flex flex-col items-center gap-1.5 shrink-0 transition-all group focus:outline-none"
+              >
+                <div className={`relative w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center border transition-all duration-300 ${
+                  isSelected
+                    ? `${theme.activeBg} ${theme.activeBorder} shadow-lg scale-105`
+                    : `${theme.inactiveBg} ${theme.hoverBg} hover:scale-105`
+                }`}>
+                  <span className="material-symbols-outlined text-[18px] sm:text-[22px] transition-transform duration-300 group-hover:scale-110">{getCategoryIcon(cat)}</span>
+                  <span className={`absolute -top-1 -right-1 text-[8px] font-mono font-bold rounded-full px-1.5 py-0.5 border ${
+                    isSelected
+                      ? 'bg-white text-slate-800 border-slate-100'
+                      : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 border-transparent'
+                  }`}>
+                    {count}
+                  </span>
+                </div>
+                
+                {/* Keep icons for small devices, full words for big screens */}
+                <span className={`hidden sm:block text-[11px] font-medium uppercase tracking-wider text-center max-w-[120px] transition-colors mt-0.5 ${
+                  isSelected ? theme.textActive : 'text-slate-500 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-slate-200'
+                }`}>
+                  {cat}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
 
         <div className="flex items-center justify-between gap-4 py-1">
           <button 
