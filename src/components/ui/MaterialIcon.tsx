@@ -220,6 +220,19 @@ const SVG_ICONS: Record<string, string> = {
   open_in_new: '<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3"/>',
   broken_image: '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="21" y1="15" x2="16" y2="10"/><line x1="5" y1="21" x2="16" y2="10"/><line x1="1" y1="1" x2="23" y2="23"/>',
   dark_mode: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+  
+  // Custom newly registered icons to replace fallbacks
+  grain: '<circle cx="12" cy="5" r="1.5"/><circle cx="10" cy="10" r="1.5"/><circle cx="14" cy="9" r="1.5"/><circle cx="9" cy="15" r="1.5"/><circle cx="13" cy="14" r="1.5"/><circle cx="11" cy="19" r="1.5"/>',
+  spa: '<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2.5c0 2-1.5 3.5-2.6 9.2a7 7 0 0 1-5.4 8.3z"/><path d="M19 2.5L9.8 11.7"/>',
+  opacity: '<path d="M12 22a7 7 0 0 0 7-7c0-4.3-7-13-7-13s-7 8.7-7 13a7 7 0 0 0 7 7z"/>',
+  nutrition: '<circle cx="12" cy="14" r="7"/><path d="M12 7c.5-2 2-3 4-3M12 7V2"/>',
+  egg: '<path d="M12 22a8 8 0 0 0 8-8c0-5.5-3.6-12-8-12S4 8.5 4 14a8 8 0 0 0 8 8z"/>',
+  timer_off: '<circle cx="12" cy="12" r="10"/><path d="m9 15 6-6M12 6v6M12 2v2"/><line x1="1" y1="1" x2="23" y2="23"/>',
+  login: '<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/>',
+  devices: '<rect x="2" y="3" width="12" height="11" rx="2"/><rect x="10" y="8" width="12" height="11" rx="2"/><path d="M6 14h4M14 19h4"/>',
+  alternate_email: '<circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"/>',
+  contact_phone: '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/><rect x="14" y="2" width="8" height="8" rx="1"/>',
+  call: '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>',
 };
 
 // Returns raw SVG HTML string formatted correctly to match the exact dimensions/stroke

@@ -146,23 +146,9 @@ function MarketplaceContent() {
   const [showHeader, setShowHeader] = useState(true);
   const lastScrollYRef = useRef(0);
 
-  // Scroll logic for quick hiding header
+  // Keeping header steady and always visible on mobile to prevent layout-shifting feedback loops
   useEffect(() => {
-    const mainElement = document.querySelector('main');
-    if (!mainElement) return;
-
-    const handleScroll = () => {
-      const currentScrollY = mainElement.scrollTop;
-      if (currentScrollY > lastScrollYRef.current && currentScrollY > 150) {
-        setShowHeader(false);
-      } else if (currentScrollY < lastScrollYRef.current || currentScrollY < 10) {
-        setShowHeader(true);
-      }
-      lastScrollYRef.current = currentScrollY;
-    };
-
-    mainElement.addEventListener('scroll', handleScroll, { passive: true });
-    return () => mainElement.removeEventListener('scroll', handleScroll);
+    setShowHeader(true);
   }, []);
 
   // Safe lazy-parsing for user interaction cache
