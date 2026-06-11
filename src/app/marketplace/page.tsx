@@ -229,6 +229,7 @@ function MarketplaceContent() {
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [showComparison, setShowComparison] = useState(false);
   const [runTour, setRunTour] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [recentlyViewed, setRecentlyViewed] = useState<Product[]>([]);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [generatingId, setGeneratingId] = useState<string | null>(null);
@@ -238,6 +239,7 @@ function MarketplaceContent() {
   // Keeping header steady and always visible on mobile to prevent layout-shifting feedback loops
   useEffect(() => {
     setShowHeader(true);
+    setMounted(true);
   }, []);
 
   // Safe lazy-parsing for user interaction cache
@@ -366,22 +368,24 @@ function MarketplaceContent() {
 
   return (
     <div className="space-y-4 sm:space-y-8">
-      <Joyride
-        {...({
-          run: runTour,
-          steps: tourSteps,
-          continuous: true,
-          showProgress: true,
-          showSkipButton: true,
-          callback: handleTourCallback,
-          styles: { 
-            options: { 
-              primaryColor: '#10b981', 
-              zIndex: 1000 
-            } 
-          }
-        } as any)}
-      />
+      {mounted && (
+        <Joyride
+          {...({
+            run: runTour,
+            steps: tourSteps,
+            continuous: true,
+            showProgress: true,
+            showSkipButton: true,
+            callback: handleTourCallback,
+            styles: { 
+              options: { 
+                primaryColor: '#10b981', 
+                zIndex: 1000 
+              } 
+            }
+          } as any)}
+        />
+      )}
       
       <div 
         className="flex flex-col gap-2 border-b border-slate-100 dark:border-white/5 pb-3"
