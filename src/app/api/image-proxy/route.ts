@@ -32,7 +32,11 @@ export async function GET(req: NextRequest) {
       }
     });
   } catch (error: any) {
-    console.error('Image proxy fail:', error);
-    return NextResponse.json({ error: error.message || 'Image Proxy error' }, { status: 500 });
+    console.warn('Image proxy failed, redirecting to original URL:', error);
+    try {
+      return NextResponse.redirect(new URL(imageUrl));
+    } catch {
+      return NextResponse.json({ error: error.message || 'Image Proxy error' }, { status: 500 });
+    }
   }
 }

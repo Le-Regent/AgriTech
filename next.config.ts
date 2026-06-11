@@ -37,7 +37,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' *.google-analytics.com https://*.google.com https://*.gstatic.com; style-src 'self' 'unsafe-inline' fonts.googleapis.com https://fonts.googleapis.com; img-src 'self' blob: data: https:; font-src 'self' fonts.gstatic.com https://fonts.gstatic.com; connect-src 'self' *.supabase.co *.openstreetmap.org *.openweathermap.org https://*.supabase.co https://*.google.com; frame-src 'self' https://*.google.com;",
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' *.google-analytics.com https://*.google.com https://*.gstatic.com; style-src 'self' 'unsafe-inline' fonts.googleapis.com https://fonts.googleapis.com; img-src 'self' blob: data: https:; font-src 'self' fonts.gstatic.com https://fonts.gstatic.com; connect-src 'self' *.supabase.co *.openstreetmap.org *.openweathermap.org https://*.supabase.co https://*.google.com wss://*.supabase.co; frame-src 'self' https://*.google.com;",
           },
         ],
       },
