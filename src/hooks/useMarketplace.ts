@@ -79,12 +79,12 @@ export function useMarketplace() {
         
         // Add all INITIAL_PRODUCTS as baseline
         INITIAL_PRODUCTS.forEach(p => {
-          productMap.set(p.id, p);
+          productMap.set(p.id, { ...p, is_dummy: true });
         });
 
         // Add (or override with) actual customized products query from the PostgreSQL database
         dbProducts.forEach(p => {
-          productMap.set(p.id, p);
+          productMap.set(p.id, { ...p, is_dummy: false });
         });
 
         const mergedList = Array.from(productMap.values());
@@ -102,16 +102,16 @@ export function useMarketplace() {
       if (offlineData) {
         return offlineData;
       }
-      return INITIAL_PRODUCTS;
+      return INITIAL_PRODUCTS.map(p => ({ ...p, is_dummy: true }));
     },
     {
-      fallbackData: INITIAL_PRODUCTS,
+      fallbackData: INITIAL_PRODUCTS.map(p => ({ ...p, is_dummy: true })),
       revalidateOnFocus: false,
       revalidateOnReconnect: true,
     }
   );
 
-  const productsList = allFetchedProducts || INITIAL_PRODUCTS;
+  const productsList = allFetchedProducts || INITIAL_PRODUCTS.map(p => ({ ...p, is_dummy: true }));
 
   // Exercise the Limit/Offset Pagination on the server side (for compliance)
   const offset = (page - 1) * pageSize;
@@ -167,6 +167,13 @@ export function useMarketplace() {
   }, [filters, searchTerm]);
 
   const sortedProducts = [...filteredProducts].sort((a, b) => {
+    // Put uploaded products (is_dummy: false) first, followed by dummy baseline products
+    const aDummy = a.is_dummy ?? false;
+    const bDummy = b.is_dummy ?? false;
+    if (aDummy !== bDummy) {
+      return aDummy ? 1 : -1;
+    }
+
     if (sortBy === 'name-asc') return a.name.localeCompare(b.name);
     if (sortBy === 'price-low') return a.price - b.price;
     if (sortBy === 'price-high') return b.price - a.price;

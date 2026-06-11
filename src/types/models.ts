@@ -50,6 +50,7 @@ export interface Product {
   is_perishable?: boolean;
   expiry_date?: string;
   created_at: string;
+  is_dummy?: boolean;
   // Join fields
   profiles?: User;
 }
