@@ -680,7 +680,17 @@ export const supabaseService = {
   async uploadImage(file: File, bucket: string = 'products') {
     const fileExt = file.name.split('.').pop();
     const fileName = `${Math.random().toString(36).substring(2)}_${Date.now()}.${fileExt}`;
-    const filePath = `${fileName}`;
+    
+    // Attempt to prefix the path with the user ID to support restrictive folder policies
+    let filePath = fileName;
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user?.id) {
+        filePath = `${session.user.id}/${fileName}`;
+      }
+    } catch (e) {
+      console.warn('Could not retrieve user session for storage upload prefix:', e);
+    }
 
     const { data, error } = await supabase.storage
       .from(bucket)
