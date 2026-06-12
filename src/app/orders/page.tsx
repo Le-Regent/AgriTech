@@ -113,7 +113,11 @@ function OrdersContent() {
     let result = [...orders];
     
     if (statusFilter !== 'all') {
-      result = result.filter(o => o.status === statusFilter);
+      if (statusFilter === 'pending') {
+        result = result.filter(o => o.status === 'pending' || o.status === 'ESCROW_HELD');
+      } else {
+        result = result.filter(o => o.status === statusFilter);
+      }
     }
     
     result.sort((a, b) => {
@@ -240,7 +244,8 @@ function OrdersContent() {
               className="bg-transparent text-xs font-bold dark:text-white outline-none border-none cursor-pointer"
             >
               <option value="all">All Statuses</option>
-              <option value="pending">Pending</option>
+              <option value="pending">Pending / Escrow</option>
+              <option value="ESCROW_HELD">Escrow Held</option>
               <option value="processing">Processing</option>
               <option value="shipped">Shipped</option>
               <option value="delivered">Delivered</option>

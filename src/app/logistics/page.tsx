@@ -204,9 +204,10 @@ function LogisticsContent() {
                           <span className={`px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-widest ${
                             shipment.status === 'delivered' ? 'bg-green-50 text-green-600 dark:bg-green-500/10 dark:text-green-400' :
                             shipment.status === 'shipped' ? 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400' :
+                            shipment.status === 'ESCROW_HELD' ? 'bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400' :
                             'bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400'
                           }`}>
-                            {shipment.status}
+                            {shipment.status === 'ESCROW_HELD' ? 'Escrow Held' : shipment.status}
                           </span>
                         </div>
                         <p className="text-[10px] font-black text-slate-400 mt-1 uppercase tracking-widest font-mono">
@@ -231,7 +232,8 @@ function LogisticsContent() {
                       initial={{ width: 0 }}
                       animate={{ 
                         width: shipment.status === 'delivered' ? '100%' : 
-                                shipment.status === 'shipped' ? '50%' : '12%' 
+                                shipment.status === 'shipped' ? '50%' : 
+                                shipment.status === 'processing' ? '25%' : '5%' 
                       }}
                       transition={{ duration: 1.5, ease: "circOut" }}
                     />

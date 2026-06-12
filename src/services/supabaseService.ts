@@ -403,7 +403,7 @@ export const supabaseService = {
         )
       `)
       .eq(user_type === 'buyer' ? 'buyer_id' : 'order_items.products.farmer_id', userId)
-      .in('status', ['processing', 'shipped', 'delivered'])
+      .in('status', ['ESCROW_HELD', 'processing', 'shipped', 'delivered'])
       .order('created_at', { ascending: false });
 
     if (error) throw new Error(error.message);
