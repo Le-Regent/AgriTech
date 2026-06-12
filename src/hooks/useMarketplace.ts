@@ -44,16 +44,16 @@ export function useMarketplace() {
     }
   }, [searchParams]);
 
-  const [localProducts, setLocalProducts] = useState<Product[]>(() => {
-    return INITIAL_PRODUCTS.map(p => ({ ...p, is_dummy: true }));
-  });
+  const [localProducts, setLocalProducts] = useState<Product[]>([]);
 
   useEffect(() => {
     let active = true;
     async function loadCached() {
       const cached = await getFromCache('marketplace_products');
       if (active && cached && cached.length > 0) {
-        setLocalProducts(cached);
+        // filter out any cached dummy products from previous sessions
+        const filteredCached = cached.filter((p: any) => !p.is_dummy);
+        setLocalProducts(filteredCached);
       }
     }
     loadCached();
@@ -87,43 +87,29 @@ export function useMarketplace() {
               description: p.description || '',
               stock_quantity: p.stock_quantity || 0,
               created_at: p.created_at,
-              profiles: p.profiles
+              profiles: p.profiles,
+              is_dummy: false
             }));
           }
         }
 
-        // Deep-merge real database products with INITIAL_PRODUCTS to ensure continuous rich catalogs
-        const productMap = new Map<string, Product>();
-        
-        // Add all INITIAL_PRODUCTS as baseline
-        INITIAL_PRODUCTS.forEach(p => {
-          productMap.set(p.id, { ...p, is_dummy: true });
-        });
-
-        // Add (or override with) actual customized products query from the PostgreSQL database
-        dbProducts.forEach(p => {
-          productMap.set(p.id, { ...p, is_dummy: false });
-        });
-
-        const mergedList = Array.from(productMap.values());
-        
-        if (isOnline && mergedList.length > 0) {
-          await saveToCache('marketplace_products', mergedList, true); // Debounced save to cache
+        if (isOnline && dbProducts.length > 0) {
+          await saveToCache('marketplace_products', dbProducts, true); // Debounced save to cache
         }
         
-        return mergedList;
+        return dbProducts;
       } catch (e) {
         console.error('SWR fetch master list error:', e);
       }
       
       const offlineData = await getFromCache('marketplace_products');
       if (offlineData) {
-        return offlineData;
+        return offlineData.filter((p: any) => !p.is_dummy);
       }
-      return INITIAL_PRODUCTS.map(p => ({ ...p, is_dummy: true }));
+      return [];
     },
     {
-      fallbackData: INITIAL_PRODUCTS.map(p => ({ ...p, is_dummy: true })),
+      fallbackData: [],
       revalidateOnFocus: false,
       revalidateOnReconnect: true,
     }
