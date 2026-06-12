@@ -161,7 +161,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.15, ease: 'easeOut' }}
+              transition={{ duration: 0.08, ease: 'easeOut' }}
               className="max-w-7xl mx-auto w-full pb-32 lg:pb-8"
             >
               {children}
