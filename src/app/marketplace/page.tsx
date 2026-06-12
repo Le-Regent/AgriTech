@@ -402,7 +402,7 @@ function MarketplaceContent() {
         />
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-t border-slate-100/40 dark:border-white/5 pt-1">
-          <div id="marketplace-category-tabs" className="flex gap-1.5 sm:gap-2.5 overflow-x-auto py-0.5 no-scrollbar justify-start items-center flex-1">
+          <div id="marketplace-category-tabs" className="flex gap-2.5 sm:gap-3.5 overflow-x-auto pb-2 pt-1 thin-scrollbar justify-start items-center flex-1">
             {['All Produce', 'Foodstuff', 'Grains & Beans', 'Spices & Pepper', 'Oils', 'Vegetables', 'Fruits', 'Meat & Eggs'].map((cat) => {
               const count = cat === 'All Produce' 
                 ? totalCount 
@@ -416,15 +416,15 @@ function MarketplaceContent() {
                     triggerHaptic();
                     setFilters({ ...filters, category: cat });
                   }}
-                  className="flex flex-row items-center gap-1 shrink-0 transition-all group focus:outline-none"
+                  className="flex flex-row items-center gap-1.5 shrink-0 transition-all group focus:outline-none bg-white dark:bg-slate-900 border border-slate-100 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/10 px-2 sm:px-3 py-1 rounded-full shadow-sm"
                 >
-                  <div className={`relative w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center border transition-all duration-350 ${
+                  <div className={`relative w-7 h-7 sm:w-9 sm:h-9 rounded-full flex items-center justify-center border transition-all duration-350 ${
                     isSelected
-                      ? `${theme.activeBg} ${theme.activeBorder} shadow-md scale-105`
+                      ? `${theme.activeBg} ${theme.activeBorder} shadow-sm scale-105`
                       : `${theme.inactiveBg} ${theme.hoverBg} hover:scale-105`
                   }`}>
-                    <span className="material-symbols-outlined text-[15px] sm:text-[17px] transition-transform duration-300 group-hover:scale-110">{getCategoryIcon(cat)}</span>
-                    <span className={`absolute -top-1 -right-1 text-[7px] sm:text-[8px] font-mono font-bold rounded-full px-1 py-0.1 sm:px-1.5 sm:py-0.5 border ${
+                    <span className="material-symbols-outlined text-[13px] sm:text-[17px] transition-transform duration-300 group-hover:scale-110">{getCategoryIcon(cat)}</span>
+                    <span className={`absolute -top-1 -right-1 text-[6px] sm:text-[8px] font-mono font-bold rounded-full px-1 py-0.1 sm:px-1.5 sm:py-0.5 border ${
                       isSelected
                         ? 'bg-white text-slate-800 border-slate-200'
                         : 'bg-slate-150 dark:bg-slate-750 text-slate-600 dark:text-slate-350 border-transparent'
@@ -433,8 +433,7 @@ function MarketplaceContent() {
                     </span>
                   </div>
                   
-                  {/* Keep icons for small devices, full words for big screens */}
-                  <span className={`hidden sm:block text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-center max-w-[125px] transition-colors ${
+                  <span className={`block text-[9px] sm:text-[11px] font-bold uppercase tracking-wider text-center transition-colors whitespace-nowrap pl-0.5 ${
                     isSelected ? theme.textActive : 'text-slate-500 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-slate-200'
                   }`}>
                     {cat}

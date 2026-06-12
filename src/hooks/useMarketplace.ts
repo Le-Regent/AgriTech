@@ -26,7 +26,7 @@ export function useMarketplace() {
   const [sortBy, setSortBy] = useState<SortOption>('name-asc');
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(12);
+  const [pageSize, setPageSize] = useState(15);
   
   const [filters, setFilters] = useState<FilterState>({
     category: searchParams.get('category') || 'All Produce',
