@@ -25,7 +25,7 @@ export default function VirtualizedItem({
         setIsVisible(entry.isIntersecting);
       },
       {
-        rootMargin: '400px 0px 400px 0px', // Pre-render elements 400px before they enter viewport
+        rootMargin: '800px 0px 800px 0px', // Pre-render elements 800px before they enter viewport
         threshold: 0,
       }
     );
@@ -41,7 +41,7 @@ export default function VirtualizedItem({
       ref={ref} 
       data-virtual-id={id} 
       style={{ minHeight: isVisible ? undefined : `${estimatedHeight}px` }}
-      className="transition-all duration-300"
+      className="w-full"
     >
       {isVisible ? (
         children
