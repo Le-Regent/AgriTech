@@ -131,8 +131,7 @@ export default function AdminEscrowPage() {
         total_amount: totalAmount,
         status: 'pending' as const,
         created_at: new Date().toISOString(),
-        shipping_address: 'Bonamoussadi Douala, Cameroon (MoMo Sandbox)',
-        sender_phone: '237671122334'
+        shipping_address: 'Bonamoussadi Douala, Cameroon (MoMo Sandbox)'
       };
 
       const orderItems = [
