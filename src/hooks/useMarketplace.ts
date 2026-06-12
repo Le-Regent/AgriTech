@@ -44,6 +44,24 @@ export function useMarketplace() {
     }
   }, [searchParams]);
 
+  const [localProducts, setLocalProducts] = useState<Product[]>(() => {
+    return INITIAL_PRODUCTS.map(p => ({ ...p, is_dummy: true }));
+  });
+
+  useEffect(() => {
+    let active = true;
+    async function loadCached() {
+      const cached = await getFromCache('marketplace_products');
+      if (active && cached && cached.length > 0) {
+        setLocalProducts(cached);
+      }
+    }
+    loadCached();
+    return () => {
+      active = false;
+    };
+  }, [getFromCache]);
+
   // Use SWR to load ALL products in background for offline fallback, search indexing, and facet computation
   const { data: allFetchedProducts, error: allProductsError, mutate: mutateAll } = useSWR<Product[]>(
     'marketplace_products_all',
@@ -111,7 +129,13 @@ export function useMarketplace() {
     }
   );
 
-  const productsList = allFetchedProducts || INITIAL_PRODUCTS.map(p => ({ ...p, is_dummy: true }));
+  useEffect(() => {
+    if (allFetchedProducts && allFetchedProducts.length > 0) {
+      setLocalProducts(allFetchedProducts);
+    }
+  }, [allFetchedProducts]);
+
+  const productsList = localProducts;
 
   // Exercise the Limit/Offset Pagination on the server side (for compliance)
   const offset = (page - 1) * pageSize;
@@ -190,7 +214,7 @@ export function useMarketplace() {
 
   return {
     allProducts: productsList,
-    loading: !allFetchedProducts && !allProductsError,
+    loading: !allFetchedProducts && !allProductsError && localProducts.length === 0,
     searchTerm,
     setSearchTerm,
     filters,

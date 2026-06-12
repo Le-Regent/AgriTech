@@ -28,7 +28,7 @@ export default function ProductCard({
       onClick={onClick}
       className={`group bg-white dark:bg-surface-dark rounded-2xl sm:rounded-[2.5rem] border border-slate-100 dark:border-border-dark shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col ${onClick ? 'cursor-pointer' : ''} ${className}`}
     >
-      <div className="aspect-[1.4] xs:aspect-square sm:aspect-square lg:aspect-[4/5] relative overflow-hidden">
+      <div className="aspect-square lg:aspect-[4/5] relative overflow-hidden">
         <ResponsiveImage
           src={product.image_url || 'https://picsum.photos/seed/product/800/1000'}
           alt={`Fresh ${product.name}`}
