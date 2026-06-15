@@ -43,6 +43,11 @@ export default function AdminEscrowPage() {
   const [simulatingHandshake, setSimulatingHandshake] = useState(false);
   const [refundingOrderId, setRefundingOrderId] = useState<string | null>(null);
 
+  // Reconciler custom state
+  const [manualRef, setManualRef] = useState('');
+  const [scanningHistory, setScanningHistory] = useState(false);
+  const [manualSyncing, setManualSyncing] = useState(false);
+
   // Filters State
   const [searchQuery, setSearchQuery] = useState('');
   const [filterFarmer, setFilterFarmer] = useState('');
@@ -77,6 +82,56 @@ export default function AdminEscrowPage() {
   const appendLog = (msg: string) => {
     const timestamp = new Date().toLocaleTimeString();
     setLogs(prev => [...prev, `[${timestamp}] ${msg}`]);
+  };
+
+  const handleScanAndSync = async () => {
+    setScanningHistory(true);
+    appendLog('Starting "Self-Healing Scan" of active Campay gateway transaction logs...');
+    try {
+      const response = await fetch('/api/payment/history', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Server rejected auto-sync history request');
+      }
+
+      appendLog(`✅ Scan Complete! Searched ${data.transactionsChecked} gateway payloads. Auto-healed ${data.reconciledCount} orders, synced ${data.syncedToCloudCount} to Cloud.`);
+      toast.success(`Gateway Sync Successful! Auto-healed ${data.reconciledCount} transactions.`);
+      await loadOrders();
+    } catch (err: any) {
+      appendLog(`❌ Reconciler sync error: ${err.message}`);
+      toast.error(`Scan auto-sync failed: ${err.message}`);
+    } finally {
+      setScanningHistory(false);
+    }
+  };
+
+  const handleVerifyAndSync = async () => {
+    if (!manualRef.trim()) {
+      toast.error('Please enter a valid transaction reference to verify.');
+      return;
+    }
+    setManualSyncing(true);
+    appendLog(`Retrieving transaction status for Reference: ${manualRef.trim()}...`);
+    try {
+      const response = await fetch(`/api/payment/status?reference=${encodeURIComponent(manualRef.trim())}`);
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to query transaction status from gateway');
+      }
+
+      appendLog(`✅ Verified reference status: "${data.status || 'SUCCESSFUL'}". Local tables synchronized.`);
+      toast.success(`Transaction verified! Status: ${data.status}`);
+      setManualRef('');
+      await loadOrders();
+    } catch (err: any) {
+      appendLog(`❌ Reconciler verify conflict: ${err.message}`);
+      toast.error(`Verification sync failed: ${err.message}`);
+    } finally {
+      setManualSyncing(false);
+    }
   };
 
   const loadOrders = async () => {
@@ -664,34 +719,109 @@ export default function AdminEscrowPage() {
           </div>
         </div>
 
-        {/* Informative Side Card on MoMo setup */}
-        <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-150 dark:border-white/5 p-6 flex flex-col justify-between shadow-sm">
-          <div className="space-y-4">
-            <h3 className="text-md font-black uppercase tracking-tight text-slate-950 dark:text-white flex items-center gap-2 italic">
-              <Info size={16} className="text-amber-500" />
-              Developer Escrow Guide
-            </h3>
+        {/* Self-Healing Reconciliation & Escrow Guide Stack */}
+        <div className="flex flex-col gap-6">
+          
+          {/* Self-Healing Reconciliation Engine Card */}
+          <div className="bg-slate-900 border border-emerald-500/30 rounded-[2.5rem] p-6 shadow-xl relative overflow-hidden flex flex-col justify-between">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
             
-            <div className="space-y-3.5 text-xs">
-              <div className="p-3 bg-indigo-50 dark:bg-indigo-950/25 border border-indigo-150 dark:border-indigo-900/30 rounded-2xl text-[11px] text-indigo-900 dark:text-indigo-400">
-                <span className="font-black uppercase text-[8px] tracking-wider block mb-0.5">Admin Security Control</span>
-                As an escrow auditor, you hold authority to unlock payout loops, adjudicate open buyer claims, or override failed telecom operations securely.
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 border-b border-white/5 pb-3">
+                <RefreshCw size={16} className={`text-emerald-400 ${scanningHistory ? 'animate-spin' : ''}`} />
+                <h3 className="text-sm font-black uppercase tracking-wider text-emerald-400 italic">
+                  Self-Healing Reconciler
+                </h3>
               </div>
 
-              <div className="space-y-2 text-[11px]">
-                <p className="text-slate-600 dark:text-slate-400">
-                  <strong>Bulk Release:</strong> You can select multiple delivered handshake orders from the ready tab and payout MTN/Orange wallets in a single click.
-                </p>
-                <p className="text-slate-600 dark:text-slate-400">
-                  <strong>Immediate Reversal:</strong> Reversal button calls the verified Campay refund pathway, releasing the frozen amount back to buyers.
-                </p>
+              <p className="text-[11px] text-slate-300 leading-relaxed">
+                Scan all active Cameroon mobile money gateway archives and automatically heal pending ledger transactions or mismatches.
+              </p>
+
+              {/* Instant Scan (Auto-Sync) */}
+              <div className="space-y-2 pt-2">
+                <button
+                  type="button"
+                  onClick={handleScanAndSync}
+                  disabled={scanningHistory}
+                  className="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white hover:shadow-lg hover:shadow-emerald-500/10 disabled:bg-slate-800 disabled:text-slate-500 text-[10px] font-black uppercase tracking-widest rounded-2xl transition-all cursor-pointer flex items-center justify-center gap-2 border border-emerald-400/20"
+                >
+                  <RefreshCw size={12} className={scanningHistory ? 'animate-spin' : ''} />
+                  {scanningHistory ? 'Scanning Gateway Logs...' : 'Scan & Sync Gateway'}
+                </button>
               </div>
+
+              <div className="relative flex py-2 items-center">
+                <div className="flex-grow border-t border-white/5"></div>
+                <span className="flex-shrink mx-3 text-[9px] font-black text-slate-500 uppercase tracking-widest">OR</span>
+                <div className="flex-grow border-t border-white/5"></div>
+              </div>
+
+              {/* Manual Reconciler Form */}
+              <div className="space-y-2">
+                <label className="text-[9px] font-black uppercase text-slate-400 tracking-wider block" htmlFor="manual-ref-input">
+                  Manual Verification Sync
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    id="manual-ref-input"
+                    type="text"
+                    placeholder="Paste Reference (e.g., 91d17169...)"
+                    value={manualRef}
+                    onChange={(e) => setManualRef(e.target.value)}
+                    className="flex-1 bg-slate-950 border border-white/10 rounded-xl px-3 py-2 text-xs font-mono text-white text-ellipsis overflow-hidden focus:outline-none focus:border-emerald-500/50"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleVerifyAndSync}
+                    disabled={manualSyncing}
+                    className="px-4 py-2 bg-slate-800 hover:bg-slate-700 disabled:bg-slate-900 text-white text-[9px] font-black uppercase tracking-widest rounded-xl transition-all cursor-pointer"
+                  >
+                    {manualSyncing ? 'Syncing...' : 'Sync'}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-[9px] text-slate-400">
+              <span className="flex items-center gap-1 text-slate-500">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                Dual-Layer DB Active
+              </span>
+              <span className="font-mono text-[8px]">Ref: 91d17169... compatible</span>
             </div>
           </div>
 
-          <div className="mt-4 pt-4 border-t border-slate-50 dark:border-white/5 text-center text-[10px] text-slate-400">
-            SafePay operates fully validated escrow safeguards for all Cameroonian trades.
+          {/* Informative Side Card on MoMo setup */}
+          <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-150 dark:border-white/5 p-6 flex flex-col justify-between shadow-sm">
+            <div className="space-y-4">
+              <h3 className="text-md font-black uppercase tracking-tight text-slate-950 dark:text-white flex items-center gap-2 italic">
+                <Info size={16} className="text-amber-500" />
+                Developer Escrow Guide
+              </h3>
+              
+              <div className="space-y-3.5 text-xs">
+                <div className="p-3 bg-indigo-50 dark:bg-indigo-950/25 border border-indigo-150 dark:border-indigo-900/30 rounded-2xl text-[11px] text-indigo-900 dark:text-indigo-400">
+                  <span className="font-black uppercase text-[8px] tracking-wider block mb-0.5">Admin Security Control</span>
+                  As an escrow auditor, you hold authority to unlock payout loops, adjudicate open buyer claims, or override failed telecom operations securely.
+                </div>
+
+                <div className="space-y-2 text-[11px]">
+                  <p className="text-slate-600 dark:text-slate-400">
+                    <strong>Bulk Release:</strong> You can select multiple delivered handshake orders from the ready tab and payout MTN/Orange wallets in a single click.
+                  </p>
+                  <p className="text-slate-600 dark:text-slate-400">
+                    <strong>Immediate Reversal:</strong> Reversal button calls the verified Campay refund pathway, releasing the frozen amount back to buyers.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4 pt-4 border-t border-slate-50 dark:border-white/5 text-center text-[10px] text-slate-400">
+              SafePay operates fully validated escrow safeguards for all Cameroonian trades.
+            </div>
           </div>
+
         </div>
 
       </div>
