@@ -1,0 +1,11 @@
+{
+  "name": "KamerFresh",
+  "description": "Connecting Cameroon's farmers directly with buyers via AI-powered quality tracking, secure escrow payments, and real-time logistics transparency.",
+  "requestFramePermissions": [
+    "camera",
+    "geolocation"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
