@@ -17,18 +17,22 @@ export async function POST(req: Request) {
     payload = JSON.parse(rawBody);
   } catch (err: any) {
     await logPaymentEvent('WEBHOOK_MALFORMED_PAYLOAD', {
-      error: err.message,
+      error: err?.message || 'Error parsing body',
       duration_ms: Date.now() - startTime
     });
     return NextResponse.json({ error: 'Malformed JSON body' }, { status: 400 });
   }
 
-  const { status, external_reference, reference, amount } = payload || {};
+  // Support both snake_case and camelCase or standard variations
+  const status = (payload?.status || '').toUpperCase();
+  const external_reference = payload?.external_reference || payload?.externalReference || payload?.external_ref;
+  const reference = payload?.reference || payload?.transaction_reference || payload?.ref;
+  const amount = payload?.amount || payload?.amount_paid;
 
   try {
     console.log('Campay Webhook Received:', payload);
 
-    if (status === 'SUCCESSFUL') {
+    if (status === 'SUCCESSFUL' || status === 'SUCCESS') {
       // 1. Update Order Status to ESCROW_HELD
       const { error: orderError } = await supabase
         .from('orders')

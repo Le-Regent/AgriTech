@@ -42,40 +42,66 @@ The application is fully hosted on **Vercel's Edge Serverless Network**:
 
 ---
 
-## 📝 Dissertation Research Chapters
-This codebase is supplemented by a complete research dissertation, providing extensive benchmarks for low-latency systems in limited access zones:
-* [CHAPTER 1: INTRODUCTION](./CHAPTER_1_INTRODUCTION.md)
-* [CHAPTER 2: LITERATURE REVIEW](./CHAPTER_2_LITERATURE_REVIEW.md)
-* [CHAPTER 3: MATERIALS AND METHODS](./CHAPTER_3_MATERIALS_AND_METHODS.md)
-* [CHAPTER 4: RESULTS AND DISCUSSIONS](./CHAPTER_4_RESULTS_AND_DISCUSSIONS.md)
-* [RESEARCH_DOCUMENT.md](./RESEARCH_DOCUMENT.md)
-* [SRS.md](./SRS.md)
-* [CODEBASE.md](./CODEBASE.md)
-* [PROGRESS.md](./PROGRESS.md)
-* [DATABASE_GUIDE.md](./DATABASE_GUIDE.md)
+## 📝 Technical Documentation & Guides
+This codebase includes several technical guides to help with ongoing development, system architecture, and maintenance:
+* [CODEBASE.md](./CODEBASE.md) - Codebase folder structure and key file roles.
+* [DATABASE_GUIDE.md](./DATABASE_GUIDE.md) - Database schema design, querying patterns, and security (RLS).
+* [PAYMENT_SYSTEM.md](./PAYMENT_SYSTEM.md) - Payment system workflow, integration parameters, and event logging.
+* [SECURITY.md](./SECURITY.md) - Security guidelines and policies.
+* [FOLDER_STRUCTURE.md](./FOLDER_STRUCTURE.md) - Comprehensive directory layout references.
 
 ---
 
-## ⚙️ Local Development Setup
+## ⚙️ Local Development Setup & Configuration
 
-1. **Clone & Install packages:**
-   ```bash
-   npm install
-   ```
-2. **Environment Configuration:**
-   Configure a `.env` file referencing variables defined in `.env.example`:
-   ```env
-   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_client_key
-   GEMINI_API_KEY=your_google_genai_key
-   ```
-3. **Boot Development Environment:**
-   ```bash
-   npm run dev
-   ```
-   Open `http://localhost:3000` to browse.
+Follow these steps to set up the development environment locally:
 
-4. **Compile Build Script:**
-   ```bash
-   npm run build
-   ```
+### 1. Install Dependencies
+Install all required Node.js packages:
+```bash
+npm install
+```
+
+### 2. Configure Environment Variables
+Copy the template file `.env.example` to create your local `.env` configuration:
+```bash
+cp .env.example .env
+```
+
+Now, populate the `.env` file with your credentials. Below is a detailed breakdown of how each variable is implemented and where to obtain them:
+
+#### 🔹 Supabase Configuration (Backend & Real-Time)
+The platform uses Supabase for user authentication, PostgreSQL database storage, and real-time WebSockets.
+*   `NEXT_PUBLIC_SUPABASE_URL`: Your Supabase Project URL (found under **Project Settings > API** in your Supabase dashboard).
+*   `NEXT_PUBLIC_SUPABASE_ANON_KEY`: The anonymous client key used by the Next.js frontend to securely access database tables adhering to Row-Level Security (RLS) policies.
+*   `SUPABASE_SERVICE_ROLE_KEY`: A high-privilege administrative key used **strictly server-side** for admin operations (e.g., executing system overrides, database triggers, or bypasses). *Never expose this key on the client.*
+
+#### 🔹 Generative AI (Gemini 3.5 Flash)
+*   `GEMINI_API_KEY`: Used for crop disease diagnosis and botanical identification. This is a private server-side key obtained from Google AI Studio. It is accessed exclusively via the Next.js API routes (`/api/ai/*`) to prevent browser-side exposure.
+
+#### 🔹 Weather & Agronomic Insights
+*   `OPENWEATHER_API_KEY`: Used to query high-fidelity forecasts and environmental indicators for farmers. Get this from your OpenWeather account dashboard.
+
+#### 🔹 Mobile Money Payments (Campay API)
+Campay is integrated to process Cameroon mobile money (MTN / Orange) transactions.
+*   `CAMPAY_APP_ID`: Your Campay Application ID.
+*   `CAMPAY_APP_USERNAME`: Your Campay API username.
+*   `CAMPAY_APP_PASSWORD`: Your Campay API password.
+*   `CAMPAY_PERMANENT_TOKEN`: Your permanent API access token (used in headers to authenticate requests securely).
+*   `CAMPAY_WEBHOOK_SECRET`: Secure cryptographic token used to verify that inbound transaction callbacks to `/api/payment/webhook` originate from Campay.
+*   `CAMPAY_ENVIRONMENT`: Set to `dev` for sandbox testing or `prod` for live transactions.
+
+---
+
+### 3. Start Development Server
+Boot the local Next.js development server:
+```bash
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+### 4. Build & Production Verification
+Verify that the TypeScript compiler and Next.js bundle successfully compile without errors:
+```bash
+npm run build
+```
